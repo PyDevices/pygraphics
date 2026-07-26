@@ -19,7 +19,7 @@ assert changed == Area(10, 10, 40, 24)
 ## Reference snapshot
 
 - Release line: **unreleased**
-- Source commit: [`1da33021c74a2c72eb98babf88c28a194d0c3552`](https://github.com/PyDevices/graphics/tree/1da33021c74a2c72eb98babf88c28a194d0c3552)
+- Source commit: [`bcaf65f4b2f43b4b0316ce2525e89abed7f7c331`](https://github.com/PyDevices/graphics/tree/bcaf65f4b2f43b4b0316ce2525e89abed7f7c331)
 - License: **MIT**
 - Adapter: **CPython binding tables plus public C headers**
 - Python API entries indexed: **136**
