@@ -36,7 +36,7 @@ One tag `vX.Y.Z` publishes:
 1. **graphics-cmod** — `publish-testpypi.yml` (cibuildwheel)
 2. **pydisplay-graphics** + MIP — `publish-micropython-lib.yml` (micropython-lib + TestPyPI + gh-pages)
 
-See `PUBLISHING.md`. Next shared version continues the `graphics-cmod` line
+See `docs/PUBLISHING.md`. Next shared version continues the `graphics-cmod` line
 (`v0.0.9` → `v0.0.10`).
 
 ## After C changes

@@ -125,7 +125,7 @@ Sync gaps with Python tree: add `RGB888` and `ellipse` to both `__all__` lists w
 ### Phase 7 — Integration & cleanup
 
 - [ ] Delete obsolete: `graphics_bundle.c`, `graphics_native_cpy.c`, `gfx_area_mp.c` (merged), entire `py/` tree
-- [ ] Update README.md, PUBLISHING.md
+- [ ] Update README.md, docs/PUBLISHING.md
 - [ ] `pip install -e .` → `import graphics` is C only
 - [ ] Rebuild MP unix: `build_mp.sh (optional workspace wrapper) --port unix --variant standard`
 - [ ] Run `test_area.py`, `test_graphics.py`, `test_subclass.py`
