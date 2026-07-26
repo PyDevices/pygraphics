@@ -1,22 +1,25 @@
+# Shared minimum (PyDevices package / cmod repos)
 .venv/
 __pycache__/
 *.py[cod]
-*.o
-*.a
-*.so
-*.pyd
-*.egg
 *.egg-info/
 .eggs/
 build/
 dist/
-wheelhouse/
-VERSION
-
-docs/node_modules/
-docs/dist/
+*.so
+*.pyd
 
 # Cursor IDE throwaways (do not ignore the whole .cursor/ tree)
 .cursor/debug*
 .cursor/plans/
+
+# Repo-specific
+*.o
+*.a
+*.egg
+wheelhouse/
 wheels/
+# Local packaging stamp written by build/publish helpers (see AGENTS.md)
+VERSION
+docs/node_modules/
+docs/dist/
