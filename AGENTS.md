@@ -2,7 +2,7 @@
 
 Native and pure-Python **graphics** (`import graphics`) for MicroPython,
 CircuitPython, and CPython. Prefer `graphics-cmod` on desktop/Android when
-available; otherwise `graphics-py` / MIP `graphics`.
+available; otherwise `pydisplay-graphics` / MIP `graphics`.
 
 ## Layout
 
@@ -33,7 +33,7 @@ PYTHONPATH=lib .venv/bin/python -c "import graphics; assert graphics.implementat
 One tag `vX.Y.Z` publishes:
 
 1. **graphics-cmod** — `publish-testpypi.yml` (cibuildwheel)
-2. **graphics-py** + MIP — `publish-micropython-lib.yml` (micropython-lib + TestPyPI + gh-pages)
+2. **pydisplay-graphics** + MIP — `publish-micropython-lib.yml` (micropython-lib + TestPyPI + gh-pages)
 
 See `PUBLISHING.md`. Next shared version continues the `graphics-cmod` line
 (`v0.0.9` → `v0.0.10`).
