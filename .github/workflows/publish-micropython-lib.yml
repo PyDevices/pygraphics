@@ -1,4 +1,4 @@
-# Publish pure-Python graphics to micropython-lib, MIP index, and TestPyPI (graphics-py).
+# Publish pure-Python graphics to micropython-lib, MIP index, and TestPyPI (pydisplay-graphics).
 # Native graphics-cmod wheels are published by publish-testpypi.yml on the same tag.
 #
 # Release trigger: push tag vX.Y.Z (see scripts/publish_release_tag.sh).
@@ -24,7 +24,7 @@ on:
         type: boolean
         default: true
       upload_testpypi:
-        description: Upload graphics-py wheels to TestPyPI
+        description: Upload pydisplay-graphics wheels to TestPyPI
         type: boolean
         default: false
       publish_mip_index:
@@ -81,7 +81,7 @@ jobs:
             VERSION="$(normalize "$TAG")"
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Publishing graphics-py / MIP release $VERSION"
+          echo "Publishing pydisplay-graphics / MIP release $VERSION"
 
       - name: Verify publish secrets
         env:
