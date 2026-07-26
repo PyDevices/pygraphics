@@ -5,6 +5,13 @@ Extends MicroPython's ``framebuf`` with shape helpers, fonts, image loaders, and
 ``Area`` bounding boxes for partial updates.  On CPython and CircuitPython the
 built-in pure-Python ``framebuf`` fallback is used automatically.
 
+Framebuffer format constants (``FrameBuffer`` ``format`` argument):
+
+* ``MONO_VLSB``, ``MONO_HLSB``, ``MONO_HMSB`` — 1-bit monochrome
+* ``GS2_HMSB``, ``GS4_HMSB``, ``GS8`` — 2-, 4-, and 8-bit greyscale
+* ``RGB565`` — 16-bit color (MicroPython ``framebuf``)
+* ``RGB888`` — 24-bit color (pygraphics extension)
+
 Quick start::
 
     import pygraphics
@@ -75,6 +82,7 @@ __all__ = [
     "MONO_HMSB",
     "MONO_VLSB",
     "RGB565",
+    "RGB888",
     "Area",
     "ClipContext",
     "ClippedCanvas",
