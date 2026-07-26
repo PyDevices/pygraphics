@@ -154,6 +154,26 @@ class Font:
     """
 
     def __init__(self, font_data=None, height=None, cached=True):
+        """Load a romfont from a path, ``memoryview``, or embedded default.
+
+        Binary font layout: 256 glyphs in ASCII order, one byte per pixel row
+        per glyph (fonts up to 8 pixels wide). If ``height`` is omitted and
+        ``font_data`` is a path like ``font_8x14.bin``, height is taken from the
+        name; for a ``memoryview``, height is ``len(data) // 256``.
+
+        Args:
+            font_data (str | memoryview): Path to a ``.bin`` font file, or a
+                ``memoryview`` of glyph bytes. Default uses the embedded font
+                for ``height`` (or 8×8).
+            height (int): Glyph height in pixels. Overrides height inferred from
+                the file name when both are set.
+            cached (bool): If True (default), read the whole file into memory.
+                If False, seek the open file for each glyph row.
+
+        Raises:
+            FileNotFoundError: If ``font_data`` is a path that cannot be opened.
+            RuntimeError: If the file size does not match the expected font size.
+        """
         # Optionally specify font_data to override the font data to use (default
         # is _font_8x8.FONT).  font_data may be a memoryview or a string path to a
         # font file.  The font format is a binary file with the following
@@ -326,6 +346,9 @@ class Font:
         Args:
             text (str): The text to measure.
             scale (int): The scale factor to measure the text at.  Default is 1.
+
+        Returns:
+            int: Width in pixels.
         """
         return len(text) * self._font_width * scale
 
