@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Generate C font headers from pydisplay ``lib/graphics/_font_8x*.py`` romfont data.
+"""Generate C font headers from ``lib/graphics/_font_8x*.py`` romfont data.
 
-Canonical font bytes live in pydisplay; this script writes ``font_8x8.h``,
-``font_8x14.h``, and ``font_8x16.h`` under ``include/``.
+Canonical font bytes live in the pure-Python package; this script writes
+``font_8x8.h``, ``font_8x14.h``, and ``font_8x16.h`` under ``include/``.
 
 Usage (from repo root)::
 
     python3 scripts/sync_fonts.py
     python3 scripts/sync_fonts.py --check
-
-Default pydisplay path: ``../../pydisplay`` relative to this graphics repo.
 """
 
 from __future__ import annotations
@@ -22,7 +20,7 @@ import sys
 
 _GRAPHICS_DIR = Path(__file__).resolve().parents[1]
 _INCLUDE_DIR = _GRAPHICS_DIR / "include"
-_DEFAULT_PYDISPLAY = _GRAPHICS_DIR.parent.parent / "pydisplay"
+_LIB_GRAPHICS = _GRAPHICS_DIR / "lib" / "graphics"
 
 
 def _load_font_bytes(py_path: Path) -> bytes:
@@ -55,7 +53,7 @@ def _render_header(name: str, array_name: str, data: bytes, height: int) -> str:
 #define {guard}
 #include <stdint.h>
 
-/* romfont from pydisplay src/lib/graphics/_font_{name.lower()}.py ({height}px, 256 glyphs) */
+/* romfont from lib/graphics/_font_{name.lower()}.py ({height}px, 256 glyphs) */
 static const uint8_t {array_name}[] = {{
 {_format_c_array(data)}
 }};
@@ -67,11 +65,11 @@ static const uint8_t {array_name}[] = {{
 """
 
 
-def sync_fonts(*, pydisplay: Path, check: bool = False) -> None:
+def sync_fonts(*, check: bool = False) -> None:
     fonts = (
-        ("8X8", "font_8x8", 8, pydisplay / "src/lib/graphics/_font_8x8.py"),
-        ("8X14", "font_8x14", 14, pydisplay / "src/lib/graphics/_font_8x14.py"),
-        ("8X16", "font_8x16", 16, pydisplay / "src/lib/graphics/_font_8x16.py"),
+        ("8X8", "font_8x8", 8, _LIB_GRAPHICS / "_font_8x8.py"),
+        ("8X14", "font_8x14", 14, _LIB_GRAPHICS / "_font_8x14.py"),
+        ("8X16", "font_8x16", 16, _LIB_GRAPHICS / "_font_8x16.py"),
     )
     errors = []
     for c_name, array_name, height, py_path in fonts:
@@ -102,15 +100,9 @@ def sync_fonts(*, pydisplay: Path, check: bool = False) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--pydisplay",
-        type=Path,
-        default=_DEFAULT_PYDISPLAY,
-        help="path to pydisplay repo (default: ../../pydisplay)",
-    )
     parser.add_argument("--check", action="store_true", help="fail if headers are missing or stale")
     args = parser.parse_args()
-    sync_fonts(pydisplay=args.pydisplay.resolve(), check=args.check)
+    sync_fonts(check=args.check)
 
 
 if __name__ == "__main__":

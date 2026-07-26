@@ -1,35 +1,47 @@
 # AGENTS.md — graphics
 
-Native all-C **graphics** module for MicroPython, CircuitPython, and CPython
-(`import graphics`). Prefer this wheel on desktop/Android when available; the
-pure-Python alternative is pydisplay's `src/lib/graphics`.
+Native and pure-Python **graphics** (`import graphics`) for MicroPython,
+CircuitPython, and CPython. Prefer `graphics-cmod` on desktop/Android when
+available; otherwise `graphics-py` / MIP `graphics`.
 
 ## Layout
-
-MicroPython-style usermod layout (same pattern as sibling `usdl2`):
 
 - Root: `micropython.mk`, `micropython.cmake`, `circuitpython.mk`, `setup.py`,
   patch scripts — build glue stays here for `USER_C_MODULES` discovery
 - `src/` — all `.c` sources (shared core + MP/CP bindings + CPython extension)
 - `include/` — shared headers (`gfx_*.h`, `font_8x*.h`, `graphics_qstrdefs.h`)
-- `tests/` — smoke and parity scripts
+- `lib/graphics/` — pure-Python package (same public API as the cmod)
+- `tests/` — native smoke and parity scripts
 - No `.c` / `.h` at repo root
 
 ## Smoke
 
 ```bash
+# native
 python3 -m venv .venv
+echo 0.0.0 > VERSION
 .venv/bin/pip install -e .
 .venv/bin/python tests/test_area.py
 .venv/bin/python tests/test_graphics.py
-.venv/bin/python tests/test_subclass.py
+
+# pure Python
+PYTHONPATH=lib .venv/bin/python -c "import graphics; assert graphics.implementation() == 'graphics_python'"
 ```
 
-MicroPython / CircuitPython: build via cmods `./build_mp.sh` /
-`lv_circuitpython_mod/build_cp.sh`, then run the same scripts under `tests/`.
+## Publishing
+
+One tag `vX.Y.Z` publishes:
+
+1. **graphics-cmod** — `publish-testpypi.yml` (cibuildwheel)
+2. **graphics-py** + MIP — `publish-micropython-lib.yml` (micropython-lib + TestPyPI + gh-pages)
+
+See `PUBLISHING.md`. Next shared version continues the `graphics-cmod` line
+(`v0.0.9` → `v0.0.10`).
 
 ## After C changes
 
-Refresh pydisplay’s committed runtimes (desktop bins + PyScript vendor wasm)
-with `../build_pydisplay_runtimes.sh` from the cmods workspace root when the
-usermod is linked into those interpreters.
+Refresh pydisplay’s committed runtimes with `../build_pydisplay_runtimes.sh`
+from the cmods workspace root when the usermod is linked into those interpreters.
+
+Font C headers: `python3 scripts/sync_fonts.py` (source of truth is
+`lib/graphics/_font_8x*.py`).
