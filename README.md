@@ -76,10 +76,10 @@ MIT (framebuf algorithms derived from MicroPython `extmod/modframebuf.c`, Damien
 ```
 graphics/
   micropython.mk / micropython.cmake / circuitpython.mk / setup.py
-  include/                 # C headers (gfx_*.h, font_8x*.h, qstrs)
-  src/                     # C sources (core + MP/CP/CPython bindings)
+  src/                     # C sources + headers (gfx_*.h, font_8x*.h, qstrs)
   lib/graphics/            # pure-Python package (import graphics)
   tests/                   # native smoke / parity tests
+  tools/                   # developer benchmarks / helpers
   docs/ scripts/ web/
 ```
 

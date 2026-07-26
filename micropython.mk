@@ -5,7 +5,7 @@
 
 GRAPHICS_MOD_DIR := $(USERMOD_DIR)
 
-CFLAGS_USERMOD += -I$(GRAPHICS_MOD_DIR)/include -Wno-unused-function -Wno-sign-compare -Wno-unused-const-variable
+CFLAGS_USERMOD += -I$(GRAPHICS_MOD_DIR)/src -Wno-unused-function -Wno-sign-compare -Wno-unused-const-variable
 # math: cosf/sinf etc.
 # - mimxrt/samd: bare `ld` — absolute libm.a in LDFLAGS
 # - stm32: CROSS_COMPILE is set *after* py.mk, so $(CC) here is the host
