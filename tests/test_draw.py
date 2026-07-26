@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: 2026 Brad Barnett
 #
 # SPDX-License-Identifier: MIT
-"""Tests for the ``graphics.Draw`` convenience wrapper.
+"""Tests for the ``pygraphics.Draw`` convenience wrapper.
 
-``Draw`` binds a canvas once and forwards each call to ``graphics._shapes`` /
-``graphics._font``, returning the ``Area`` bounding box.
+``Draw`` binds a canvas once and forwards each call to ``pygraphics._shapes`` /
+``pygraphics._font``, returning the ``Area`` bounding box.
 """
 
 import unittest
@@ -12,7 +12,7 @@ import unittest
 import _env  # noqa: F401
 from _support import count_set, make_fb
 
-from graphics import Area, Draw
+from pygraphics import Area, Draw
 
 _WHITE = 0xFFFF
 

@@ -1,14 +1,14 @@
 # SPDX-FileCopyrightText: 2026 Brad Barnett
 #
 # SPDX-License-Identifier: MIT
-"""Tests for ``graphics`` text rendering (``Font`` and the ``text*`` helpers)."""
+"""Tests for ``pygraphics`` text rendering (``Font`` and the ``text*`` helpers)."""
 
 import unittest
 
 import _env  # noqa: F401
 from _support import count_set, make_fb
 
-from graphics import Area, Font, text, text8, text14, text16
+from pygraphics import Area, Font, text, text8, text14, text16
 
 
 class TestFontObject(unittest.TestCase):

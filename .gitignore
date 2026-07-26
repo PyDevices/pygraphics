@@ -21,5 +21,6 @@ wheelhouse/
 wheels/
 # Local packaging stamp written by build/publish helpers (see AGENTS.md)
 VERSION
-docs/node_modules/
-docs/dist/
+tools/sourcey-api/node_modules/
+tools/sourcey-api/dist/
+site/

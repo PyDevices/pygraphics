@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Sync graphics into PyDevices/micropython-lib, build TestPyPI wheels, push MIP index.
+# Sync pygraphics into PyDevices/micropython-lib, build TestPyPI wheels, push MIP index.
 #
 # CI: MICROPYTHON_LIB_DIR=../micropython-lib ./scripts/publish_micropython_lib.sh --push
-# MIP: mip.install("graphics", index="https://PyDevices.github.io/micropython-lib/mip/PyDevices")
+# MIP: mip.install("pygraphics", index="https://PyDevices.github.io/micropython-lib/mip/PyDevices")
 
 set -euo pipefail
 
@@ -16,7 +16,7 @@ usage() {
     cat <<'EOF'
 Usage: ./scripts/publish_micropython_lib.sh [OPTION]
 
-Copy graphics lib/ into micropython-lib, optionally upload TestPyPI wheels,
+Copy pygraphics lib/ into micropython-lib, optionally upload TestPyPI wheels,
 then commit (and optionally push) on the PyDevices branch.
 
 Options:
@@ -83,15 +83,15 @@ resolve_version() {
 VERSION="$(resolve_version)" || exit 1
 echo "Release version: $VERSION"
 
-DESCRIPTION_PREFIX="graphics"
+DESCRIPTION_PREFIX="pygraphics"
 AUTHOR="Brad Barnett <contact@pydevices.com>"
 LICENSE="MIT"
-BASENAME=graphics
-PYPI_NAME=pydisplay-graphics
+BASENAME=pygraphics
+PYPI_NAME=pygraphics
 DEST_REPO="${MICROPYTHON_LIB_DIR:-$SOURCE_REPO/../micropython-lib}"
 DEST_REPO="$(cd "$DEST_REPO" 2>/dev/null && pwd || echo "$DEST_REPO")"
 export MICROPYTHON_LIB_DIR="$DEST_REPO"
-SOURCE_DIR=$SOURCE_REPO/lib/graphics
+SOURCE_DIR=$SOURCE_REPO/lib/pygraphics
 DEST_DIR=$DEST_REPO/micropython/$BASENAME
 PYPI_DIR=$SOURCE_REPO/wheels
 README_FULL_PATH=$SOURCE_REPO/README.md
@@ -152,7 +152,7 @@ rsync -a --delete "${RSYNC_EXCLUDES[@]}" "$SOURCE_DIR/" "$DEST_DIR/$BASENAME/"
 
 cat <<EOF > "$DEST_DIR/manifest.py"
 metadata(
-    description="Pure-Python graphics for MicroPython/CircuitPython/CPython (FrameBuffer, Draw, fonts); import as graphics",
+    description="Pure-Python pygraphics for MicroPython/CircuitPython/CPython (FrameBuffer, Draw, fonts); import as pygraphics",
     version="$VERSION",
     author="$AUTHOR",
     license="$LICENSE",
@@ -163,6 +163,7 @@ EOF
 
 # Retire the legacy pydisplay/graphics tree after extraction.
 LEGACY_DIR="$DEST_REPO/micropython/pydisplay/graphics"
+LEGACY_DIR2="$DEST_REPO/micropython/graphics"
 if [[ -d "$LEGACY_DIR" ]]; then
     rm -rf "$LEGACY_DIR"
 fi

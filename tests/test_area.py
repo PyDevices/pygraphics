@@ -8,7 +8,7 @@ for _p in list(sys.path):
     if _p.endswith("/graphics") and "repos" in _p:
         sys.path.remove(_p)
 
-from graphics import Area
+from pygraphics import Area
 
 assert Area((5, 6, 7, 8)) == Area(5, 6, 7, 8)
 a = Area(0, 0, 10, 10)

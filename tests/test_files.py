@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Brad Barnett
 #
 # SPDX-License-Identifier: MIT
-"""Tests for ``graphics`` image file I/O (save / from_file and the converters).
+"""Tests for ``pygraphics`` image file I/O (save / from_file and the converters).
 
 Covers the formats whose pure-Python read/write paths round-trip cleanly on
 CPython: PBM (MONO_HLSB), PGM (grayscale), and BMP (RGB565).
@@ -14,7 +14,7 @@ import unittest
 
 import _env  # noqa: F401
 
-from graphics import (
+from pygraphics import (
     BMP565,
     GS2_HMSB,
     GS4_HMSB,
@@ -169,7 +169,7 @@ class TestConverters(_TmpDirTest):
 
 class TestBmp565(_TmpDirTest):
     def _write_minimal_bmp(self, path, width, height, pixels):
-        from graphics._bmp565 import write_bmp565_file
+        from pygraphics._bmp565 import write_bmp565_file
 
         with open(path, "wb") as f:
             write_bmp565_file(f, pixels, width, height)

@@ -1,11 +1,11 @@
 # SPDX-FileCopyrightText: 2026 Brad Barnett
 #
 # SPDX-License-Identifier: MIT
-"""Tests for the module-level drawing primitives in ``graphics._shapes``.
+"""Tests for the module-level drawing primitives in ``pygraphics._shapes``.
 
 These are the functions re-exported from the package top level (``hline``,
 ``rect``, ``circle`` ...). They take the canvas as the first argument and
-return an :class:`graphics.Area` bounding box.
+return an :class:`pygraphics.Area` bounding box.
 """
 
 from array import array
@@ -14,7 +14,7 @@ import unittest
 import _env  # noqa: F401
 from _support import count_set, make_fb
 
-from graphics import (
+from pygraphics import (
     Area,
     arc,
     blit,

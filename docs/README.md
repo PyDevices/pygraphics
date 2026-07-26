@@ -1,7 +1,7 @@
 # API reference site
 
 This directory contains the reproducible Sourcey reference for the native
-`graphics` module. The generator reads the CPython binding tables and public C
+`pygraphics` module. The generator reads the CPython binding tables and public C
 headers at the checked-out commit, then emits source-linked Markdown for the
 Python and native integration surfaces.
 
@@ -17,4 +17,4 @@ canonical URLs, and integration with the existing Pages deployment. Generated
 HTML remains untracked build output.
 
 The existing Pages workflow preserves the project homepage and publishes the
-Sourcey build below `/graphics/api/` after a merge to `main`.
+Sourcey build below `/pygraphics/api/` after a merge to `main`.

@@ -9,9 +9,9 @@ if _repo in sys.path:
 
 import time
 
-from graphics import RGB565, framebuf_backend
-from graphics._framebuf import FrameBuffer as NativeFB
-from graphics._framebuf_pure import FrameBuffer as PureFB
+from pygraphics import RGB565, framebuf_backend
+from pygraphics._framebuf import FrameBuffer as NativeFB
+from pygraphics._framebuf_pure import FrameBuffer as PureFB
 
 W, H = 128, 128
 ITERS = 200

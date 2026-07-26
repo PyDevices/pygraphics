@@ -7,6 +7,7 @@ on:
     paths:
       - 'docs/**'
       - 'web/**'
+      - 'tools/sourcey-api/**'
       - 'README.md'
       - '.github/workflows/deploy-pages.yml'
   push:
@@ -15,6 +16,7 @@ on:
     paths:
       - 'docs/**'
       - 'web/**'
+      - 'tools/sourcey-api/**'
       - 'README.md'
       - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
@@ -28,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Full history + tags so the docs generator can resolve a release line
+          # Full history + tags so the Sourcey generator can resolve a release line
           # via `git describe` (default shallow checkouts have neither).
           fetch-depth: 0
           fetch-tags: true
@@ -38,20 +40,20 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: docs/package-lock.json
+          cache-dependency-path: tools/sourcey-api/package-lock.json
 
-      - name: Install documentation dependencies
-        run: npm ci --prefix docs
+      - name: Install Sourcey documentation dependencies
+        run: npm ci --prefix tools/sourcey-api
 
-      - name: Build and verify Sourcey reference
-        run: npm run check --prefix docs
+      - name: Build and verify Sourcey native reference
+        run: npm run check --prefix tools/sourcey-api
 
       - name: Assemble GitHub Pages site
         run: |
           mkdir -p _site
           cp -r web/* _site/
           mkdir -p _site/api
-          cp -r docs/dist/* _site/api/
+          cp -r tools/sourcey-api/dist/* _site/api/
           touch _site/.nojekyll
 
       - name: Deploy to gh-pages

@@ -1,11 +1,11 @@
-# MicroPython user C module glue for graphics.
+# MicroPython user C module glue for pygraphics.
 #
 # Discovered via USER_C_MODULES pointing at the workspace directory that
 # contains this repo (its parent), e.g. `make USER_C_MODULES=../../..`.
 
-GRAPHICS_MOD_DIR := $(USERMOD_DIR)
+PYGRAPHICS_MOD_DIR := $(USERMOD_DIR)
 
-CFLAGS_USERMOD += -I$(GRAPHICS_MOD_DIR)/src -Wno-unused-function -Wno-sign-compare -Wno-unused-const-variable
+CFLAGS_USERMOD += -I$(PYGRAPHICS_MOD_DIR)/src -Wno-unused-function -Wno-sign-compare -Wno-unused-const-variable
 # math: cosf/sinf etc.
 # - mimxrt/samd: bare `ld` — absolute libm.a in LDFLAGS
 # - stm32: CROSS_COMPILE is set *after* py.mk, so $(CC) here is the host
@@ -20,14 +20,14 @@ LDFLAGS_USERMOD += -lm
 endif
 
 SRC_USERMOD_C += \
-    $(GRAPHICS_MOD_DIR)/src/gfx_module_mp.c \
-    $(GRAPHICS_MOD_DIR)/src/gfx_bindings_mp.c \
-    $(GRAPHICS_MOD_DIR)/src/gfx_canvas_mp.c \
-    $(GRAPHICS_MOD_DIR)/src/gfx_framebuffer.c \
-    $(GRAPHICS_MOD_DIR)/src/gfx_shapes.c \
-    $(GRAPHICS_MOD_DIR)/src/gfx_draw.c \
-    $(GRAPHICS_MOD_DIR)/src/gfx_font.c \
-    $(GRAPHICS_MOD_DIR)/src/gfx_bmp565.c \
-    $(GRAPHICS_MOD_DIR)/src/gfx_files.c \
-    $(GRAPHICS_MOD_DIR)/src/gfx_capabilities.c \
-    $(GRAPHICS_MOD_DIR)/src/gfx_area_mp.c
+    $(PYGRAPHICS_MOD_DIR)/src/gfx_module_mp.c \
+    $(PYGRAPHICS_MOD_DIR)/src/gfx_bindings_mp.c \
+    $(PYGRAPHICS_MOD_DIR)/src/gfx_canvas_mp.c \
+    $(PYGRAPHICS_MOD_DIR)/src/gfx_framebuffer.c \
+    $(PYGRAPHICS_MOD_DIR)/src/gfx_shapes.c \
+    $(PYGRAPHICS_MOD_DIR)/src/gfx_draw.c \
+    $(PYGRAPHICS_MOD_DIR)/src/gfx_font.c \
+    $(PYGRAPHICS_MOD_DIR)/src/gfx_bmp565.c \
+    $(PYGRAPHICS_MOD_DIR)/src/gfx_files.c \
+    $(PYGRAPHICS_MOD_DIR)/src/gfx_capabilities.c \
+    $(PYGRAPHICS_MOD_DIR)/src/gfx_area_mp.c

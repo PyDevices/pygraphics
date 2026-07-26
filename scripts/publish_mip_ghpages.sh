@@ -17,7 +17,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-GRAPHICS_DIR="${GRAPHICS_DIR:-$ROOT}"
+PYGRAPHICS_DIR="${PYGRAPHICS_DIR:-$ROOT}"
 LIB_DIR="${MICROPYTHON_LIB_DIR:?set MICROPYTHON_LIB_DIR}"
 MPY_DIR="${MICROPYTHON_DIR:-/tmp/micropython}"
 INDEX_OUT="${MIP_INDEX_OUTPUT:-/tmp/mip-index}"
@@ -37,7 +37,7 @@ rm -rf "$INDEX_OUT"
 mkdir -p "$INDEX_OUT"
 
 echo "Compiling MIP index from $LIB_DIR -> $INDEX_OUT"
-python3 "$GRAPHICS_DIR/scripts/build.py" \
+python3 "$PYGRAPHICS_DIR/scripts/build.py" \
     --lib-dir "$LIB_DIR" \
     --micropython "$MPY_DIR" \
     --mpy-cross "$MPY_CROSS" \
@@ -74,7 +74,7 @@ git diff --staged --quiet && {
     echo "No MIP index changes to publish"
     exit 0
 }
-git commit -m "graphics: Update mip/$MIP_SUBDIR from PyDevices/graphics ${SHA}."
+git commit -m "pygraphics: Update mip/$MIP_SUBDIR from PyDevices/pygraphics ${SHA}."
 
 if [[ "$NEW_BRANCH" -eq 0 ]]; then
     git pull --rebase origin gh-pages

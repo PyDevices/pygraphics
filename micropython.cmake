@@ -1,34 +1,34 @@
-# MicroPython CMake glue for graphics (ESP32, RP2, …).
+# MicroPython CMake glue for pygraphics (ESP32, RP2, …).
 #
 # Make-based ports use micropython.mk in this directory. CMake-based ports
 # (esp32, rp2, …) discover this file via USER_C_MODULES / an aggregator
 # micropython.cmake that includes sibling modules.
 #
 # Point USER_C_MODULES at this repo (or this file) directly, e.g.:
-#   idf.py build -DUSER_C_MODULES=<path to graphics>
+#   idf.py build -DUSER_C_MODULES=<path to pygraphics>
 # Or a semicolon-separated list with other modules (no aggregator required):
-#   -DUSER_C_MODULES="<path to graphics>;<path to displayif>"
+#   -DUSER_C_MODULES="<path to pygraphics>;<path to displayif>"
 
-set(GRAPHICS_MOD_DIR ${CMAKE_CURRENT_LIST_DIR})
+set(PYGRAPHICS_MOD_DIR ${CMAKE_CURRENT_LIST_DIR})
 
-add_library(graphics INTERFACE)
+add_library(pygraphics INTERFACE)
 
-target_sources(graphics INTERFACE
-    ${GRAPHICS_MOD_DIR}/src/gfx_module_mp.c
-    ${GRAPHICS_MOD_DIR}/src/gfx_bindings_mp.c
-    ${GRAPHICS_MOD_DIR}/src/gfx_canvas_mp.c
-    ${GRAPHICS_MOD_DIR}/src/gfx_framebuffer.c
-    ${GRAPHICS_MOD_DIR}/src/gfx_shapes.c
-    ${GRAPHICS_MOD_DIR}/src/gfx_draw.c
-    ${GRAPHICS_MOD_DIR}/src/gfx_font.c
-    ${GRAPHICS_MOD_DIR}/src/gfx_bmp565.c
-    ${GRAPHICS_MOD_DIR}/src/gfx_files.c
-    ${GRAPHICS_MOD_DIR}/src/gfx_capabilities.c
-    ${GRAPHICS_MOD_DIR}/src/gfx_area_mp.c
+target_sources(pygraphics INTERFACE
+    ${PYGRAPHICS_MOD_DIR}/src/gfx_module_mp.c
+    ${PYGRAPHICS_MOD_DIR}/src/gfx_bindings_mp.c
+    ${PYGRAPHICS_MOD_DIR}/src/gfx_canvas_mp.c
+    ${PYGRAPHICS_MOD_DIR}/src/gfx_framebuffer.c
+    ${PYGRAPHICS_MOD_DIR}/src/gfx_shapes.c
+    ${PYGRAPHICS_MOD_DIR}/src/gfx_draw.c
+    ${PYGRAPHICS_MOD_DIR}/src/gfx_font.c
+    ${PYGRAPHICS_MOD_DIR}/src/gfx_bmp565.c
+    ${PYGRAPHICS_MOD_DIR}/src/gfx_files.c
+    ${PYGRAPHICS_MOD_DIR}/src/gfx_capabilities.c
+    ${PYGRAPHICS_MOD_DIR}/src/gfx_area_mp.c
 )
 
-target_include_directories(graphics INTERFACE ${GRAPHICS_MOD_DIR}/src)
-target_compile_options(graphics INTERFACE
+target_include_directories(pygraphics INTERFACE ${PYGRAPHICS_MOD_DIR}/src)
+target_compile_options(pygraphics INTERFACE
     -Wno-unused-function
     -Wno-sign-compare
     -Wno-unused-const-variable
@@ -36,7 +36,7 @@ target_compile_options(graphics INTERFACE
 
 # libm: required on some desktop ports; ESP-IDF already links libm into the app.
 if(NOT ESP_PLATFORM)
-    target_link_libraries(graphics INTERFACE m)
+    target_link_libraries(pygraphics INTERFACE m)
 endif()
 
-target_link_libraries(usermod INTERFACE graphics)
+target_link_libraries(usermod INTERFACE pygraphics)
