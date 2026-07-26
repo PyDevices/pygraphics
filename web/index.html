@@ -80,9 +80,9 @@ assert area == Area(10, 10, 20, 20)</code></pre>
         <p>Editable install, then run the test scripts.</p>
         <pre><code>python3 -m venv .venv
 .venv/bin/pip install -e .
-.venv/bin/python test_area.py
-.venv/bin/python test_graphics.py
-.venv/bin/python test_subclass.py</code></pre>
+.venv/bin/python tests/test_area.py
+.venv/bin/python tests/test_graphics.py
+.venv/bin/python tests/test_subclass.py</code></pre>
       </div>
       <div class="snippet-card">
         <h3>MicroPython</h3>
@@ -92,9 +92,9 @@ make submodules
 make USER_C_MODULES=../../..
 
 ./micropython/ports/unix/build-standard/micropython \
-  graphics/test_area.py
+  graphics/tests/test_area.py
 ./micropython/ports/unix/build-standard/micropython \
-  graphics/test_graphics.py</code></pre>
+  graphics/tests/test_graphics.py</code></pre>
       </div>
     </div>
 

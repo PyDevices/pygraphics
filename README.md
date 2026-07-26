@@ -58,30 +58,32 @@ MIT (framebuf algorithms derived from MicroPython `extmod/modframebuf.c`, Damien
 
 ```
 graphics/
-  gfx_core.h           # types, format IDs, Area geometry
-  gfx_framebuffer.c/h  # format pixel ops
-  gfx_shapes.c/h       # drawing algorithms via gfx_canvas_t
-  gfx_draw.c/h         # Draw clip stack (C core)
-  gfx_font.c/h         # text8
-  gfx_capabilities.c/h # capabilities reporting
-  gfx_area_mp.c        # MicroPython Area bindings
-  gfx_module_mp.c      # MicroPython module registration
-  gfx_module_cpy.c     # CPython module registration
-  micropython.mk
-  circuitpython.mk
-  test_area.py
-  test_graphics.py
-  test_subclass.py
+  micropython.mk / micropython.cmake / circuitpython.mk / setup.py
+  include/                 # shared headers (gfx_*.h, font_8x*.h, qstrs)
+  src/                     # C sources (core + MP/CP/CPython bindings)
+  tests/                   # smoke / parity tests
+  docs/ scripts/ web/
 ```
+
+Core vs bindings (under `include/` + `src/`):
+
+- `gfx_core.h` — types, format IDs, Area geometry
+- `gfx_framebuffer` — format pixel ops
+- `gfx_shapes` — drawing algorithms via `gfx_canvas_t`
+- `gfx_draw` — Draw clip stack (C core)
+- `gfx_font` — text8/14/16
+- `gfx_capabilities` — capabilities reporting
+- `gfx_area_mp` / `gfx_bindings_mp` / `gfx_module_mp` — MicroPython / CircuitPython
+- `gfx_module_cpy` — CPython module registration
 
 ### CPython (editable)
 
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -e .
-.venv/bin/python test_area.py
-.venv/bin/python test_graphics.py
-.venv/bin/python test_subclass.py
+.venv/bin/python tests/test_area.py
+.venv/bin/python tests/test_graphics.py
+.venv/bin/python tests/test_subclass.py
 ```
 
 ### MicroPython
@@ -101,9 +103,9 @@ cd micropython/ports/unix
 make submodules
 make USER_C_MODULES=../../..
 cd ../../..
-./micropython/ports/unix/build-standard/micropython graphics/test_area.py
-./micropython/ports/unix/build-standard/micropython graphics/test_graphics.py
-./micropython/ports/unix/build-standard/micropython graphics/test_subclass.py
+./micropython/ports/unix/build-standard/micropython graphics/tests/test_area.py
+./micropython/ports/unix/build-standard/micropython graphics/tests/test_graphics.py
+./micropython/ports/unix/build-standard/micropython graphics/tests/test_subclass.py
 ```
 
 ([cmods](https://github.com/PyDevices/cmods) is an optional convenience workspace with `./build_mp.sh`; it is not required.)

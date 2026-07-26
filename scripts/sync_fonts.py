@@ -3,7 +3,7 @@
 """Generate C font headers from pydisplay ``lib/graphics/_font_8x*.py`` romfont data.
 
 Canonical font bytes live in pydisplay; this script writes ``font_8x8.h``,
-``font_8x14.h``, and ``font_8x16.h`` next to ``gfx_font.c``.
+``font_8x14.h``, and ``font_8x16.h`` under ``include/``.
 
 Usage (from repo root)::
 
@@ -21,6 +21,7 @@ import re
 import sys
 
 _GRAPHICS_DIR = Path(__file__).resolve().parents[1]
+_INCLUDE_DIR = _GRAPHICS_DIR / "include"
 _DEFAULT_PYDISPLAY = _GRAPHICS_DIR.parent.parent / "pydisplay"
 
 
@@ -80,7 +81,7 @@ def sync_fonts(*, pydisplay: Path, check: bool = False) -> None:
         expected = 256 * height
         if len(data) != expected:
             raise SystemExit(f"{py_path.name}: expected {expected} bytes, got {len(data)}")
-        out_path = _GRAPHICS_DIR / f"{array_name}.h"
+        out_path = _INCLUDE_DIR / f"{array_name}.h"
         content = _render_header(c_name, array_name, data, height)
         if check:
             if not out_path.is_file():

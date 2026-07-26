@@ -1,9 +1,12 @@
 # SPDX-License-Identifier: MIT
 """Build native graphics C extension."""
 
+import os
 import sys
 
 from setuptools import Extension, setup
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
 
 if sys.platform == "win32":
     extra_compile_args = ["/wd4996"]
@@ -16,14 +19,14 @@ else:
     extra_link_args = ["-lm"]
 
 GFX_SOURCES = [
-    "gfx_module_cpy.c",
-    "gfx_framebuffer.c",
-    "gfx_shapes.c",
-    "gfx_draw.c",
-    "gfx_font.c",
-    "gfx_bmp565.c",
-    "gfx_files.c",
-    "gfx_capabilities.c",
+    os.path.join("src", "gfx_module_cpy.c"),
+    os.path.join("src", "gfx_framebuffer.c"),
+    os.path.join("src", "gfx_shapes.c"),
+    os.path.join("src", "gfx_draw.c"),
+    os.path.join("src", "gfx_font.c"),
+    os.path.join("src", "gfx_bmp565.c"),
+    os.path.join("src", "gfx_files.c"),
+    os.path.join("src", "gfx_capabilities.c"),
 ]
 
 setup(
@@ -34,7 +37,7 @@ setup(
         Extension(
             "graphics",
             sources=GFX_SOURCES,
-            include_dirs=["."],
+            include_dirs=[os.path.join(ROOT, "include")],
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
         ),
