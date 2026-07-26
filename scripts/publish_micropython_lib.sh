@@ -161,12 +161,16 @@ metadata(
 package("$BASENAME")
 EOF
 
-# Retire the legacy pydisplay/graphics tree after extraction.
-LEGACY_DIR="$DEST_REPO/micropython/pydisplay/graphics"
-LEGACY_DIR2="$DEST_REPO/micropython/graphics"
-if [[ -d "$LEGACY_DIR" ]]; then
-    rm -rf "$LEGACY_DIR"
-fi
+# Retire legacy package trees after the rename/extraction.
+for LEGACY_DIR in \
+    "$DEST_REPO/micropython/pydisplay/graphics" \
+    "$DEST_REPO/micropython/graphics"
+do
+    if [[ -d "$LEGACY_DIR" ]]; then
+        echo "Removing legacy tree $LEGACY_DIR"
+        rm -rf "$LEGACY_DIR"
+    fi
+done
 
 cp "$README_FULL_PATH" "$DEST_DIR/README.md"
 

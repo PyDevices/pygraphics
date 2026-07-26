@@ -46,3 +46,10 @@ from the cmods workspace root when the usermod is linked into those interpreters
 
 Font C headers: `python3 scripts/sync_fonts.py` (source of truth is
 `lib/pygraphics/_font_8x*.py`).
+
+## Documentation
+
+- MkDocs under `docs/` → https://pygraphics.readthedocs.io (`.readthedocs.yaml`)
+- Sourcey native API under `tools/sourcey-api/` → Pages `/api/`
+- Local: `python3 -m venv .venv-docs && .venv-docs/bin/pip install -r docs/requirements.txt && .venv-docs/bin/mkdocs serve`
+
