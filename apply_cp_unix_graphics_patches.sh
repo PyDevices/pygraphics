@@ -7,7 +7,7 @@ WORKSPACE_DIR="${WORKSPACE_DIR:-$(cd "$GRAPHICS_MOD_DIR/.." && pwd)}"
 CP_DIR="${CP_DIR:-$WORKSPACE_DIR/circuitpython}"
 PORT="${PORT:-unix}"
 VARIANT="${VARIANT:-coverage}"
-SPIKE_DIR="$GRAPHICS_MOD_DIR/circuitpython_spike"
+SPIKE_DIR="$GRAPHICS_MOD_DIR/src/circuitpython_spike"
 
 [[ -d "$CP_DIR/.git" ]] || { echo "CircuitPython not found: $CP_DIR" >&2; exit 1; }
 

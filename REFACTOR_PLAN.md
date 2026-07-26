@@ -112,7 +112,7 @@ Sync gaps with Python tree: add `RGB888` and `ellipse` to both `__all__` lists w
 - [ ] Replace `graphics_bundle.c` + `graphics_native_cpy.c` with `gfx_module_mp.c` + `gfx_module_cpy.c` (thin)
 - [ ] Register module as `graphics` (MP_QSTR_graphics), not `graphics_native`
 - [ ] Export all public symbols on module dict
-- [ ] Update `micropython.mk`, `circuitpython.mk`, CP spike bindings under `circuitpython_spike/`
+- [ ] Update `micropython.mk`, `circuitpython.mk`, CP spike bindings under `src/circuitpython_spike/`
 - [ ] Update `workspace manifest.py`: remove `package("graphics", base_path="graphics/py")` — use C module only when building with cmod
 
 ### Phase 6 — Font, BMP565, files, capabilities
