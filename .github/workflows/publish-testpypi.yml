@@ -1,4 +1,4 @@
-# Build graphics-cmod wheels (Linux + Windows + Android) with cibuildwheel and upload to TestPyPI.
+# Build pygraphics-cmod wheels (Linux + Windows + Android) with cibuildwheel and upload to TestPyPI.
 #
 # Release trigger: push an annotated semver tag vX.Y.Z (see scripts/publish_release_tag.sh),
 # or workflow_dispatch.
@@ -7,7 +7,7 @@
 #   TESTPYPI_API_TOKEN — TestPyPI API token (same as PyDevices/pydisplay)
 #
 # Install from TestPyPI (wheels are platform-specific):
-#   pip install -i https://test.pypi.org/simple/ graphics-cmod
+#   pip install -i https://test.pypi.org/simple/ pygraphics-cmod
 
 name: Publish TestPyPI
 
@@ -28,7 +28,7 @@ permissions:
 jobs:
   prepare:
     runs-on: ubuntu-latest
-    if: github.repository == 'PyDevices/graphics'
+    if: github.repository == 'PyDevices/pygraphics'
     outputs:
       version: ${{ steps.version.outputs.version }}
     steps:
@@ -66,12 +66,12 @@ jobs:
           fi
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Publishing graphics-cmod release $VERSION"
+          echo "Publishing pygraphics-cmod release $VERSION"
 
   build-wheels:
     needs: prepare
     runs-on: ${{ matrix.os }}
-    if: github.repository == 'PyDevices/graphics'
+    if: github.repository == 'PyDevices/pygraphics'
     strategy:
       fail-fast: false
       matrix:
@@ -96,7 +96,7 @@ jobs:
   build-android-wheels:
     needs: prepare
     runs-on: ubuntu-latest
-    if: github.repository == 'PyDevices/graphics'
+    if: github.repository == 'PyDevices/pygraphics'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -127,7 +127,7 @@ jobs:
   publish:
     needs: [prepare, build-wheels, build-android-wheels]
     runs-on: ubuntu-latest
-    if: github.repository == 'PyDevices/graphics'
+    if: github.repository == 'PyDevices/pygraphics'
     steps:
       - uses: actions/download-artifact@v4
         with:

@@ -8,8 +8,8 @@ import unittest
 import _env  # noqa: F401
 from _support import make_fb
 
-from graphics import Area
-from graphics._clip import ClippedCanvas, crop_rgb565_buffer, intersect_rect
+from pygraphics import Area
+from pygraphics._clip import ClippedCanvas, crop_rgb565_buffer, intersect_rect
 
 
 class TestClipHelpers(unittest.TestCase):

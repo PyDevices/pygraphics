@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 """Verify graphics cmod exports match pydisplay __all__."""
 
-import graphics
+import pygraphics
 
 ALL = [
     "BMP565",
@@ -51,19 +51,19 @@ ALL = [
     "vline",
 ]
 
-missing = [name for name in ALL if not hasattr(graphics, name)]
+missing = [name for name in ALL if not hasattr(pygraphics, name)]
 if missing:
     raise SystemExit("missing exports: " + ", ".join(missing))
 
-assert graphics.framebuf_backend() == "native", graphics.capabilities()
-assert graphics.implementation() == "native_cmod", graphics.capabilities()
+assert pygraphics.framebuf_backend() == "native", pygraphics.capabilities()
+assert pygraphics.implementation() == "native_cmod", pygraphics.capabilities()
 
 buf = bytearray(32 * 32 * 2)
-fb = graphics.FrameBuffer(buf, 32, 32, graphics.RGB565)
+fb = pygraphics.FrameBuffer(buf, 32, 32, pygraphics.RGB565)
 assert fb.buffer is buf or bytes(fb.buffer) == bytes(buf)
 fb.fill(0)
-graphics.fill_rect(fb, 1, 1, 4, 4, 0xF800)
-graphics.text8(fb, "Hi", 0, 0, 0xFFFF)
-d = graphics.Draw(fb)
+pygraphics.fill_rect(fb, 1, 1, 4, 4, 0xF800)
+pygraphics.text8(fb, "Hi", 0, 0, 0xFFFF)
+d = pygraphics.Draw(fb)
 d.fill_rect(0, 0, 2, 2, 1)
 print("test_parity: ok")

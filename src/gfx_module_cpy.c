@@ -3,7 +3,7 @@
  *
  * Full-parity binding surface matching the MicroPython/CircuitPython bindings
  * (gfx_module_mp.c / gfx_bindings_mp.c) and the pure-Python reference under
- * pydisplay src/lib/graphics. All shape/text/blit primitives share the same C
+ * pydisplay src/lib/pygraphics. All shape/text/blit primitives share the same C
  * core (gfx_shapes/gfx_font/gfx_files/gfx_bmp565) as the MP bindings.
  *
  * SPDX-License-Identifier: MIT
@@ -392,7 +392,7 @@ static PyNumberMethods area_as_number = {
 
 static PyTypeObject GfxAreaType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "graphics.Area",
+    .tp_name = "pygraphics.Area",
     .tp_basicsize = sizeof(GfxAreaObject),
     .tp_dealloc = (destructor)area_dealloc,
     .tp_repr = (reprfunc)area_repr,
@@ -1109,7 +1109,7 @@ static PyMethodDef framebuffer_methods[] = {
 
 static PyTypeObject GfxFrameBufferType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "graphics.FrameBuffer",
+    .tp_name = "pygraphics.FrameBuffer",
     .tp_basicsize = sizeof(GfxFrameBufferObject),
     .tp_dealloc = (destructor)framebuffer_dealloc,
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
@@ -2082,7 +2082,7 @@ static PyMethodDef draw_methods[] = {
 
 static PyTypeObject GfxDrawType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "graphics.Draw",
+    .tp_name = "pygraphics.Draw",
     .tp_basicsize = sizeof(GfxDrawObject),
     .tp_dealloc = (destructor)draw_dealloc,
     .tp_flags = Py_TPFLAGS_DEFAULT,
@@ -2144,7 +2144,7 @@ static PyMethodDef clipctx_methods[] = {
 
 static PyTypeObject GfxClipCtxType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "graphics.ClipContext",
+    .tp_name = "pygraphics.ClipContext",
     .tp_basicsize = sizeof(GfxClipCtxObject),
     .tp_dealloc = (destructor)clipctx_dealloc,
     .tp_flags = Py_TPFLAGS_DEFAULT,
@@ -2152,7 +2152,7 @@ static PyTypeObject GfxClipCtxType = {
     .tp_new = clipctx_new,
 };
 
-/* ClippedCanvas — matches graphics._clip.ClippedCanvas */
+/* ClippedCanvas — matches pygraphics._clip.ClippedCanvas */
 typedef struct {
     PyObject_HEAD
     PyObject *canvas_obj;
@@ -2411,7 +2411,7 @@ static PyMethodDef clipped_canvas_methods[] = {
 
 static PyTypeObject GfxClippedCanvasType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "graphics.ClippedCanvas",
+    .tp_name = "pygraphics.ClippedCanvas",
     .tp_basicsize = sizeof(GfxClippedCanvasObject),
     .tp_dealloc = (destructor)clipped_canvas_dealloc,
     .tp_flags = Py_TPFLAGS_DEFAULT,
@@ -2640,7 +2640,7 @@ static PyMethodDef font_methods[] = {
 
 static PyTypeObject GfxFontType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "graphics.Font",
+    .tp_name = "pygraphics.Font",
     .tp_basicsize = sizeof(GfxFontObject),
     .tp_dealloc = (destructor)font_dealloc,
     .tp_flags = Py_TPFLAGS_DEFAULT,
@@ -2931,7 +2931,7 @@ static PyMappingMethods bmp565_as_mapping = {
 
 static PyTypeObject GfxBmp565Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "graphics.BMP565",
+    .tp_name = "pygraphics.BMP565",
     .tp_basicsize = sizeof(GfxBmp565Object),
     .tp_dealloc = (destructor)bmp565_dealloc,
     .tp_flags = Py_TPFLAGS_DEFAULT,
@@ -2982,13 +2982,13 @@ static PyMethodDef module_methods[] = {
 
 static struct PyModuleDef graphics_module = {
     PyModuleDef_HEAD_INIT,
-    .m_name = "graphics",
+    .m_name = "pygraphics",
     .m_doc = "Native graphics module for CPython",
     .m_size = -1,
     .m_methods = module_methods,
 };
 
-PyMODINIT_FUNC PyInit_graphics(void) {
+PyMODINIT_FUNC PyInit_pygraphics(void) {
     PyObject *m = PyModule_Create(&graphics_module);
     if (!m) {
         return NULL;

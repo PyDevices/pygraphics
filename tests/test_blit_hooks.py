@@ -8,8 +8,8 @@ import unittest
 import _env  # noqa: F401
 from _support import make_fb
 
-from graphics import Area, Draw, blit, blit_rect
-from graphics._blit_hooks import (
+from pygraphics import Area, Draw, blit, blit_rect
+from pygraphics._blit_hooks import (
     blit_rect_dispatch,
     canvas_accepts_blit_rect,
     canvas_accepts_blit_transparent,
@@ -88,7 +88,7 @@ class TestBlitHooks(unittest.TestCase):
         self.assertEqual(dst.pixel(5, 5), 0)
 
     def test_blit_transparent_uses_display_hook(self):
-        from graphics import blit_transparent
+        from pygraphics import blit_transparent
 
         canvas = _BlitTransparentCanvas(8, 8)
         buf = bytearray(2 * 2 * 2)

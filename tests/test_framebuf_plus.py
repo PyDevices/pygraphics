@@ -1,10 +1,10 @@
 # SPDX-FileCopyrightText: 2026 Brad Barnett
 #
 # SPDX-License-Identifier: MIT
-"""Tests for ``graphics.FrameBuffer`` (the ``_framebuf_plus`` wrapper).
+"""Tests for ``pygraphics.FrameBuffer`` (the ``_framebuf_plus`` wrapper).
 
 This is the ``FrameBuffer`` exported from the package. Unlike the bare
-``framebuf`` base class, every drawing method returns an :class:`graphics.Area`
+``framebuf`` base class, every drawing method returns an :class:`pygraphics.Area`
 bounding box and the buffer/format/color_depth are exposed as properties.
 """
 
@@ -13,8 +13,8 @@ import unittest
 import _env  # noqa: F401
 from _support import make_fb
 
-import graphics
-from graphics import (
+import pygraphics
+from pygraphics import (
     GS2_HMSB,
     GS4_HMSB,
     GS8,

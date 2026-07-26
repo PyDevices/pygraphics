@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Build native graphics C extension."""
+"""Build native pygraphics C extension."""
 
 import os
 import sys
@@ -30,12 +30,12 @@ GFX_SOURCES = [
 ]
 
 setup(
-    name="graphics-cmod",
+    name="pygraphics-cmod",
     packages=[],
     py_modules=[],
     ext_modules=[
         Extension(
-            "graphics",
+            "pygraphics",
             sources=GFX_SOURCES,
             include_dirs=[os.path.join(ROOT, "src")],
             extra_compile_args=extra_compile_args,

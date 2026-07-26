@@ -1,5 +1,5 @@
-# Publish pure-Python graphics to micropython-lib, MIP index, and TestPyPI (pydisplay-graphics).
-# Native graphics-cmod wheels are published by publish-testpypi.yml on the same tag.
+# Publish pure-Python pygraphics to micropython-lib, MIP index, and TestPyPI (pygraphics).
+# Native pygraphics-cmod wheels are published by publish-testpypi.yml on the same tag.
 #
 # Release trigger: push tag vX.Y.Z (see scripts/publish_release_tag.sh).
 #
@@ -20,11 +20,11 @@ on:
         type: string
         required: false
       sync_sources:
-        description: Sync graphics into micropython-lib
+        description: Sync pygraphics into micropython-lib
         type: boolean
         default: true
       upload_testpypi:
-        description: Upload pydisplay-graphics wheels to TestPyPI
+        description: Upload pygraphics wheels to TestPyPI
         type: boolean
         default: false
       publish_mip_index:
@@ -47,7 +47,7 @@ concurrency:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: github.repository == 'PyDevices/graphics'
+    if: github.repository == 'PyDevices/pygraphics'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -81,7 +81,7 @@ jobs:
             VERSION="$(normalize "$TAG")"
           fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Publishing pydisplay-graphics / MIP release $VERSION"
+          echo "Publishing pygraphics / MIP release $VERSION"
 
       - name: Verify publish secrets
         env:
@@ -99,8 +99,8 @@ jobs:
             fi
           fi
           if [[ ${#missing[@]} -gt 0 ]]; then
-            echo "::error::GitHub did not supply secrets to PyDevices/graphics: ${missing[*]}"
-            echo "Org Settings → Secrets → Actions → each secret → Repository access → include graphics."
+            echo "::error::GitHub did not supply secrets to PyDevices/pygraphics: ${missing[*]}"
+            echo "Org Settings → Secrets → Actions → each secret → Repository access → include pygraphics."
             exit 1
           fi
 
@@ -126,7 +126,7 @@ jobs:
           git -C micropython-lib remote set-url origin \
             "https://x-access-token:${{ secrets.MICROPYTHON_LIB_DEPLOY_TOKEN }}@github.com/PyDevices/micropython-lib.git"
 
-      - name: Sync graphics into micropython-lib
+      - name: Sync pygraphics into micropython-lib
         if: github.event_name == 'push' || inputs.sync_sources == true
         env:
           MICROPYTHON_LIB_DIR: ${{ github.workspace }}/micropython-lib
@@ -136,7 +136,7 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           MSG="${{ inputs.commit_message }}"
           if [[ -z "$MSG" ]]; then
-            MSG="graphics: Release v${VERSION} (${GITHUB_SHA::7})."
+            MSG="pygraphics: Release v${VERSION} (${GITHUB_SHA::7})."
           fi
           EXTRA=(--commit-message "$MSG" --push)
           if [[ "${{ github.event_name }}" != "push" && "${{ inputs.upload_testpypi }}" != "true" ]]; then
@@ -149,7 +149,7 @@ jobs:
         if: github.event_name == 'push' || inputs.publish_mip_index == true
         env:
           MICROPYTHON_LIB_DIR: ${{ github.workspace }}/micropython-lib
-          GRAPHICS_DIR: ${{ github.workspace }}
+          PYGRAPHICS_DIR: ${{ github.workspace }}
           MICROPYTHON_DIR: /tmp/micropython
           MIP_INDEX_OUTPUT: /tmp/mip-index
         run: |

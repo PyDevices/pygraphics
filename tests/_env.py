@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Brad Barnett
 #
 # SPDX-License-Identifier: MIT
-"""Put ``lib/`` on ``sys.path`` so ``import graphics`` works in-repo."""
+"""Put ``lib/`` on ``sys.path`` so ``import pygraphics`` works in-repo."""
 
 import os
 import sys

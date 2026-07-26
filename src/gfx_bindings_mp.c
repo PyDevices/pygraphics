@@ -503,7 +503,7 @@ static mp_obj_t draw_text16(size_t n_args, const mp_obj_t *args, mp_map_t *kw_ar
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(draw_text16_obj, 4, draw_text16);
 
-/* ClipContext: with draw.clip(x,y,w,h) / draw.clip(Area) — matches graphics._clip */
+/* ClipContext: with draw.clip(x,y,w,h) / draw.clip(Area) — matches pygraphics._clip */
 typedef struct _mp_obj_clip_ctx_t {
     mp_obj_base_t base;
     mp_obj_t draw_obj;
@@ -582,7 +582,7 @@ static mp_obj_t draw_clip(size_t n_args, const mp_obj_t *args) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(draw_clip_obj, 2, 5, draw_clip);
 
-/* ClippedCanvas: proxy that restricts drawing to a clip Area — matches graphics._clip */
+/* ClippedCanvas: proxy that restricts drawing to a clip Area — matches pygraphics._clip */
 typedef struct _mp_obj_clipped_canvas_t {
     mp_obj_base_t base;
     mp_obj_t canvas_obj;
@@ -1714,7 +1714,7 @@ static mp_obj_t mod_text_height(size_t n_args, const mp_obj_t *args, mp_map_t *k
         { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
         { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
         { MP_QSTR_c, MP_ARG_INT, {.u_int = 1} },
-        /* Positional scale/inverted/font_data match Python graphics.textN */
+        /* Positional scale/inverted/font_data match Python pygraphics.textN */
         { MP_QSTR_scale, MP_ARG_INT, {.u_int = 1} },
         { MP_QSTR_inverted, MP_ARG_BOOL, {.u_bool = false} },
         { MP_QSTR_font_data, MP_ARG_OBJ, {.u_obj = mp_const_none} },
@@ -1765,7 +1765,7 @@ static mp_obj_t mod_text(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args)
         { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
         { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
         { MP_QSTR_c, MP_ARG_INT, {.u_int = 1} },
-        /* Positional optional args match Python graphics.text */
+        /* Positional optional args match Python pygraphics.text */
         { MP_QSTR_scale, MP_ARG_INT, {.u_int = 1} },
         { MP_QSTR_inverted, MP_ARG_BOOL, {.u_bool = false} },
         { MP_QSTR_font_data, MP_ARG_OBJ, {.u_obj = mp_const_none} },
@@ -1853,7 +1853,7 @@ static mp_obj_t mod_capabilities(void) {
 MP_DEFINE_CONST_FUN_OBJ_0(mod_capabilities_obj, mod_capabilities);
 
 static const mp_rom_map_elem_t graphics_module_globals_table[] = {
-    { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_graphics) },
+    { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_pygraphics) },
     { MP_ROM_QSTR(MP_QSTR_FrameBuffer), MP_ROM_PTR(&mp_type_framebuf) },
     { MP_ROM_QSTR(MP_QSTR_Area), MP_ROM_PTR(&mp_type_area) },
     { MP_ROM_QSTR(MP_QSTR_Draw), MP_ROM_PTR(&mp_type_draw) },
@@ -1905,11 +1905,11 @@ static const mp_rom_map_elem_t graphics_module_globals_table[] = {
 
 MP_DEFINE_CONST_DICT(graphics_module_globals, graphics_module_globals_table);
 
-const mp_obj_module_t mp_module_graphics = {
+const mp_obj_module_t mp_module_pygraphics = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&graphics_module_globals,
 };
 
 #if !CIRCUITPY
-MP_REGISTER_MODULE(MP_QSTR_graphics, mp_module_graphics);
+MP_REGISTER_MODULE(MP_QSTR_pygraphics, mp_module_pygraphics);
 #endif

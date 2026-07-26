@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Generate C font headers from ``lib/graphics/_font_8x*.py`` romfont data.
+"""Generate C font headers from ``lib/pygraphics/_font_8x*.py`` romfont data.
 
 Canonical font bytes live in the pure-Python package; this script writes
 ``font_8x8.h``, ``font_8x14.h``, and ``font_8x16.h`` under ``src/``.
@@ -18,9 +18,9 @@ from pathlib import Path
 import re
 import sys
 
-_GRAPHICS_DIR = Path(__file__).resolve().parents[1]
-_INCLUDE_DIR = _GRAPHICS_DIR / "src"
-_LIB_GRAPHICS = _GRAPHICS_DIR / "lib" / "graphics"
+_PYGRAPHICS_DIR = Path(__file__).resolve().parents[1]
+_INCLUDE_DIR = _PYGRAPHICS_DIR / "src"
+_LIB_GRAPHICS = _PYGRAPHICS_DIR / "lib" / "pygraphics"
 
 
 def _load_font_bytes(py_path: Path) -> bytes:
@@ -53,7 +53,7 @@ def _render_header(name: str, array_name: str, data: bytes, height: int) -> str:
 #define {guard}
 #include <stdint.h>
 
-/* romfont from lib/graphics/_font_{name.lower()}.py ({height}px, 256 glyphs) */
+/* romfont from lib/pygraphics/_font_{name.lower()}.py ({height}px, 256 glyphs) */
 static const uint8_t {array_name}[] = {{
 {_format_c_array(data)}
 }};

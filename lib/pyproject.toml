@@ -3,17 +3,17 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pydisplay-graphics"
+name = "pygraphics"
 version = "0.0.25"
 description = "Pure-Python graphics (FrameBuffer, Draw, fonts); import as graphics"
-readme = "graphics/README.md"
+readme = "pygraphics/README.md"
 license = "MIT"
 requires-python = ">=3.8"
 authors = [{ name = "Brad Barnett", email = "contact@pydevices.com" }]
-urls = { Homepage = "https://github.com/PyDevices/graphics", Issues = "https://github.com/PyDevices/graphics/issues" }
+urls = { Homepage = "https://github.com/PyDevices/pygraphics", Issues = "https://github.com/PyDevices/pygraphics/issues" }
 
 [tool.hatch.build.targets.wheel]
-packages = ["graphics"]
+packages = ["pygraphics"]
 
 [tool.hatch.build.targets.sdist]
 include = ["graphics"]

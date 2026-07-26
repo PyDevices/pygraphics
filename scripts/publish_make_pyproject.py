@@ -46,9 +46,9 @@ from build import ensure_path_exists, error_color  # noqa: E402
 
 DEFAULT_AUTHOR = "micropython-lib <contact@micropython.org>"
 DEFAULT_LICENSE = "MIT"
-HOME_PAGE = "https://github.com/PyDevices/graphics"
-DOCS_PAGE = "https://pydevices.github.io/graphics"
-ISSUES_PAGE = "https://github.com/PyDevices/graphics/issues"
+HOME_PAGE = "https://github.com/PyDevices/pygraphics"
+DOCS_PAGE = "https://pydevices.github.io/pygraphics"
+ISSUES_PAGE = "https://github.com/PyDevices/pygraphics/issues"
 TESTPYPI = "https://test.pypi.org/simple/"
 
 

@@ -1,0 +1,320 @@
+---
+title: FrameBuffer
+description: Native framebuffer construction, drawing, text, blitting, scrolling, and file output.
+---
+
+Source snapshot: [`a02baf40d594bb77afae9676b5c803232bc188cd`](https://github.com/PyDevices/pygraphics/tree/a02baf40d594bb77afae9676b5c803232bc188cd).
+
+Native framebuffer construction, drawing, text, blitting, scrolling, and file output.
+
+Every entry below is generated from a public binding table or header declaration and links to its immutable source line.
+
+## `pygraphics.FrameBuffer`
+
+```python
+class FrameBuffer(buffer, width, height, format, stride=None)
+```
+
+A framebuf-compatible native drawing surface backed by a writable buffer.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1112)
+
+## `pygraphics.FrameBuffer.from_file`
+
+```python
+FrameBuffer.from_file(path)
+```
+
+Load a supported image file into a new FrameBuffer.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1082)
+
+## `pygraphics.FrameBuffer.fill`
+
+```python
+FrameBuffer.fill(color)
+```
+
+Fill the target canvas with one color and return the affected Area.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1083)
+
+## `pygraphics.FrameBuffer.fill_rect`
+
+```python
+FrameBuffer.fill_rect(x, y, width, height, color)
+```
+
+Fill a rectangular region and return the clipped affected Area.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1084)
+
+## `pygraphics.FrameBuffer.pixel`
+
+```python
+FrameBuffer.pixel(x, y, color=None)
+```
+
+Read or write one pixel, depending on whether a color is supplied.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1085)
+
+## `pygraphics.FrameBuffer.hline`
+
+```python
+FrameBuffer.hline(x, y, width, color)
+```
+
+Draw a horizontal line.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1086)
+
+## `pygraphics.FrameBuffer.vline`
+
+```python
+FrameBuffer.vline(x, y, height, color)
+```
+
+Draw a vertical line.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1087)
+
+## `pygraphics.FrameBuffer.rect`
+
+```python
+FrameBuffer.rect(x, y, width, height, color, fill=False)
+```
+
+Draw an outlined or filled rectangle.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1088)
+
+## `pygraphics.FrameBuffer.round_rect`
+
+```python
+FrameBuffer.round_rect(x, y, width, height, radius, color, fill=False)
+```
+
+Draw an outlined or filled rounded rectangle.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1089)
+
+## `pygraphics.FrameBuffer.circle`
+
+```python
+FrameBuffer.circle(x, y, radius, color, fill=False)
+```
+
+Draw an outlined or filled circle.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1090)
+
+## `pygraphics.FrameBuffer.line`
+
+```python
+FrameBuffer.line(x1, y1, x2, y2, color)
+```
+
+Draw a line between two points.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1091)
+
+## `pygraphics.FrameBuffer.ellipse`
+
+```python
+FrameBuffer.ellipse(x, y, x_radius, y_radius, color, fill=False, mask=0x0F)
+```
+
+Draw selected quadrants of an outlined or filled ellipse.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1092)
+
+## `pygraphics.FrameBuffer.poly`
+
+```python
+FrameBuffer.poly(x, y, coordinates, color, fill=False)
+```
+
+Draw a polygon from a packed coordinate buffer.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1093)
+
+## `pygraphics.FrameBuffer.arc`
+
+```python
+FrameBuffer.arc(x, y, radius, start_angle, end_angle, color)
+```
+
+Draw a circular arc between two angles.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1094)
+
+## `pygraphics.FrameBuffer.triangle`
+
+```python
+FrameBuffer.triangle(x0, y0, x1, y1, x2, y2, color, fill=False)
+```
+
+Draw an outlined or filled triangle.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1095)
+
+## `pygraphics.FrameBuffer.gradient_rect`
+
+```python
+FrameBuffer.gradient_rect(x, y, width, height, color1, color2=None, vertical=True)
+```
+
+Fill a rectangle with a horizontal or vertical color gradient.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1096)
+
+## `pygraphics.FrameBuffer.polygon`
+
+```python
+FrameBuffer.polygon(points, x, y, color, angle=0, center_x=0, center_y=0)
+```
+
+Draw a translated and optionally rotated sequence of points.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1097)
+
+## `pygraphics.FrameBuffer.blit`
+
+```python
+FrameBuffer.blit(source, x, y, key=-1, palette=None)
+```
+
+Copy another framebuffer onto the target with optional keying and palette lookup.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1098)
+
+## `pygraphics.FrameBuffer.blit_rect`
+
+```python
+FrameBuffer.blit_rect(buffer, x, y, width, height)
+```
+
+Copy a packed RGB565 rectangle onto the target.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1099)
+
+## `pygraphics.FrameBuffer.blit_transparent`
+
+```python
+FrameBuffer.blit_transparent(buffer, x, y, width, height, key)
+```
+
+Copy a packed RGB565 rectangle while skipping the transparent key.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1100)
+
+## `pygraphics.FrameBuffer.text`
+
+```python
+FrameBuffer.text(text, x, y, color=1, scale=1, inverted=False, font_data=None, height=8)
+```
+
+Render bitmap text with selectable height, scale, and inversion.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1101)
+
+## `pygraphics.FrameBuffer.text8`
+
+```python
+FrameBuffer.text8(text, x, y, color=1, scale=1, inverted=False, font_data=None)
+```
+
+Render text with the built-in 8-pixel-high font path.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1102)
+
+## `pygraphics.FrameBuffer.text14`
+
+```python
+FrameBuffer.text14(text, x, y, color=1, scale=1, inverted=False, font_data=None)
+```
+
+Render text with the built-in 14-pixel-high font path.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1103)
+
+## `pygraphics.FrameBuffer.text16`
+
+```python
+FrameBuffer.text16(text, x, y, color=1, scale=1, inverted=False, font_data=None)
+```
+
+Render text with the built-in 16-pixel-high font path.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1104)
+
+## `pygraphics.FrameBuffer.scroll`
+
+```python
+FrameBuffer.scroll(x_step, y_step)
+```
+
+Move framebuffer contents by the requested x and y offsets.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1105)
+
+## `pygraphics.FrameBuffer.save`
+
+```python
+FrameBuffer.save(path='screenshot')
+```
+
+Write the current image or bitmap to a versioned output path.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1106)
+
+## `pygraphics.FrameBuffer.width`
+
+```python
+FrameBuffer.width
+```
+
+Width in pixels.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1073)
+
+## `pygraphics.FrameBuffer.height`
+
+```python
+FrameBuffer.height
+```
+
+Height in pixels.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1074)
+
+## `pygraphics.FrameBuffer.buffer`
+
+```python
+FrameBuffer.buffer
+```
+
+Backing pixel buffer when the object owns or exposes one.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1075)
+
+## `pygraphics.FrameBuffer.format`
+
+```python
+FrameBuffer.format
+```
+
+Framebuffer pixel-format identifier.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1076)
+
+## `pygraphics.FrameBuffer.color_depth`
+
+```python
+FrameBuffer.color_depth
+```
+
+Bits per pixel for the framebuffer format.
+
+[View the pinned source declaration](https://github.com/PyDevices/pygraphics/blob/a02baf40d594bb77afae9676b5c803232bc188cd/src/gfx_module_cpy.c#L1077)
