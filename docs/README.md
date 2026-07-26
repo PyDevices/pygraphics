@@ -1,20 +1,14 @@
-# API reference site
+# Documentation
 
-This directory contains the reproducible Sourcey reference for the native
-`pygraphics` module. The generator reads the CPython binding tables and public C
-headers at the checked-out commit, then emits source-linked Markdown for the
-Python and native integration surfaces.
+Hand-authored MkDocs pages live in this directory and publish to
+[pygraphics.readthedocs.io](https://pygraphics.readthedocs.io).
 
 ```bash
-cd docs
-npm ci
-npm run check
+python3 -m venv .venv-docs
+.venv-docs/bin/pip install -r docs/requirements.txt
+.venv-docs/bin/mkdocs serve   # or: mkdocs build
 ```
 
-`npm run check` regenerates the reference, builds the static site into `dist/`,
-and verifies API coverage, immutable source links, project-scoped search URLs,
-canonical URLs, and integration with the existing Pages deployment. Generated
-HTML remains untracked build output.
-
-The existing Pages workflow preserves the project homepage and publishes the
-Sourcey build below `/pygraphics/api/` after a merge to `main`.
+The native (C) source-linked API is built separately with Sourcey under
+[`tools/sourcey-api/`](../tools/sourcey-api/) and deployed to
+[pydevices.github.io/pygraphics/api/](https://pydevices.github.io/pygraphics/api/).

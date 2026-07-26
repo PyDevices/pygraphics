@@ -10,17 +10,17 @@ One annotated tag `vX.Y.Z` publishes **both** products at that version:
 ## Pipeline
 
 ```text
-graphics (commit on main)
+pygraphics (commit on main)
   ./scripts/publish_release_tag.sh --push   # next patch after highest v*
            │
            ├─► publish-testpypi.yml
            │     cibuildwheel → Linux + Windows + Android → pygraphics-cmod
            │
            └─► publish-micropython-lib.yml
-                 sync → micropython/graphics/
+                 sync → micropython/pygraphics/
                  hatch + twine → pygraphics
                  rebuild mip/PyDevices → gh-pages
-                 remove legacy micropython/pydisplay/graphics/
+                 remove legacy micropython/graphics/ and pydisplay/graphics/
 ```
 
 ## Version numbers
@@ -43,7 +43,7 @@ release is **`v0.0.25`** (not `v0.0.11`). Later tags continue from the highest
 | `TESTPYPI_API_TOKEN` | TestPyPI upload (cmod + pygraphics) |
 | `MICROPYTHON_LIB_DEPLOY_TOKEN` | PAT with `contents:write` on PyDevices/micropython-lib |
 
-Grant both secrets to the **graphics** repository (org secret repository access).
+Grant both secrets to the **pygraphics** repository (org secret repository access).
 
 ## Install
 
@@ -67,3 +67,10 @@ python3 -m venv .venv
 .venv/bin/pip install -e .
 .venv/bin/python tests/test_pygraphics.py
 ```
+
+## Documentation
+
+- **Read the Docs** (guides + pure-Python API): https://pygraphics.readthedocs.io  
+  Config: `.readthedocs.yaml` + `mkdocs.yml`. Import the GitHub repo once in the
+  RTD dashboard with slug `pygraphics` if the project is not live yet.
+- **GitHub Pages** (marketing + Sourcey native API): https://pydevices.github.io/pygraphics/

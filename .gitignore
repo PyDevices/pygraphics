@@ -24,3 +24,4 @@ VERSION
 tools/sourcey-api/node_modules/
 tools/sourcey-api/dist/
 site/
+.venv-docs/

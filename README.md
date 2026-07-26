@@ -1,6 +1,6 @@
-# graphics
+# pygraphics
 
-Native and pure-Python **graphics** for MicroPython, CircuitPython, and CPython.
+Native and pure-Python **pygraphics** for MicroPython, CircuitPython, and CPython.
 Import as `pygraphics`.
 
 | Product | Pip / MIP | Role |
@@ -58,6 +58,7 @@ print(pygraphics.implementation())  # native_cmod or pygraphics_python
 
 ## Links
 
+- [Documentation](https://pygraphics.readthedocs.io)
 - [Source-linked API reference](https://pydevices.github.io/pygraphics/api/)
 - [Source](https://github.com/PyDevices/pygraphics)
 - [Issues](https://github.com/PyDevices/pygraphics/issues)
@@ -74,7 +75,7 @@ MIT (framebuf algorithms derived from MicroPython `extmod/modframebuf.c`, Damien
 ### Layout
 
 ```
-graphics/
+pygraphics/
   micropython.mk / micropython.cmake / circuitpython.mk / setup.py
   src/                     # C sources + headers (gfx_*.h, font_8x*.h, qstrs)
   lib/pygraphics/            # pure-Python package (import pygraphics)
