@@ -8,10 +8,11 @@ available; otherwise `pydisplay-graphics` / MIP `graphics`.
 
 - Root: `micropython.mk`, `micropython.cmake`, `circuitpython.mk`, `setup.py`,
   patch scripts — build glue stays here for `USER_C_MODULES` discovery
-- `src/` — all `.c` sources (shared core + MP/CP bindings + CPython extension)
-- `include/` — shared headers (`gfx_*.h`, `font_8x*.h`, `graphics_qstrdefs.h`)
+- `src/` — `.c` sources and shared headers (`gfx_*.h`, `font_8x*.h`,
+  `graphics_qstrdefs.h`)
 - `lib/graphics/` — pure-Python package (same public API as the cmod)
 - `tests/` — native smoke and parity scripts
+- `tools/` — developer benchmarks / helpers (not maintainer publish scripts)
 - No `.c` / `.h` at repo root
 
 ## Smoke

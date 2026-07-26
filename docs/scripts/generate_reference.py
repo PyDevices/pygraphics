@@ -220,10 +220,10 @@ HEADER_GROUPS: Sequence[Tuple[str, str, str, Sequence[str]]] = (
         "Native drawing and framebuffer API",
         "Public C declarations for geometry, framebuffer operations, shapes, and clipping.",
         (
-            "include/gfx_core.h",
-            "include/gfx_framebuffer.h",
-            "include/gfx_shapes.h",
-            "include/gfx_draw.h",
+            "src/gfx_core.h",
+            "src/gfx_framebuffer.h",
+            "src/gfx_shapes.h",
+            "src/gfx_draw.h",
         ),
     ),
     (
@@ -231,10 +231,10 @@ HEADER_GROUPS: Sequence[Tuple[str, str, str, Sequence[str]]] = (
         "Native fonts, images, and runtime API",
         "Public C declarations for fonts, BMP565 data, image conversion, and capability reporting.",
         (
-            "include/gfx_font.h",
-            "include/gfx_bmp565.h",
-            "include/gfx_files.h",
-            "include/gfx_capabilities.h",
+            "src/gfx_font.h",
+            "src/gfx_bmp565.h",
+            "src/gfx_files.h",
+            "src/gfx_capabilities.h",
         ),
     ),
 )

@@ -6,7 +6,7 @@
 
 **Do not modify:** upstream `micropython/` / `circuitpython/` clones (leave uncommitted).
 
-**On-disk layout:** `include/` (headers) + `src/` (`.c`) + `tests/` — see README / `AGENTS.md`. Layer names below are logical units, not repo-root paths.
+**On-disk layout:** `src/` (`.c` + headers) + `tests/` + `tools/` — see README / `AGENTS.md`. Layer names below are logical units, not repo-root paths.
 
 ---
 

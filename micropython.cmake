@@ -27,7 +27,7 @@ target_sources(graphics INTERFACE
     ${GRAPHICS_MOD_DIR}/src/gfx_area_mp.c
 )
 
-target_include_directories(graphics INTERFACE ${GRAPHICS_MOD_DIR}/include)
+target_include_directories(graphics INTERFACE ${GRAPHICS_MOD_DIR}/src)
 target_compile_options(graphics INTERFACE
     -Wno-unused-function
     -Wno-sign-compare

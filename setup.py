@@ -37,7 +37,7 @@ setup(
         Extension(
             "graphics",
             sources=GFX_SOURCES,
-            include_dirs=[os.path.join(ROOT, "include")],
+            include_dirs=[os.path.join(ROOT, "src")],
             extra_compile_args=extra_compile_args,
             extra_link_args=extra_link_args,
         ),

@@ -1,8 +1,8 @@
 # CircuitPython build glue for graphics (unix coverage).
 GRAPHICS_MOD_DIR ?= $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
 
-CFLAGS += -I$(GRAPHICS_MOD_DIR)/include -DCIRCUITPY_GRAPHICS=1
-QSTR_DEFS += $(GRAPHICS_MOD_DIR)/include/graphics_qstrdefs.h
+CFLAGS += -I$(GRAPHICS_MOD_DIR)/src -DCIRCUITPY_GRAPHICS=1
+QSTR_DEFS += $(GRAPHICS_MOD_DIR)/src/graphics_qstrdefs.h
 
 GRAPHICS_SOURCES := \
     $(GRAPHICS_MOD_DIR)/src/gfx_module_mp.c \

@@ -3,7 +3,7 @@
 """Generate C font headers from ``lib/graphics/_font_8x*.py`` romfont data.
 
 Canonical font bytes live in the pure-Python package; this script writes
-``font_8x8.h``, ``font_8x14.h``, and ``font_8x16.h`` under ``include/``.
+``font_8x8.h``, ``font_8x14.h``, and ``font_8x16.h`` under ``src/``.
 
 Usage (from repo root)::
 
@@ -19,7 +19,7 @@ import re
 import sys
 
 _GRAPHICS_DIR = Path(__file__).resolve().parents[1]
-_INCLUDE_DIR = _GRAPHICS_DIR / "include"
+_INCLUDE_DIR = _GRAPHICS_DIR / "src"
 _LIB_GRAPHICS = _GRAPHICS_DIR / "lib" / "graphics"
 
 
