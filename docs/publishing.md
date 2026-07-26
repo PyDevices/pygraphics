@@ -71,6 +71,9 @@ python3 -m venv .venv
 ## Documentation
 
 - **Read the Docs** (guides + pure-Python API): https://pygraphics.readthedocs.io  
-  Config: `.readthedocs.yaml` + `mkdocs.yml`. Import the GitHub repo once in the
-  RTD dashboard with slug `pygraphics` if the project is not live yet.
+  Config: `.readthedocs.yaml` + `mkdocs.yml`. Connected via the org
+  [Read the Docs Community GitHub App](https://github.com/organizations/PyDevices/settings/installations/149173814)
+  (no per-repo webhook). See pydisplay
+  [Building docs](https://pydisplay.readthedocs.io/en/latest/building-docs/) for
+  first-time import / legacy migration notes.
 - **GitHub Pages** (marketing + Sourcey native API): https://pydevices.github.io/pygraphics/
