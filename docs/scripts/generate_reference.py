@@ -17,7 +17,7 @@ OUTPUT_ROOT = DOCS_ROOT / "generated"
 REPOSITORY_URL = "https://github.com/PyDevices/graphics"
 PROJECT_DOCS_URL = "https://pydevices.github.io/graphics/api"
 SOURCEY_VERSION = "3.6.5"
-CPYTHON_BINDING = "gfx_module_cpy.c"
+CPYTHON_BINDING = "src/gfx_module_cpy.c"
 
 
 CLASS_SPECS: Dict[str, Dict[str, object]] = {
@@ -219,13 +219,23 @@ HEADER_GROUPS: Sequence[Tuple[str, str, str, Sequence[str]]] = (
         "native-drawing",
         "Native drawing and framebuffer API",
         "Public C declarations for geometry, framebuffer operations, shapes, and clipping.",
-        ("gfx_core.h", "gfx_framebuffer.h", "gfx_shapes.h", "gfx_draw.h"),
+        (
+            "include/gfx_core.h",
+            "include/gfx_framebuffer.h",
+            "include/gfx_shapes.h",
+            "include/gfx_draw.h",
+        ),
     ),
     (
         "native-assets-runtime",
         "Native fonts, images, and runtime API",
         "Public C declarations for fonts, BMP565 data, image conversion, and capability reporting.",
-        ("gfx_font.h", "gfx_bmp565.h", "gfx_files.h", "gfx_capabilities.h"),
+        (
+            "include/gfx_font.h",
+            "include/gfx_bmp565.h",
+            "include/gfx_files.h",
+            "include/gfx_capabilities.h",
+        ),
     ),
 )
 

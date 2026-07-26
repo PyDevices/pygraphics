@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "graphics-py"
+version = "0.0.10"
+description = "Pure-Python graphics (FrameBuffer, Draw, fonts); import as graphics"
+readme = "graphics/README.md"
+license = "MIT"
+requires-python = ">=3.8"
+authors = [{ name = "Brad Barnett", email = "contact@pydevices.com" }]
+urls = { Homepage = "https://github.com/PyDevices/graphics", Issues = "https://github.com/PyDevices/graphics/issues" }
+
+[tool.hatch.build.targets.wheel]
+packages = ["graphics"]
+
+[tool.hatch.build.targets.sdist]
+include = ["graphics"]

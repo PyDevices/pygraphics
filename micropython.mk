@@ -5,7 +5,7 @@
 
 GRAPHICS_MOD_DIR := $(USERMOD_DIR)
 
-CFLAGS_USERMOD += -I$(GRAPHICS_MOD_DIR) -Wno-unused-function -Wno-sign-compare -Wno-unused-const-variable
+CFLAGS_USERMOD += -I$(GRAPHICS_MOD_DIR)/include -Wno-unused-function -Wno-sign-compare -Wno-unused-const-variable
 # math: cosf/sinf etc.
 # - mimxrt/samd: bare `ld` — absolute libm.a in LDFLAGS
 # - stm32: CROSS_COMPILE is set *after* py.mk, so $(CC) here is the host
@@ -20,14 +20,14 @@ LDFLAGS_USERMOD += -lm
 endif
 
 SRC_USERMOD_C += \
-    $(GRAPHICS_MOD_DIR)/gfx_module_mp.c \
-    $(GRAPHICS_MOD_DIR)/gfx_bindings_mp.c \
-    $(GRAPHICS_MOD_DIR)/gfx_canvas_mp.c \
-    $(GRAPHICS_MOD_DIR)/gfx_framebuffer.c \
-    $(GRAPHICS_MOD_DIR)/gfx_shapes.c \
-    $(GRAPHICS_MOD_DIR)/gfx_draw.c \
-    $(GRAPHICS_MOD_DIR)/gfx_font.c \
-    $(GRAPHICS_MOD_DIR)/gfx_bmp565.c \
-    $(GRAPHICS_MOD_DIR)/gfx_files.c \
-    $(GRAPHICS_MOD_DIR)/gfx_capabilities.c \
-    $(GRAPHICS_MOD_DIR)/gfx_area_mp.c
+    $(GRAPHICS_MOD_DIR)/src/gfx_module_mp.c \
+    $(GRAPHICS_MOD_DIR)/src/gfx_bindings_mp.c \
+    $(GRAPHICS_MOD_DIR)/src/gfx_canvas_mp.c \
+    $(GRAPHICS_MOD_DIR)/src/gfx_framebuffer.c \
+    $(GRAPHICS_MOD_DIR)/src/gfx_shapes.c \
+    $(GRAPHICS_MOD_DIR)/src/gfx_draw.c \
+    $(GRAPHICS_MOD_DIR)/src/gfx_font.c \
+    $(GRAPHICS_MOD_DIR)/src/gfx_bmp565.c \
+    $(GRAPHICS_MOD_DIR)/src/gfx_files.c \
+    $(GRAPHICS_MOD_DIR)/src/gfx_capabilities.c \
+    $(GRAPHICS_MOD_DIR)/src/gfx_area_mp.c

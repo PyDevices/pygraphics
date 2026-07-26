@@ -14,20 +14,20 @@ set(GRAPHICS_MOD_DIR ${CMAKE_CURRENT_LIST_DIR})
 add_library(graphics INTERFACE)
 
 target_sources(graphics INTERFACE
-    ${GRAPHICS_MOD_DIR}/gfx_module_mp.c
-    ${GRAPHICS_MOD_DIR}/gfx_bindings_mp.c
-    ${GRAPHICS_MOD_DIR}/gfx_canvas_mp.c
-    ${GRAPHICS_MOD_DIR}/gfx_framebuffer.c
-    ${GRAPHICS_MOD_DIR}/gfx_shapes.c
-    ${GRAPHICS_MOD_DIR}/gfx_draw.c
-    ${GRAPHICS_MOD_DIR}/gfx_font.c
-    ${GRAPHICS_MOD_DIR}/gfx_bmp565.c
-    ${GRAPHICS_MOD_DIR}/gfx_files.c
-    ${GRAPHICS_MOD_DIR}/gfx_capabilities.c
-    ${GRAPHICS_MOD_DIR}/gfx_area_mp.c
+    ${GRAPHICS_MOD_DIR}/src/gfx_module_mp.c
+    ${GRAPHICS_MOD_DIR}/src/gfx_bindings_mp.c
+    ${GRAPHICS_MOD_DIR}/src/gfx_canvas_mp.c
+    ${GRAPHICS_MOD_DIR}/src/gfx_framebuffer.c
+    ${GRAPHICS_MOD_DIR}/src/gfx_shapes.c
+    ${GRAPHICS_MOD_DIR}/src/gfx_draw.c
+    ${GRAPHICS_MOD_DIR}/src/gfx_font.c
+    ${GRAPHICS_MOD_DIR}/src/gfx_bmp565.c
+    ${GRAPHICS_MOD_DIR}/src/gfx_files.c
+    ${GRAPHICS_MOD_DIR}/src/gfx_capabilities.c
+    ${GRAPHICS_MOD_DIR}/src/gfx_area_mp.c
 )
 
-target_include_directories(graphics INTERFACE ${GRAPHICS_MOD_DIR})
+target_include_directories(graphics INTERFACE ${GRAPHICS_MOD_DIR}/include)
 target_compile_options(graphics INTERFACE
     -Wno-unused-function
     -Wno-sign-compare
