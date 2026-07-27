@@ -499,9 +499,11 @@ def line(canvas, x0, y0, x1, y1, c):
         (Area): The bounding box of the line.
     """
     if x0 == x1:
-        return vline(canvas, x0, y0, abs(y1 - y0) + 1, c)
+        y = y0 if y0 < y1 else y1
+        return vline(canvas, x0, y, abs(y1 - y0) + 1, c)
     if y0 == y1:
-        return hline(canvas, x0, y0, abs(x1 - x0) + 1, c)
+        x = x0 if x0 < x1 else x1
+        return hline(canvas, x, y0, abs(x1 - x0) + 1, c)
 
     steep = abs(y1 - y0) > abs(x1 - x0)
     if steep:

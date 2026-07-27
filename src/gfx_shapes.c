@@ -626,6 +626,16 @@ static void rgb565_unpack(int c, int *r, int *g, int *b) {
     *b = (c << 3) & 0xF8;
 }
 
+/* Floor division matching MicroPython / CPython ``a // b`` (toward -inf). */
+static int idiv_floor(int a, int b) {
+    int q = a / b;
+    int r = a % b;
+    if (r != 0 && ((a < 0) ^ (b < 0))) {
+        q -= 1;
+    }
+    return q;
+}
+
 gfx_area_t gfx_shapes_gradient_rect(const gfx_canvas_t *canvas, int x, int y, int w, int h, int c1, int c2, int vertical) {
     if (c1 == c2) {
         return gfx_shapes_fill_rect(canvas, x, y, w, h, c1);
@@ -635,16 +645,16 @@ gfx_area_t gfx_shapes_gradient_rect(const gfx_canvas_t *canvas, int x, int y, in
     rgb565_unpack(c2, &r2, &g2, &b2);
     if (vertical) {
         for (int j = 0; j < h; j++) {
-            int r = r1 + (r2 - r1) * j / h;
-            int g = g1 + (g2 - g1) * j / h;
-            int b = b1 + (b2 - b1) * j / h;
+            int r = r1 + idiv_floor((r2 - r1) * j, h);
+            int g = g1 + idiv_floor((g2 - g1) * j, h);
+            int b = b1 + idiv_floor((b2 - b1) * j, h);
             gfx_shapes_fill_rect(canvas, x, y + j, w, 1, rgb565_from_rgb(r, g, b));
         }
     } else {
         for (int i = 0; i < w; i++) {
-            int r = r1 + (r2 - r1) * i / w;
-            int g = g1 + (g2 - g1) * i / w;
-            int b = b1 + (b2 - b1) * i / w;
+            int r = r1 + idiv_floor((r2 - r1) * i, w);
+            int g = g1 + idiv_floor((g2 - g1) * i, w);
+            int b = b1 + idiv_floor((b2 - b1) * i, w);
             gfx_shapes_fill_rect(canvas, x + i, y, 1, h, rgb565_from_rgb(r, g, b));
         }
     }
