@@ -1924,6 +1924,12 @@ const mp_obj_module_t mp_module_pygraphics = {
     .globals = (mp_obj_dict_t *)&graphics_module_globals,
 };
 
-#if !CIRCUITPY
+#if CIRCUITPY
+/* shared-bindings/graphics registers ``mp_module_graphics`` (import graphics). */
+const mp_obj_module_t mp_module_graphics = {
+    .base = { &mp_type_module },
+    .globals = (mp_obj_dict_t *)&graphics_module_globals,
+};
+#else
 MP_REGISTER_MODULE(MP_QSTR_pygraphics, mp_module_pygraphics);
 #endif

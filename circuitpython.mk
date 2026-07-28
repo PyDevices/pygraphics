@@ -1,5 +1,16 @@
 # CircuitPython build glue for pygraphics (unix coverage).
-PYGRAPHICS_MOD_DIR ?= $(patsubst %/,%,$(dir $(lastword $(MAKEFILE_LIST))))
+#
+# Prefer caller-set GRAPHICS_MOD_DIR / PYGRAPHICS_MOD_DIR. Do not use a lazy
+# ``MAKEFILE_LIST`` default: QSTR_DEFS prerequisites expand late, after other
+# makefiles have been parsed, so ``lastword $(MAKEFILE_LIST)`` becomes wrong
+# (e.g. ``../../py/src/pygraphics_qstrdefs.h``).
+ifndef PYGRAPHICS_MOD_DIR
+  ifdef GRAPHICS_MOD_DIR
+    PYGRAPHICS_MOD_DIR := $(GRAPHICS_MOD_DIR)
+  else
+    PYGRAPHICS_MOD_DIR := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+  endif
+endif
 
 CFLAGS += -I$(PYGRAPHICS_MOD_DIR)/src -DCIRCUITPY_PYGRAPHICS=1
 QSTR_DEFS += $(PYGRAPHICS_MOD_DIR)/src/pygraphics_qstrdefs.h
