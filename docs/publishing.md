@@ -4,7 +4,7 @@ One annotated tag `vX.Y.Z` publishes **both** products at that version:
 
 | Product | Channel | Workflow |
 |---------|---------|----------|
-| **pygraphics-cmod** | TestPyPI (platform wheels) | `publish-testpypi.yml` |
+| **pygraphics-cmod** | TestPyPI (platform + Pyodide wasm wheels) | `publish-testpypi.yml` |
 | **pygraphics** | TestPyPI (pure Python) + micropython-lib / MIP | `publish-micropython-lib.yml` |
 
 ## Pipeline
@@ -15,6 +15,7 @@ pygraphics (commit on main)
            │
            ├─► publish-testpypi.yml
            │     cibuildwheel → Linux + Windows + Android → pygraphics-cmod
+           │     build_pyodide_wheel.sh → pyemscripten_2026_0 wasm32
            │
            └─► publish-micropython-lib.yml
                  sync → micropython/pygraphics/
@@ -48,11 +49,16 @@ Grant both secrets to the **pygraphics** repository (org secret repository acces
 ## Install
 
 ```bash
-# native
+# native (desktop / Android)
 pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pygraphics-cmod
 
 # pure Python
 pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pygraphics
+```
+
+```python
+# Pyodide / micropip (pyemscripten_2026_0 wasm32 wheel from the same release)
+await micropip.install("pygraphics-cmod", index_urls="https://test.pypi.org/simple/")
 ```
 
 ```python
@@ -67,6 +73,19 @@ python3 -m venv .venv
 .venv/bin/pip install -e .
 .venv/bin/python tests/test_pygraphics.py
 ```
+
+## Local Pyodide / wasm wheel
+
+Host Python **3.14** + Node.js (see `scripts/build_pyodide_wheel.sh`):
+
+```bash
+./scripts/build_pyodide_wheel.sh
+# CI uses:
+./scripts/build_pyodide_wheel.sh --no-copy
+```
+
+Produces `dist/pygraphics_cmod-*-cp314-cp314-pyemscripten_2026_0_wasm32.whl` and
+optionally copies it to `web/wheels/` (+ `pygraphics.json`).
 
 ## Documentation
 

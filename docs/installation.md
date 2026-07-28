@@ -25,6 +25,16 @@ pip install \
   pygraphics-cmod
 ```
 
+## Pyodide / browser (WASM)
+
+Each TestPyPI release includes a `pyemscripten_2026_0_wasm32` wheel (same semver).
+micropip selects it automatically:
+
+```python
+import micropip
+await micropip.install("pygraphics-cmod", index_urls="https://test.pypi.org/simple/")
+```
+
 ## CPython — pure Python
 
 ```bash

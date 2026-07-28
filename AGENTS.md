@@ -33,10 +33,11 @@ PYTHONPATH=lib .venv/bin/python -c "import pygraphics; assert pygraphics.impleme
 
 One tag `vX.Y.Z` publishes:
 
-1. **pygraphics-cmod** — `publish-testpypi.yml` (cibuildwheel)
+1. **pygraphics-cmod** — `publish-testpypi.yml` (cibuildwheel Linux/Windows/Android
+   + Pyodide `pyemscripten_2026_0` wasm32 via `scripts/build_pyodide_wheel.sh`)
 2. **pygraphics** + MIP — `publish-micropython-lib.yml` (micropython-lib + TestPyPI + gh-pages)
 
-See `docs/PUBLISHING.md`. Next shared version continues the `pygraphics-cmod` line
+See `docs/publishing.md`. Next shared version continues the `pygraphics-cmod` line
 (`v0.0.9` → `v0.0.10`).
 
 ## After C changes

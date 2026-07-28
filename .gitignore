@@ -14,11 +14,14 @@ dist/
 .cursor/plans/
 
 # Repo-specific
+.venv-pyodide-build/
+.venv-pyodide/
+.pyodide_build/
 *.o
 *.a
 *.egg
 wheelhouse/
-wheels/
+/wheels/
 # Local packaging stamp written by build/publish helpers (see AGENTS.md)
 VERSION
 tools/sourcey-api/node_modules/

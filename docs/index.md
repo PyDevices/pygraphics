@@ -9,8 +9,8 @@ MicroPython, CircuitPython, and CPython.
 | **pygraphics-cmod** | TestPyPI | All-C extension (`implementation()` → `native_cmod`) |
 | **pygraphics** | TestPyPI + MIP | Pure-Python package (`pygraphics_python`) |
 
-Same public API either way. Prefer the cmod on desktop/Android when a matching
-wheel is available.
+Same public API either way. Prefer the cmod on desktop/Android/Pyodide when a
+matching wheel is available.
 
 ## Links
 
