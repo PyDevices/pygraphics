@@ -341,10 +341,48 @@ void gfx_fb_canvas_init(gfx_canvas_t *canvas, const gfx_fb_t *fb) {
     canvas->ctx = (void *)fb;
     canvas->width = fb->width;
     canvas->height = fb->height;
+    canvas->format = fb->format;
     canvas->pixel = fb_canvas_pixel;
     canvas->hline = fb_canvas_hline;
     canvas->vline = fb_canvas_vline;
     canvas->fill_rect = fb_canvas_fill_rect;
+}
+
+int gfx_canvas_try_fb_blit_rect(const gfx_canvas_t *canvas, const void *buf, int x, int y, int w, int h, int bpp) {
+    if (canvas == NULL || canvas->fill_rect != fb_canvas_fill_rect || buf == NULL || w < 1 || h < 1) {
+        return 0;
+    }
+    const gfx_fb_t *fb = (const gfx_fb_t *)canvas->ctx;
+    if (x < 0 || y < 0 || x + w > fb->width || y + h > fb->height) {
+        return 0;
+    }
+    int need = gfx_format_bytes_per_pixel(fb->format);
+    if (need <= 0 || bpp != need) {
+        return 0;
+    }
+    const uint8_t *src = (const uint8_t *)buf;
+    if (fb->format == GFX_RGB565) {
+        for (int row = 0; row < h; row++) {
+            uint8_t *dst = (uint8_t *)&((uint16_t *)fb->buf)[x + (y + row) * fb->stride];
+            memcpy(dst, src + row * w * 2, (size_t)w * 2);
+        }
+        return 1;
+    }
+    if (fb->format == GFX_GS8) {
+        for (int row = 0; row < h; row++) {
+            uint8_t *dst = &((uint8_t *)fb->buf)[x + (y + row) * fb->stride];
+            memcpy(dst, src + row * w, (size_t)w);
+        }
+        return 1;
+    }
+    if (fb->format == GFX_RGB888) {
+        for (int row = 0; row < h; row++) {
+            uint8_t *dst = (uint8_t *)fb->buf + ((size_t)(y + row) * fb->stride + (size_t)x) * 3;
+            memcpy(dst, src + (size_t)row * (size_t)w * 3, (size_t)w * 3);
+        }
+        return 1;
+    }
+    return 0;
 }
 
 void gfx_fb_scroll(gfx_fb_t *fb, int xstep, int ystep) {

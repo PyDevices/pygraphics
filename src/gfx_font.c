@@ -83,11 +83,19 @@ static gfx_area_t draw_char(const gfx_canvas_t *canvas, const gfx_font_t *font, 
         if (!line) {
             continue;
         }
-        for (int char_x = 0; char_x < font->width; char_x++) {
+        for (int char_x = 0; char_x < font->width;) {
             if ((line >> (font->width - char_x - 1)) & 0x1) {
-                int px = x + (inverted ? (font->width - char_x - 1) : char_x) * scale;
+                int run = 1;
+                while (char_x + run < font->width
+                    && ((line >> (font->width - (char_x + run) - 1)) & 0x1)) {
+                    run++;
+                }
+                int px = x + (inverted ? (font->width - char_x - run) : char_x) * scale;
                 int py = y + (inverted ? (font->height - char_y - 1) : char_y) * scale;
-                gfx_shapes_fill_rect(canvas, px, py, scale, scale, color);
+                gfx_shapes_fill_rect(canvas, px, py, run * scale, scale, color);
+                char_x += run;
+            } else {
+                char_x++;
             }
         }
     }

@@ -3,23 +3,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 #include <limits.h>
-#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "gfx_shapes.h"
-
-/* stm32 usermod parse runs before CROSS_COMPILE is set, so we cannot locate
- * newlib's hard-float libm.a; map float trig onto bundled libm_dbl instead. */
-#if defined(GFX_USE_DOUBLE_TRIG)
-#define cosf(x) ((float)cos((double)(x)))
-#define sinf(x) ((float)sin((double)(x)))
-#endif
+#include "gfx_trig.h"
 
 #define ELLIPSE_MASK_FILL (0x10)
 #define ELLIPSE_MASK_ALL (0x0f)
@@ -69,6 +58,7 @@ void gfx_clipped_canvas_init(gfx_clipped_canvas_t *cc, const gfx_canvas_t *paren
     cc->base.ctx = cc;
     cc->base.width = parent->width;
     cc->base.height = parent->height;
+    cc->base.format = parent->format;
     cc->base.pixel = clipped_pixel;
     cc->base.hline = clipped_hline;
     cc->base.vline = clipped_vline;
@@ -591,20 +581,21 @@ gfx_area_t gfx_shapes_triangle(const gfx_canvas_t *canvas, int x0, int y0, int x
 }
 
 gfx_area_t gfx_shapes_arc(const gfx_canvas_t *canvas, int x, int y, int r, float a0, float a1, int c) {
-    const int resolution = 60;
-    float ra0 = a0 * (float)M_PI / 180.0f;
-    float ra1 = a1 * (float)M_PI / 180.0f;
-    int x0 = x + (int)(r * cosf(ra0));
-    int y0 = y + (int)(r * sinf(ra0));
+    int u0 = (int)(a0 * GFX_DEG_TO_U);
+    int u1 = (int)(a1 * GFX_DEG_TO_U);
+    int s0, c0;
+    gfx_sin_cos_u(u0, &s0, &c0);
+    int x0 = x + ((r * c0) >> 15);
+    int y0 = y + ((r * s0) >> 15);
     int x_min = x0, x_max = x0;
     int y_min = y0, y_max = y0;
-    int start = (int)(ra0 * resolution);
-    int end = (int)(ra1 * resolution);
-    int step = (a1 > a0) ? 1 : -1;
-    for (int a = start; step > 0 ? a < end : a > end; a += step) {
-        float ar = (float)a / resolution;
-        int x1 = x + (int)(r * cosf(ar));
-        int y1 = y + (int)(r * sinf(ar));
+    int step = (u1 > u0) ? 1 : -1;
+    for (int u = u0; (step > 0) ? (u < u1) : (u > u1);) {
+        u += step;
+        int s1, c1;
+        gfx_sin_cos_u(u, &s1, &c1);
+        int x1 = x + ((r * c1) >> 15);
+        int y1 = y + ((r * s1) >> 15);
         gfx_shapes_line(canvas, x0, y0, x1, y1, c);
         x_min = MIN(x0, MIN(x1, x_min));
         x_max = MAX(x0, MAX(x1, x_max));
@@ -626,6 +617,16 @@ static void rgb565_unpack(int c, int *r, int *g, int *b) {
     *b = (c << 3) & 0xF8;
 }
 
+static int rgb888_from_rgb(int r, int g, int b) {
+    return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
+}
+
+static void rgb888_unpack(int c, int *r, int *g, int *b) {
+    *r = (c >> 16) & 0xFF;
+    *g = (c >> 8) & 0xFF;
+    *b = c & 0xFF;
+}
+
 /* Floor division matching MicroPython / CPython ``a // b`` (toward -inf). */
 static int idiv_floor(int a, int b) {
     int q = a / b;
@@ -636,53 +637,105 @@ static int idiv_floor(int a, int b) {
     return q;
 }
 
+static int gradient_lerp_color(int format, int c1, int c2, int t, int span) {
+    int grey_max = gfx_format_grey_max(format);
+    if (grey_max >= 0) {
+        int v = c1 + idiv_floor((c2 - c1) * t, span);
+        if (v < 0) {
+            v = 0;
+        } else if (v > grey_max) {
+            v = grey_max;
+        }
+        return v;
+    }
+    if (format == GFX_RGB888) {
+        int r1, g1, b1, r2, g2, b2;
+        rgb888_unpack(c1, &r1, &g1, &b1);
+        rgb888_unpack(c2, &r2, &g2, &b2);
+        int r = r1 + idiv_floor((r2 - r1) * t, span);
+        int g = g1 + idiv_floor((g2 - g1) * t, span);
+        int b = b1 + idiv_floor((b2 - b1) * t, span);
+        return rgb888_from_rgb(r, g, b);
+    }
+    /* Default / RGB565 */
+    int r1, g1, b1, r2, g2, b2;
+    rgb565_unpack(c1, &r1, &g1, &b1);
+    rgb565_unpack(c2, &r2, &g2, &b2);
+    int r = r1 + idiv_floor((r2 - r1) * t, span);
+    int g = g1 + idiv_floor((g2 - g1) * t, span);
+    int b = b1 + idiv_floor((b2 - b1) * t, span);
+    return rgb565_from_rgb(r, g, b);
+}
+
 gfx_area_t gfx_shapes_gradient_rect(const gfx_canvas_t *canvas, int x, int y, int w, int h, int c1, int c2, int vertical) {
     if (c1 == c2) {
         return gfx_shapes_fill_rect(canvas, x, y, w, h, c1);
     }
-    int r1, g1, b1, r2, g2, b2;
-    rgb565_unpack(c1, &r1, &g1, &b1);
-    rgb565_unpack(c2, &r2, &g2, &b2);
+    int format = canvas->format;
     if (vertical) {
         for (int j = 0; j < h; j++) {
-            int r = r1 + idiv_floor((r2 - r1) * j, h);
-            int g = g1 + idiv_floor((g2 - g1) * j, h);
-            int b = b1 + idiv_floor((b2 - b1) * j, h);
-            gfx_shapes_fill_rect(canvas, x, y + j, w, 1, rgb565_from_rgb(r, g, b));
+            int c = gradient_lerp_color(format, c1, c2, j, h);
+            gfx_shapes_fill_rect(canvas, x, y + j, w, 1, c);
         }
     } else {
         for (int i = 0; i < w; i++) {
-            int r = r1 + idiv_floor((r2 - r1) * i, w);
-            int g = g1 + idiv_floor((g2 - g1) * i, w);
-            int b = b1 + idiv_floor((b2 - b1) * i, w);
-            gfx_shapes_fill_rect(canvas, x + i, y, 1, h, rgb565_from_rgb(r, g, b));
+            int c = gradient_lerp_color(format, c1, c2, i, w);
+            gfx_shapes_fill_rect(canvas, x + i, y, 1, h, c);
         }
     }
     return gfx_area_from_rect(x, y, w, h);
 }
 
+static int blit_pixel_from_buf(const uint8_t *src, int bpp) {
+    if (bpp == 3) {
+        return (int)src[0] << 16 | (int)src[1] << 8 | (int)src[2];
+    }
+    if (bpp == 2) {
+        return (int)(src[0] | (src[1] << 8));
+    }
+    return (int)src[0];
+}
+
 gfx_area_t gfx_shapes_blit_rect(const gfx_canvas_t *canvas, const void *buf, int x, int y, int w, int h, int bpp) {
+    if (bpp <= 0) {
+        bpp = gfx_format_bytes_per_pixel(canvas->format);
+        if (bpp <= 0) {
+            bpp = 2;
+        }
+    }
+    if (gfx_canvas_try_fb_blit_rect(canvas, buf, x, y, w, h, bpp)) {
+        return gfx_area_from_rect(x, y, w, h);
+    }
     const uint8_t *src = (const uint8_t *)buf;
     for (int row = 0; row < h; row++) {
         for (int col = 0; col < w; col++) {
-            int col_val;
-            if (bpp == 2) {
-                col_val = (int)(src[(row * w + col) * 2] | (src[(row * w + col) * 2 + 1] << 8));
-            } else {
-                col_val = src[row * w + col];
-            }
-            gfx_shapes_pixel(canvas, x + col, y + row, col_val);
+            const uint8_t *p = src + ((size_t)row * (size_t)w + (size_t)col) * (size_t)bpp;
+            gfx_shapes_pixel(canvas, x + col, y + row, blit_pixel_from_buf(p, bpp));
         }
     }
     return gfx_area_from_rect(x, y, w, h);
 }
 
 gfx_area_t gfx_shapes_blit_transparent(const gfx_canvas_t *canvas, const void *buf, int x, int y, int w, int h, int key, int bpp) {
+    if (bpp <= 0) {
+        bpp = gfx_format_bytes_per_pixel(canvas->format);
+        if (bpp <= 0) {
+            bpp = 2;
+        }
+    }
     const uint8_t *src = (const uint8_t *)buf;
     int stride = w * bpp;
-    uint8_t key_bytes[2];
+    uint8_t key_bytes[4];
     key_bytes[0] = (uint8_t)(key & 0xFF);
     key_bytes[1] = (uint8_t)((key >> 8) & 0xFF);
+    key_bytes[2] = (uint8_t)((key >> 16) & 0xFF);
+    key_bytes[3] = (uint8_t)((key >> 24) & 0xFF);
+    /* RGB888 buffer layout is R,G,B — match blit_pixel_from_buf packing. */
+    if (bpp == 3) {
+        key_bytes[0] = (uint8_t)((key >> 16) & 0xFF);
+        key_bytes[1] = (uint8_t)((key >> 8) & 0xFF);
+        key_bytes[2] = (uint8_t)(key & 0xFF);
+    }
     for (int j = 0; j < h; j++) {
         int rowstart = j * stride;
         int colstart = 0;
@@ -729,14 +782,18 @@ gfx_area_t gfx_shapes_polygon(const gfx_canvas_t *canvas, const int *points, siz
     if (n_points > 64) {
         return gfx_area_from_rect(0, 0, 0, 0);
     }
-    float cos_a = cosf(angle);
-    float sin_a = sinf(angle);
+    int sin_a = 0, cos_a = 32767;
+    if (angle != 0.0f) {
+        gfx_sin_cos_rad(angle, &sin_a, &cos_a);
+    }
     for (size_t i = 0; i < n_points; i++) {
         int px = points[i * 2];
         int py = points[i * 2 + 1];
         if (angle != 0.0f) {
-            rx[i] = x + center_x + (int)((px - center_x) * cos_a - (py - center_y) * sin_a);
-            ry[i] = y + center_y + (int)((px - center_x) * sin_a + (py - center_y) * cos_a);
+            int dx = px - center_x;
+            int dy = py - center_y;
+            rx[i] = x + center_x + ((dx * cos_a - dy * sin_a) >> 15);
+            ry[i] = y + center_y + ((dx * sin_a + dy * cos_a) >> 15);
         } else {
             rx[i] = x + px;
             ry[i] = y + py;

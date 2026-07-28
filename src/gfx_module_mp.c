@@ -478,8 +478,9 @@ static mp_obj_t framebuf_blit_rect(size_t n_args, const mp_obj_t *args_in) {
     mp_obj_framebuf_t *self = framebuf_from_obj(args_in[0]);
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args_in[1], &bufinfo, MP_BUFFER_READ);
+    int bpp = gfx_format_bytes_per_pixel(self->canvas.format);
     gfx_area_t area = gfx_shapes_blit_rect(&self->canvas, bufinfo.buf, mp_obj_get_int(args_in[2]),
-        mp_obj_get_int(args_in[3]), mp_obj_get_int(args_in[4]), mp_obj_get_int(args_in[5]), 2);
+        mp_obj_get_int(args_in[3]), mp_obj_get_int(args_in[4]), mp_obj_get_int(args_in[5]), bpp);
     return gfx_area_mp_from_gfx(&area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_blit_rect_obj, 6, 6, framebuf_blit_rect);
@@ -489,9 +490,10 @@ static mp_obj_t framebuf_blit_transparent(size_t n_args, const mp_obj_t *args_in
     mp_obj_framebuf_t *self = framebuf_from_obj(args_in[0]);
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args_in[1], &bufinfo, MP_BUFFER_READ);
+    int bpp = gfx_format_bytes_per_pixel(self->canvas.format);
     gfx_area_t area = gfx_shapes_blit_transparent(&self->canvas, bufinfo.buf, mp_obj_get_int(args_in[2]),
         mp_obj_get_int(args_in[3]), mp_obj_get_int(args_in[4]), mp_obj_get_int(args_in[5]),
-        mp_obj_get_int(args_in[6]), 2);
+        mp_obj_get_int(args_in[6]), bpp);
     return gfx_area_mp_from_gfx(&area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_blit_transparent_obj, 7, 7, framebuf_blit_transparent);

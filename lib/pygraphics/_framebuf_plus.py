@@ -8,7 +8,7 @@ Format constants match MicroPython ``framebuf`` where applicable:
 * ``RGB888`` — 24-bit color (pygraphics extension; value ``7``)
 """
 
-from . import _files, _font, _shapes
+from . import _font, _shapes
 from ._area import Area
 from ._blit_hooks import clip_blit_bounds
 
@@ -616,6 +616,8 @@ class FrameBuffer(_FrameBuffer):
         Args:
             filename (str): Filename to save to
         """
+        from . import _files
+
         return _files.save_image(self, filename)
 
     def export(self, filename):
@@ -624,6 +626,8 @@ class FrameBuffer(_FrameBuffer):
         See :func:`pygraphics._files.export_framebuffer`. Ships ``BITMAP`` as a
         ``bytearray`` for zero-copy :meth:`from_bitmap` on MicroPython.
         """
+        from . import _files
+
         return _files.export_framebuffer(self, filename)
 
     @staticmethod
@@ -637,6 +641,8 @@ class FrameBuffer(_FrameBuffer):
         Returns:
             FrameBuffer: Image loaded as a framebuffer.
         """
+        from . import _files
+
         return _files.load_image(filename)
 
     @staticmethod

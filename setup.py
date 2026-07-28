@@ -16,7 +16,7 @@ else:
         "-Wno-unused-function",
         "-Wno-sign-compare",
     ]
-    extra_link_args = ["-lm"]
+    extra_link_args = []
 
 GFX_SOURCES = [
     os.path.join("src", "gfx_module_cpy.c"),

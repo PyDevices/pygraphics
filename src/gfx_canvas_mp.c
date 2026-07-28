@@ -109,11 +109,18 @@ static bool mp_init_py_canvas(mp_obj_t target, mp_canvas_slot_t *slot) {
     }
     mp_int_t width = mp_obj_attr_int(target, MP_QSTR_width);
     mp_int_t height = mp_obj_attr_int(target, MP_QSTR_height);
+    int format = GFX_RGB565;
+    mp_obj_t dest[2];
+    mp_load_method_maybe(target, MP_QSTR_format, dest);
+    if (dest[0] != MP_OBJ_NULL) {
+        format = (int)mp_obj_get_int(mp_load_attr(target, MP_QSTR_format));
+    }
     slot->kind = MP_CANVAS_PY_OBJ;
     slot->u.py.obj = target;
     slot->canvas.ctx = &slot->u.py;
     slot->canvas.width = width;
     slot->canvas.height = height;
+    slot->canvas.format = format;
     slot->canvas.pixel = py_canvas_pixel;
     slot->canvas.hline = py_canvas_hline;
     slot->canvas.vline = py_canvas_vline;

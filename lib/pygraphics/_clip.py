@@ -4,9 +4,7 @@
 """Clip-region wrapper for draw targets."""
 
 from ._area import Area
-from ._blit_hooks import blit_rect_dispatch
-
-_RGB565_BPP = 2
+from ._blit_hooks import blit_rect_dispatch, canvas_bytes_per_pixel, crop_buffer
 
 
 def intersect_rect(x, y, w, h, clip):
@@ -21,13 +19,7 @@ def intersect_rect(x, y, w, h, clip):
 
 def crop_rgb565_buffer(buf, src_w, src_x, src_y, crop_w, crop_h):
     """Extract a sub-rectangle from a top-down RGB565 buffer."""
-    row_bytes = crop_w * _RGB565_BPP
-    out = bytearray(row_bytes * crop_h)
-    for row in range(crop_h):
-        src_start = ((src_y + row) * src_w + src_x) * _RGB565_BPP
-        dst_start = row * row_bytes
-        out[dst_start : dst_start + row_bytes] = buf[src_start : src_start + row_bytes]
-    return out
+    return crop_buffer(buf, src_w, src_x, src_y, crop_w, crop_h, 2)
 
 
 class ClippedCanvas:
@@ -145,10 +137,10 @@ class ClippedCanvas:
         return self.fill_rect(x, y, 1, h, c)
 
     def blit_rect(self, buf, x, y, w, h):
-        """Blit an RGB565 buffer, cropping to the clip region.
+        """Blit a packed buffer, cropping to the clip region.
 
         Args:
-            buf: Source RGB565 bytes for a ``w`` × ``h`` rectangle.
+            buf: Source bytes for a ``w`` x ``h`` rectangle (canvas bpp).
             x: Destination x.
             y: Destination y.
             w: Source width.
@@ -163,15 +155,18 @@ class ClippedCanvas:
         dx = hit.x - x
         dy = hit.y - y
         if dx or dy or hit.w != w or hit.h != h:
-            buf = crop_rgb565_buffer(buf, w, dx, dy, hit.w, hit.h)
+            bpp = canvas_bytes_per_pixel(self._canvas)
+            if bpp <= 0:
+                bpp = 2
+            buf = crop_buffer(buf, w, dx, dy, hit.w, hit.h, bpp)
         blit_rect_dispatch(self._canvas, buf, hit.x, hit.y, hit.w, hit.h)
         return hit
 
     def blit_transparent(self, buf, x, y, w, h, key):
-        """Blit an RGB565 buffer with transparency, cropped to the clip.
+        """Blit a packed buffer with transparency, cropped to the clip.
 
         Args:
-            buf: Source RGB565 bytes for a ``w`` × ``h`` rectangle.
+            buf: Source bytes for a ``w`` x ``h`` rectangle (canvas bpp).
             x: Destination x.
             y: Destination y.
             w: Source width.
@@ -189,7 +184,10 @@ class ClippedCanvas:
         dx = hit.x - x
         dy = hit.y - y
         if dx or dy or hit.w != w or hit.h != h:
-            buf = crop_rgb565_buffer(buf, w, dx, dy, hit.w, hit.h)
+            bpp = canvas_bytes_per_pixel(self._canvas)
+            if bpp <= 0:
+                bpp = 2
+            buf = crop_buffer(buf, w, dx, dy, hit.w, hit.h, bpp)
         return blit_transparent(self._canvas, buf, hit.x, hit.y, hit.w, hit.h, key)
 
 

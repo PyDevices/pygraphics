@@ -6,18 +6,7 @@
 PYGRAPHICS_MOD_DIR := $(USERMOD_DIR)
 
 CFLAGS_USERMOD += -I$(PYGRAPHICS_MOD_DIR)/src -Wno-unused-function -Wno-sign-compare -Wno-unused-const-variable
-# math: cosf/sinf etc.
-# - mimxrt/samd: bare `ld` — absolute libm.a in LDFLAGS
-# - stm32: CROSS_COMPILE is set *after* py.mk, so $(CC) here is the host
-#   compiler; use double trig via bundled libm_dbl instead of newlib libm
-# - else: -lm
-ifneq ($(findstring /ports/mimxrt,$(CURDIR))$(findstring /ports/samd,$(CURDIR)),)
-LDFLAGS_USERMOD += $(shell $(CC) $(CFLAGS) -print-file-name=libm.a)
-else ifneq ($(findstring /ports/stm32,$(CURDIR)),)
-CFLAGS_USERMOD += -DGFX_USE_DOUBLE_TRIG=1
-else
-LDFLAGS_USERMOD += -lm
-endif
+# Arc/polygon use Q15 LUT in gfx_trig.h — no libm required.
 
 SRC_USERMOD_C += \
     $(PYGRAPHICS_MOD_DIR)/src/gfx_module_mp.c \

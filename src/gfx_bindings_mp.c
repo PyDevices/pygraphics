@@ -402,8 +402,10 @@ static mp_obj_t draw_blit_rect(size_t n_args, const mp_obj_t *args) {
     mp_obj_draw_t *self = MP_OBJ_TO_PTR(args[0]);
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
-    gfx_area_t area = gfx_shapes_blit_rect(draw_target(self), bufinfo.buf, mp_obj_get_int(args[2]),
-        mp_obj_get_int(args[3]), mp_obj_get_int(args[4]), mp_obj_get_int(args[5]), 2);
+    const gfx_canvas_t *canvas = draw_target(self);
+    int bpp = gfx_format_bytes_per_pixel(canvas->format);
+    gfx_area_t area = gfx_shapes_blit_rect(canvas, bufinfo.buf, mp_obj_get_int(args[2]),
+        mp_obj_get_int(args[3]), mp_obj_get_int(args[4]), mp_obj_get_int(args[5]), bpp);
     return gfx_area_mp_from_gfx(&area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(draw_blit_rect_obj, 6, 6, draw_blit_rect);
@@ -412,9 +414,11 @@ static mp_obj_t draw_blit_transparent(size_t n_args, const mp_obj_t *args) {
     mp_obj_draw_t *self = MP_OBJ_TO_PTR(args[0]);
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
-    gfx_area_t area = gfx_shapes_blit_transparent(draw_target(self), bufinfo.buf, mp_obj_get_int(args[2]),
+    const gfx_canvas_t *canvas = draw_target(self);
+    int bpp = gfx_format_bytes_per_pixel(canvas->format);
+    gfx_area_t area = gfx_shapes_blit_transparent(canvas, bufinfo.buf, mp_obj_get_int(args[2]),
         mp_obj_get_int(args[3]), mp_obj_get_int(args[4]), mp_obj_get_int(args[5]),
-        mp_obj_get_int(args[6]), 2);
+        mp_obj_get_int(args[6]), bpp);
     return gfx_area_mp_from_gfx(&area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(draw_blit_transparent_obj, 7, 7, draw_blit_transparent);
@@ -701,22 +705,26 @@ static mp_obj_t clipped_blit_rect(size_t n_args, const mp_obj_t *args) {
     mp_canvas_slot_t slot;
     gfx_clipped_canvas_t cc;
     const gfx_canvas_t *canvas = clipped_bind(self, &slot, &cc);
-    /* Crop when the destination rect is partially outside the clip (RGB565). */
+    int bpp = gfx_format_bytes_per_pixel(canvas->format);
+    if (bpp <= 0) {
+        bpp = 2;
+    }
+    /* Crop when the destination rect is partially outside the clip. */
     int dx = hit.x - x;
     int dy = hit.y - y;
     if (dx || dy || hit.w != w || hit.h != h) {
-        size_t row_bytes = (size_t)hit.w * 2;
+        size_t row_bytes = (size_t)hit.w * (size_t)bpp;
         size_t out_len = row_bytes * (size_t)hit.h;
         uint8_t *out = m_new(uint8_t, out_len);
         const uint8_t *src = (const uint8_t *)bufinfo.buf;
         for (int row = 0; row < hit.h; row++) {
-            size_t src_start = ((size_t)(dy + row) * (size_t)w + (size_t)dx) * 2;
+            size_t src_start = ((size_t)(dy + row) * (size_t)w + (size_t)dx) * (size_t)bpp;
             memcpy(out + (size_t)row * row_bytes, src + src_start, row_bytes);
         }
-        gfx_shapes_blit_rect(canvas, out, hit.x, hit.y, hit.w, hit.h, 2);
+        gfx_shapes_blit_rect(canvas, out, hit.x, hit.y, hit.w, hit.h, bpp);
         m_del(uint8_t, out, out_len);
     } else {
-        gfx_shapes_blit_rect(canvas, bufinfo.buf, hit.x, hit.y, hit.w, hit.h, 2);
+        gfx_shapes_blit_rect(canvas, bufinfo.buf, hit.x, hit.y, hit.w, hit.h, bpp);
     }
     return gfx_area_mp_from_gfx(&hit);
 }
@@ -738,22 +746,26 @@ static mp_obj_t clipped_blit_transparent(size_t n_args, const mp_obj_t *args) {
     mp_canvas_slot_t slot;
     gfx_clipped_canvas_t cc;
     const gfx_canvas_t *canvas = clipped_bind(self, &slot, &cc);
+    int bpp = gfx_format_bytes_per_pixel(canvas->format);
+    if (bpp <= 0) {
+        bpp = 2;
+    }
     int dx = hit.x - x;
     int dy = hit.y - y;
     int key = mp_obj_get_int(args[6]);
     if (dx || dy || hit.w != w || hit.h != h) {
-        size_t row_bytes = (size_t)hit.w * 2;
+        size_t row_bytes = (size_t)hit.w * (size_t)bpp;
         size_t out_len = row_bytes * (size_t)hit.h;
         uint8_t *out = m_new(uint8_t, out_len);
         const uint8_t *src = (const uint8_t *)bufinfo.buf;
         for (int row = 0; row < hit.h; row++) {
-            size_t src_start = ((size_t)(dy + row) * (size_t)w + (size_t)dx) * 2;
+            size_t src_start = ((size_t)(dy + row) * (size_t)w + (size_t)dx) * (size_t)bpp;
             memcpy(out + (size_t)row * row_bytes, src + src_start, row_bytes);
         }
-        gfx_shapes_blit_transparent(canvas, out, hit.x, hit.y, hit.w, hit.h, key, 2);
+        gfx_shapes_blit_transparent(canvas, out, hit.x, hit.y, hit.w, hit.h, key, bpp);
         m_del(uint8_t, out, out_len);
     } else {
-        gfx_shapes_blit_transparent(canvas, bufinfo.buf, hit.x, hit.y, hit.w, hit.h, key, 2);
+        gfx_shapes_blit_transparent(canvas, bufinfo.buf, hit.x, hit.y, hit.w, hit.h, key, bpp);
     }
     return gfx_area_mp_from_gfx(&hit);
 }
@@ -1533,8 +1545,9 @@ static mp_obj_t mod_blit_rect(size_t n_args, const mp_obj_t *args) {
     const gfx_canvas_t *canvas = &slot.canvas;
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
+    int bpp = gfx_format_bytes_per_pixel(canvas->format);
     gfx_area_t area = gfx_shapes_blit_rect(canvas, bufinfo.buf, mp_obj_get_int(args[2]),
-        mp_obj_get_int(args[3]), mp_obj_get_int(args[4]), mp_obj_get_int(args[5]), 2);
+        mp_obj_get_int(args[3]), mp_obj_get_int(args[4]), mp_obj_get_int(args[5]), bpp);
     return gfx_area_mp_from_gfx(&area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_blit_rect_obj, 6, 6, mod_blit_rect);
@@ -1547,9 +1560,10 @@ static mp_obj_t mod_blit_transparent(size_t n_args, const mp_obj_t *args) {
     const gfx_canvas_t *canvas = &slot.canvas;
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args[1], &bufinfo, MP_BUFFER_READ);
+    int bpp = gfx_format_bytes_per_pixel(canvas->format);
     gfx_area_t area = gfx_shapes_blit_transparent(canvas, bufinfo.buf, mp_obj_get_int(args[2]),
         mp_obj_get_int(args[3]), mp_obj_get_int(args[4]), mp_obj_get_int(args[5]),
-        mp_obj_get_int(args[6]), 2);
+        mp_obj_get_int(args[6]), bpp);
     return gfx_area_mp_from_gfx(&area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_blit_transparent_obj, 7, 7, mod_blit_transparent);

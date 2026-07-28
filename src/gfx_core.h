@@ -142,10 +142,43 @@ typedef struct gfx_canvas {
     void *ctx;
     int width;
     int height;
+    int format; /* GFX_* ; GFX_RGB565 when unknown (duck-typed canvases) */
     int (*pixel)(void *ctx, int x, int y, int c, int set);
     void (*hline)(void *ctx, int x, int y, int w, int c);
     void (*vline)(void *ctx, int x, int y, int h, int c);
     void (*fill_rect)(void *ctx, int x, int y, int w, int h, int c);
 } gfx_canvas_t;
+
+/* Bytes per packed pixel for contiguous buffer blits (0 = bit-packed / N/A). */
+static inline int gfx_format_bytes_per_pixel(int format) {
+    switch (format) {
+        case GFX_RGB888:
+            return 3;
+        case GFX_RGB565:
+            return 2;
+        case GFX_GS8:
+            return 1;
+        default:
+            return 0;
+    }
+}
+
+/* Max channel value for greyscale / mono formats (-1 if RGB). */
+static inline int gfx_format_grey_max(int format) {
+    switch (format) {
+        case GFX_MVLSB:
+        case GFX_MHLSB:
+        case GFX_MHMSB:
+            return 1;
+        case GFX_GS2_HMSB:
+            return 3;
+        case GFX_GS4_HMSB:
+            return 15;
+        case GFX_GS8:
+            return 255;
+        default:
+            return -1;
+    }
+}
 
 #endif

@@ -34,9 +34,6 @@ target_compile_options(pygraphics INTERFACE
     -Wno-unused-const-variable
 )
 
-# libm: required on some desktop ports; ESP-IDF already links libm into the app.
-if(NOT ESP_PLATFORM)
-    target_link_libraries(pygraphics INTERFACE m)
-endif()
+# Arc/polygon use Q15 LUT (gfx_trig.h) — no libm.
 
 target_link_libraries(usermod INTERFACE pygraphics)

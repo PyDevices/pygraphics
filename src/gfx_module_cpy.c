@@ -524,10 +524,18 @@ static int cpy_canvas_resolve(PyObject *target, cpy_canvas_slot_t *slot) {
         if (cpy_py_attr_int(target, "width", &w) < 0 || cpy_py_attr_int(target, "height", &h) < 0) {
             return -1;
         }
+        int format = GFX_RGB565;
+        int fmt_attr;
+        if (cpy_py_attr_int(target, "format", &fmt_attr) == 0) {
+            format = fmt_attr;
+        } else {
+            PyErr_Clear();
+        }
         slot->py.obj = target;
         slot->canvas.ctx = &slot->py;
         slot->canvas.width = w;
         slot->canvas.height = h;
+        slot->canvas.format = format;
         slot->canvas.pixel = py_canvas_pixel;
         slot->canvas.hline = py_canvas_hline;
         slot->canvas.vline = py_canvas_vline;
@@ -956,7 +964,8 @@ static PyObject *framebuffer_blit_rect(GfxFrameBufferObject *self, PyObject *arg
     if (PyObject_GetBuffer(buf, &view, PyBUF_SIMPLE) < 0) {
         return NULL;
     }
-    gfx_area_t area = gfx_shapes_blit_rect(&self->canvas, view.buf, x, y, w, h, 2);
+    int bpp = gfx_format_bytes_per_pixel(self->canvas.format);
+    gfx_area_t area = gfx_shapes_blit_rect(&self->canvas, view.buf, x, y, w, h, bpp);
     PyBuffer_Release(&view);
     return area_from_gfx(&area);
 }
@@ -971,7 +980,8 @@ static PyObject *framebuffer_blit_transparent(GfxFrameBufferObject *self, PyObje
     if (PyObject_GetBuffer(buf, &view, PyBUF_SIMPLE) < 0) {
         return NULL;
     }
-    gfx_area_t area = gfx_shapes_blit_transparent(&self->canvas, view.buf, x, y, w, h, key, 2);
+    int bpp = gfx_format_bytes_per_pixel(self->canvas.format);
+    gfx_area_t area = gfx_shapes_blit_transparent(&self->canvas, view.buf, x, y, w, h, key, bpp);
     PyBuffer_Release(&view);
     return area_from_gfx(&area);
 }
@@ -1478,7 +1488,8 @@ static PyObject *mod_blit_rect(PyObject *self, PyObject *args) {
     if (PyObject_GetBuffer(buf, &view, PyBUF_SIMPLE) < 0) {
         return NULL;
     }
-    gfx_area_t area = gfx_shapes_blit_rect(&slot.canvas, view.buf, x, y, w, h, 2);
+    int bpp = gfx_format_bytes_per_pixel(slot.canvas.format);
+    gfx_area_t area = gfx_shapes_blit_rect(&slot.canvas, view.buf, x, y, w, h, bpp);
     PyBuffer_Release(&view);
     RETURN_AREA(area);
 }
@@ -1498,7 +1509,8 @@ static PyObject *mod_blit_transparent(PyObject *self, PyObject *args) {
     if (PyObject_GetBuffer(buf, &view, PyBUF_SIMPLE) < 0) {
         return NULL;
     }
-    gfx_area_t area = gfx_shapes_blit_transparent(&slot.canvas, view.buf, x, y, w, h, key, 2);
+    int bpp = gfx_format_bytes_per_pixel(slot.canvas.format);
+    gfx_area_t area = gfx_shapes_blit_transparent(&slot.canvas, view.buf, x, y, w, h, key, bpp);
     PyBuffer_Release(&view);
     RETURN_AREA(area);
 }
@@ -1966,7 +1978,8 @@ static PyObject *draw_blit_rect(GfxDrawObject *self, PyObject *args) {
     if (PyObject_GetBuffer(buf, &view, PyBUF_SIMPLE) < 0) {
         return NULL;
     }
-    gfx_area_t area = gfx_shapes_blit_rect(t, view.buf, x, y, w, h, 2);
+    int bpp = gfx_format_bytes_per_pixel(t->format);
+    gfx_area_t area = gfx_shapes_blit_rect(t, view.buf, x, y, w, h, bpp);
     PyBuffer_Release(&view);
     RETURN_AREA(area);
 }
@@ -1985,7 +1998,8 @@ static PyObject *draw_blit_transparent(GfxDrawObject *self, PyObject *args) {
     if (PyObject_GetBuffer(buf, &view, PyBUF_SIMPLE) < 0) {
         return NULL;
     }
-    gfx_area_t area = gfx_shapes_blit_transparent(t, view.buf, x, y, w, h, key, 2);
+    int bpp = gfx_format_bytes_per_pixel(t->format);
+    gfx_area_t area = gfx_shapes_blit_transparent(t, view.buf, x, y, w, h, key, bpp);
     PyBuffer_Release(&view);
     RETURN_AREA(area);
 }
@@ -2332,10 +2346,14 @@ static PyObject *clipped_blit_rect(GfxClippedCanvasObject *self, PyObject *args)
     }
     gfx_clipped_canvas_t cc;
     gfx_clipped_canvas_init(&cc, &slot.canvas, &self->clip);
+    int bpp = gfx_format_bytes_per_pixel(cc.base.format);
+    if (bpp <= 0) {
+        bpp = 2;
+    }
     int dx = hit.x - x;
     int dy = hit.y - y;
     if (dx || dy || hit.w != w || hit.h != h) {
-        size_t row_bytes = (size_t)hit.w * 2;
+        size_t row_bytes = (size_t)hit.w * (size_t)bpp;
         size_t out_len = row_bytes * (size_t)hit.h;
         uint8_t *out = (uint8_t *)PyMem_Malloc(out_len);
         if (!out) {
@@ -2344,13 +2362,13 @@ static PyObject *clipped_blit_rect(GfxClippedCanvasObject *self, PyObject *args)
         }
         const uint8_t *src = (const uint8_t *)view.buf;
         for (int row = 0; row < hit.h; row++) {
-            size_t src_start = ((size_t)(dy + row) * (size_t)w + (size_t)dx) * 2;
+            size_t src_start = ((size_t)(dy + row) * (size_t)w + (size_t)dx) * (size_t)bpp;
             memcpy(out + (size_t)row * row_bytes, src + src_start, row_bytes);
         }
-        gfx_shapes_blit_rect(&cc.base, out, hit.x, hit.y, hit.w, hit.h, 2);
+        gfx_shapes_blit_rect(&cc.base, out, hit.x, hit.y, hit.w, hit.h, bpp);
         PyMem_Free(out);
     } else {
-        gfx_shapes_blit_rect(&cc.base, view.buf, hit.x, hit.y, hit.w, hit.h, 2);
+        gfx_shapes_blit_rect(&cc.base, view.buf, hit.x, hit.y, hit.w, hit.h, bpp);
     }
     PyBuffer_Release(&view);
     return area_from_gfx(&hit);
@@ -2374,10 +2392,14 @@ static PyObject *clipped_blit_transparent(GfxClippedCanvasObject *self, PyObject
     }
     gfx_clipped_canvas_t cc;
     gfx_clipped_canvas_init(&cc, &slot.canvas, &self->clip);
+    int bpp = gfx_format_bytes_per_pixel(cc.base.format);
+    if (bpp <= 0) {
+        bpp = 2;
+    }
     int dx = hit.x - x;
     int dy = hit.y - y;
     if (dx || dy || hit.w != w || hit.h != h) {
-        size_t row_bytes = (size_t)hit.w * 2;
+        size_t row_bytes = (size_t)hit.w * (size_t)bpp;
         size_t out_len = row_bytes * (size_t)hit.h;
         uint8_t *out = (uint8_t *)PyMem_Malloc(out_len);
         if (!out) {
@@ -2386,13 +2408,13 @@ static PyObject *clipped_blit_transparent(GfxClippedCanvasObject *self, PyObject
         }
         const uint8_t *src = (const uint8_t *)view.buf;
         for (int row = 0; row < hit.h; row++) {
-            size_t src_start = ((size_t)(dy + row) * (size_t)w + (size_t)dx) * 2;
+            size_t src_start = ((size_t)(dy + row) * (size_t)w + (size_t)dx) * (size_t)bpp;
             memcpy(out + (size_t)row * row_bytes, src + src_start, row_bytes);
         }
-        gfx_shapes_blit_transparent(&cc.base, out, hit.x, hit.y, hit.w, hit.h, key, 2);
+        gfx_shapes_blit_transparent(&cc.base, out, hit.x, hit.y, hit.w, hit.h, key, bpp);
         PyMem_Free(out);
     } else {
-        gfx_shapes_blit_transparent(&cc.base, view.buf, hit.x, hit.y, hit.w, hit.h, key, 2);
+        gfx_shapes_blit_transparent(&cc.base, view.buf, hit.x, hit.y, hit.w, hit.h, key, bpp);
     }
     PyBuffer_Release(&view);
     return area_from_gfx(&hit);
