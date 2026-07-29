@@ -18,7 +18,7 @@ typedef struct gfx_fb {
     uint8_t format;
 } gfx_fb_t;
 
-int gfx_fb_validate_buffer(size_t buf_len, int width, int height, int format, int stride);
+int gfx_fb_validate_buffer(size_t buf_len, int width, int height, int format, int *stride_io);
 int gfx_fb_color_depth(int format);
 
 void gfx_fb_setpixel(const gfx_fb_t *fb, unsigned int x, unsigned int y, uint32_t col);

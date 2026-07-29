@@ -227,7 +227,11 @@ int gfx_fb_color_depth(int format) {
     }
 }
 
-int gfx_fb_validate_buffer(size_t buf_len, int width, int height, int format, int stride) {
+int gfx_fb_validate_buffer(size_t buf_len, int width, int height, int format, int *stride_io) {
+    if (stride_io == NULL) {
+        return -1;
+    }
+    int stride = *stride_io;
     if (width < 1 || height < 1 || width > 0xffff || height > 0xffff || stride > 0xffff || stride < width) {
         return -1;
     }
@@ -244,6 +248,8 @@ int gfx_fb_validate_buffer(size_t buf_len, int width, int height, int format, in
             break;
         case GFX_MHLSB:
         case GFX_MHMSB:
+            /* Match MicroPython: store stride rounded up so each row starts on a
+             * byte boundary (PBM / pdwidgets icons with width not multiple of 8). */
             stride = (stride + 7) & ~7;
             width_required = ((size_t)width + 7) & ~7u;
             break;
@@ -273,6 +279,7 @@ int gfx_fb_validate_buffer(size_t buf_len, int width, int height, int format, in
     if ((strides_required * (size_t)stride + (height_required - strides_required) * width_required) * bpp / 8 > buf_len) {
         return -1;
     }
+    *stride_io = stride;
     return 0;
 }
 

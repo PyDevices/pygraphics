@@ -577,7 +577,8 @@ static int get_readonly_framebuffer(PyObject *arg, gfx_fb_t *fb_out, Py_buffer *
         PyBuffer_Release(view);
         return -1;
     }
-    if (gfx_fb_validate_buffer(view->len, (int)width, (int)height, (int)format, (int)stride) < 0) {
+    int stride_i = (int)stride;
+    if (gfx_fb_validate_buffer(view->len, (int)width, (int)height, (int)format, &stride_i) < 0) {
         PyBuffer_Release(view);
         PyErr_SetString(PyExc_ValueError, "invalid framebuffer parameters");
         return -1;
@@ -585,7 +586,7 @@ static int get_readonly_framebuffer(PyObject *arg, gfx_fb_t *fb_out, Py_buffer *
     fb_out->buf = view->buf;
     fb_out->width = (uint16_t)width;
     fb_out->height = (uint16_t)height;
-    fb_out->stride = (uint16_t)stride;
+    fb_out->stride = (uint16_t)stride_i;
     fb_out->format = (uint8_t)format;
     *have_view = 1;
     return 0;
@@ -672,7 +673,7 @@ static int framebuffer_init_from_buffer(PyObject *buf_obj, int width, int height
     if (PyObject_GetBuffer(buf_obj, &view, PyBUF_WRITABLE) < 0) {
         return -1;
     }
-    if (gfx_fb_validate_buffer(view.len, width, height, format, stride) < 0) {
+    if (gfx_fb_validate_buffer(view.len, width, height, format, &stride) < 0) {
         PyBuffer_Release(&view);
         PyErr_SetString(PyExc_ValueError, "invalid framebuffer parameters");
         return -1;
@@ -2420,6 +2421,47 @@ static PyObject *clipped_blit_transparent(GfxClippedCanvasObject *self, PyObject
     return area_from_gfx(&hit);
 }
 
+/* Romfont text via clipped canvas — do not fall through to canvas.text. */
+static PyObject *clipped_text_common(GfxClippedCanvasObject *self, PyObject *args, PyObject *kwds, int fixed_height) {
+    static char *kwlist_h[] = {"s", "x", "y", "c", "scale", "inverted", "font_data", "height", NULL};
+    static char *kwlist[] = {"s", "x", "y", "c", "scale", "inverted", "font_data", NULL};
+    const char *s;
+    int x, y, c = 1, scale = 1, inverted = 0, height = 8;
+    PyObject *font_data = NULL;
+    if (fixed_height < 0) {
+        if (!PyArg_ParseTupleAndKeywords(args, kwds, "sii|iipOi", kwlist_h,
+                &s, &x, &y, &c, &scale, &inverted, &font_data, &height)) {
+            return NULL;
+        }
+    } else {
+        height = fixed_height;
+        if (!PyArg_ParseTupleAndKeywords(args, kwds, "sii|iipO", kwlist,
+                &s, &x, &y, &c, &scale, &inverted, &font_data)) {
+            return NULL;
+        }
+    }
+    cpy_canvas_slot_t slot;
+    if (cpy_canvas_resolve(self->canvas_obj, &slot) < 0) {
+        return NULL;
+    }
+    gfx_clipped_canvas_t cc;
+    gfx_clipped_canvas_init(&cc, &slot.canvas, &self->clip);
+    return do_text(&cc.base, s, x, y, c, scale, inverted, font_data, height);
+}
+
+static PyObject *clipped_text(GfxClippedCanvasObject *self, PyObject *args, PyObject *kwds) {
+    return clipped_text_common(self, args, kwds, -1);
+}
+static PyObject *clipped_text8(GfxClippedCanvasObject *self, PyObject *args, PyObject *kwds) {
+    return clipped_text_common(self, args, kwds, 8);
+}
+static PyObject *clipped_text14(GfxClippedCanvasObject *self, PyObject *args, PyObject *kwds) {
+    return clipped_text_common(self, args, kwds, 14);
+}
+static PyObject *clipped_text16(GfxClippedCanvasObject *self, PyObject *args, PyObject *kwds) {
+    return clipped_text_common(self, args, kwds, 16);
+}
+
 static PyMethodDef clipped_canvas_methods[] = {
     {"pixel", (PyCFunction)clipped_pixel, METH_VARARGS, NULL},
     {"fill", (PyCFunction)clipped_fill, METH_VARARGS, NULL},
@@ -2428,6 +2470,10 @@ static PyMethodDef clipped_canvas_methods[] = {
     {"vline", (PyCFunction)clipped_vline, METH_VARARGS, NULL},
     {"blit_rect", (PyCFunction)clipped_blit_rect, METH_VARARGS, NULL},
     {"blit_transparent", (PyCFunction)clipped_blit_transparent, METH_VARARGS, NULL},
+    {"text", (PyCFunction)clipped_text, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"text8", (PyCFunction)clipped_text8, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"text14", (PyCFunction)clipped_text14, METH_VARARGS | METH_KEYWORDS, NULL},
+    {"text16", (PyCFunction)clipped_text16, METH_VARARGS | METH_KEYWORDS, NULL},
     {NULL},
 };
 

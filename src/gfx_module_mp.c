@@ -199,12 +199,13 @@ mp_obj_t framebuf_make_new_helper(size_t n_args, const mp_obj_t *args_in, unsign
     mp_int_t width = mp_obj_get_int(args_in[1]);
     mp_int_t height = mp_obj_get_int(args_in[2]);
     mp_int_t format = mp_obj_get_int(args_in[3]);
-    mp_int_t stride = n_args >= 5 ? mp_obj_get_int(args_in[4]) : width;
+    mp_int_t stride_arg = n_args >= 5 ? mp_obj_get_int(args_in[4]) : width;
+    int stride = (int)stride_arg;
 
     mp_buffer_info_t bufinfo;
     mp_get_buffer_raise(args_in[0], &bufinfo, buf_flags);
 
-    if (gfx_fb_validate_buffer(bufinfo.len, width, height, format, stride) < 0) {
+    if (gfx_fb_validate_buffer(bufinfo.len, (int)width, (int)height, (int)format, &stride) < 0) {
         mp_raise_ValueError(NULL);
     }
 

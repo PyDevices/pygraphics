@@ -771,6 +771,95 @@ static mp_obj_t clipped_blit_transparent(size_t n_args, const mp_obj_t *args) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(clipped_blit_transparent_obj, 7, 7, clipped_blit_transparent);
 
+/* Romfont text via clipped fill_rect path (do not fall through to canvas.text). */
+static mp_obj_t clipped_text_height(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args, int height) {
+    enum { ARG_self, ARG_s, ARG_x, ARG_y, ARG_c, ARG_scale, ARG_inverted, ARG_font_data };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
+        { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
+        { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_c, MP_ARG_INT, {.u_int = 1} },
+        { MP_QSTR_scale, MP_ARG_INT, {.u_int = 1} },
+        { MP_QSTR_inverted, MP_ARG_BOOL, {.u_bool = false} },
+        { MP_QSTR_font_data, MP_ARG_OBJ, {.u_obj = mp_const_none} },
+    };
+    mp_arg_val_t parsed[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, parsed);
+    mp_obj_clipped_canvas_t *self = MP_OBJ_TO_PTR(parsed[ARG_self].u_obj);
+    gfx_font_t font;
+    if (parsed[ARG_font_data].u_obj != mp_const_none) {
+        mp_buffer_info_t bufinfo;
+        mp_get_buffer_raise(parsed[ARG_font_data].u_obj, &bufinfo, MP_BUFFER_READ);
+        gfx_font_init_from_data(&font, bufinfo.buf, bufinfo.len, height);
+    } else {
+        gfx_font_init_default(&font, height);
+    }
+    mp_canvas_slot_t slot;
+    gfx_clipped_canvas_t cc;
+    const gfx_canvas_t *canvas = clipped_bind(self, &slot, &cc);
+    gfx_area_t area = gfx_font_text(canvas, &font, mp_obj_str_get_str(parsed[ARG_s].u_obj),
+        parsed[ARG_x].u_int, parsed[ARG_y].u_int, parsed[ARG_c].u_int,
+        parsed[ARG_scale].u_int, parsed[ARG_inverted].u_bool);
+    if (font.owns_data) {
+        gfx_font_deinit(&font);
+    }
+    return gfx_area_mp_from_gfx(&area);
+}
+
+static mp_obj_t clipped_text(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
+    enum { ARG_self, ARG_s, ARG_x, ARG_y, ARG_c, ARG_scale, ARG_inverted, ARG_font_data, ARG_height };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
+        { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
+        { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_, MP_ARG_REQUIRED | MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_c, MP_ARG_INT, {.u_int = 1} },
+        { MP_QSTR_scale, MP_ARG_INT, {.u_int = 1} },
+        { MP_QSTR_inverted, MP_ARG_BOOL, {.u_bool = false} },
+        { MP_QSTR_font_data, MP_ARG_OBJ, {.u_obj = mp_const_none} },
+        { MP_QSTR_height, MP_ARG_INT, {.u_int = 8} },
+    };
+    mp_arg_val_t parsed[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, parsed);
+    mp_obj_clipped_canvas_t *self = MP_OBJ_TO_PTR(parsed[ARG_self].u_obj);
+    mp_int_t height = parsed[ARG_height].u_int;
+    gfx_font_t font;
+    if (parsed[ARG_font_data].u_obj != mp_const_none) {
+        mp_buffer_info_t bufinfo;
+        mp_get_buffer_raise(parsed[ARG_font_data].u_obj, &bufinfo, MP_BUFFER_READ);
+        gfx_font_init_from_data(&font, bufinfo.buf, bufinfo.len, height);
+    } else {
+        gfx_font_init_default(&font, height);
+    }
+    mp_canvas_slot_t slot;
+    gfx_clipped_canvas_t cc;
+    const gfx_canvas_t *canvas = clipped_bind(self, &slot, &cc);
+    gfx_area_t area = gfx_font_text(canvas, &font, mp_obj_str_get_str(parsed[ARG_s].u_obj),
+        parsed[ARG_x].u_int, parsed[ARG_y].u_int, parsed[ARG_c].u_int,
+        parsed[ARG_scale].u_int, parsed[ARG_inverted].u_bool);
+    if (font.owns_data) {
+        gfx_font_deinit(&font);
+    }
+    return gfx_area_mp_from_gfx(&area);
+}
+static MP_DEFINE_CONST_FUN_OBJ_KW(clipped_text_obj, 4, clipped_text);
+
+static mp_obj_t clipped_text8(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
+    return clipped_text_height(n_args, args, kw_args, 8);
+}
+static MP_DEFINE_CONST_FUN_OBJ_KW(clipped_text8_obj, 4, clipped_text8);
+
+static mp_obj_t clipped_text14(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
+    return clipped_text_height(n_args, args, kw_args, 14);
+}
+static MP_DEFINE_CONST_FUN_OBJ_KW(clipped_text14_obj, 4, clipped_text14);
+
+static mp_obj_t clipped_text16(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
+    return clipped_text_height(n_args, args, kw_args, 16);
+}
+static MP_DEFINE_CONST_FUN_OBJ_KW(clipped_text16_obj, 4, clipped_text16);
+
 static void clipped_canvas_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
     mp_obj_clipped_canvas_t *self = MP_OBJ_TO_PTR(self_in);
     if (dest[0] == MP_OBJ_NULL) {
@@ -786,6 +875,10 @@ static void clipped_canvas_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
             case MP_QSTR_vline:
             case MP_QSTR_blit_rect:
             case MP_QSTR_blit_transparent:
+            case MP_QSTR_text:
+            case MP_QSTR_text8:
+            case MP_QSTR_text14:
+            case MP_QSTR_text16:
                 /* Defer to locals_dict (attr runs first). */
                 dest[1] = MP_OBJ_SENTINEL;
                 return;
@@ -808,6 +901,10 @@ static const mp_rom_map_elem_t clipped_canvas_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_vline), MP_ROM_PTR(&clipped_vline_obj) },
     { MP_ROM_QSTR(MP_QSTR_blit_rect), MP_ROM_PTR(&clipped_blit_rect_obj) },
     { MP_ROM_QSTR(MP_QSTR_blit_transparent), MP_ROM_PTR(&clipped_blit_transparent_obj) },
+    { MP_ROM_QSTR(MP_QSTR_text), MP_ROM_PTR(&clipped_text_obj) },
+    { MP_ROM_QSTR(MP_QSTR_text8), MP_ROM_PTR(&clipped_text8_obj) },
+    { MP_ROM_QSTR(MP_QSTR_text14), MP_ROM_PTR(&clipped_text14_obj) },
+    { MP_ROM_QSTR(MP_QSTR_text16), MP_ROM_PTR(&clipped_text16_obj) },
 };
 static MP_DEFINE_CONST_DICT(clipped_canvas_locals_dict, clipped_canvas_locals_dict_table);
 
