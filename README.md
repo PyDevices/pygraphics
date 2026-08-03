@@ -23,13 +23,11 @@ pip install \
   pygraphics
 ```
 
-### Pure Python (TestPyPI)
+### Pure Python (MIP)
 
-```bash
-pip install \
-  -i https://test.pypi.org/simple/ \
-  --extra-index-url https://pypi.org/simple/ \
-  pygraphics
+```python
+import mip
+mip.install("pygraphics", index="https://PyDevices.github.io/micropython-lib/mip/PyDevices")
 ```
 
 ### MicroPython (MIP)
