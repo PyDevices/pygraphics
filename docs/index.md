@@ -6,8 +6,8 @@ MicroPython, CircuitPython, and CPython.
 
 | Product | Channel | Role |
 |---------|---------|------|
-| **pygraphics-cmod** | TestPyPI | All-C extension (`implementation()` → `native_cmod`) |
-| **pygraphics** | TestPyPI + MIP | Pure-Python package (`pygraphics_python`) |
+| **pygraphics** | TestPyPI | Native/C-extension wheel for embedded builds and CPython (`implementation()` → `native_cmod`) |
+| **pygraphics** | MIP | Pure-Python package for users who do not want to compile their own build (`pygraphics_python`) |
 
 Same public API either way. Prefer the cmod on desktop/Android/Pyodide when a
 matching wheel is available.

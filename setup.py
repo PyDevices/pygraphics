@@ -30,7 +30,7 @@ GFX_SOURCES = [
 ]
 
 setup(
-    name="pygraphics-cmod",
+    name="pygraphics",
     packages=[],
     py_modules=[],
     ext_modules=[

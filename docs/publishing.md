@@ -4,8 +4,8 @@ One annotated tag `vX.Y.Z` publishes **both** products at that version:
 
 | Product | Channel | Workflow |
 |---------|---------|----------|
-| **pygraphics-cmod** | TestPyPI (platform + Pyodide wasm wheels) | `publish-testpypi.yml` |
-| **pygraphics** | TestPyPI (pure Python) + micropython-lib / MIP | `publish-micropython-lib.yml` |
+| **pygraphics** | TestPyPI (native/C-extension platform + Pyodide wasm wheels) | `publish-testpypi.yml` |
+| **pygraphics** | micropython-lib / MIP (pure Python, for users who do not want to compile) | `publish-micropython-lib.yml` |
 
 ## Pipeline
 
@@ -14,12 +14,11 @@ pygraphics (commit on main)
   ./scripts/publish_release_tag.sh --push   # next patch after highest v*
            │
            ├─► publish-testpypi.yml
-           │     cibuildwheel → Linux + Windows + Android → pygraphics-cmod
+           │     cibuildwheel → Linux + Windows + Android → pygraphics
            │     build_pyodide_wheel.sh → pyemscripten_2026_0 wasm32
            │
            └─► publish-micropython-lib.yml
                  sync → micropython/pygraphics/
-                 hatch + twine → pygraphics
                  rebuild mip/PyDevices → gh-pages
                  remove legacy micropython/graphics/ and pydisplay/graphics/
 ```
@@ -49,16 +48,16 @@ Grant both secrets to the **pygraphics** repository (org secret repository acces
 ## Install
 
 ```bash
-# native (desktop / Android)
-pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pygraphics-cmod
+# native/C extension (desktop / Android)
+pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pygraphics
 
-# pure Python
+# pure Python (micropython-lib / MIP, for users who do not want to compile)
 pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pygraphics
 ```
 
 ```python
 # Pyodide / micropip (pyemscripten_2026_0 wasm32 wheel from the same release)
-await micropip.install("pygraphics-cmod", index_urls="https://test.pypi.org/simple/")
+await micropip.install("pygraphics", index_urls="https://test.pypi.org/simple/")
 ```
 
 ```python
@@ -84,7 +83,7 @@ Host Python **3.14** + Node.js (see `scripts/build_pyodide_wheel.sh`):
 ./scripts/build_pyodide_wheel.sh --no-copy
 ```
 
-Produces `dist/pygraphics_cmod-*-cp314-cp314-pyemscripten_2026_0_wasm32.whl` and
+Produces `dist/pygraphics-*-cp314-cp314-pyemscripten_2026_0_wasm32.whl` and
 optionally copies it to `web/wheels/` (+ `pygraphics.json`).
 
 ## Documentation

@@ -1,11 +1,10 @@
-# Publish pure-Python pygraphics to micropython-lib, MIP index, and TestPyPI (pygraphics).
-# Native pygraphics-cmod wheels are published by publish-testpypi.yml on the same tag.
+# Publish the pure-Python pygraphics package to micropython-lib and the MIP index.
+# Native pygraphics wheels are published by publish-testpypi.yml on the same tag.
 #
 # Release trigger: push tag vX.Y.Z (see scripts/publish_release_tag.sh).
 #
 # Secrets:
 #   MICROPYTHON_LIB_DEPLOY_TOKEN — PAT with contents:write on PyDevices/micropython-lib
-#   TESTPYPI_API_TOKEN — TestPyPI API token
 
 name: Publish micropython-lib
 
@@ -23,10 +22,6 @@ on:
         description: Sync pygraphics into micropython-lib
         type: boolean
         default: true
-      upload_testpypi:
-        description: Upload pygraphics wheels to TestPyPI
-        type: boolean
-        default: false
       publish_mip_index:
         description: Rebuild mip/PyDevices and push gh-pages
         type: boolean
@@ -86,17 +81,11 @@ jobs:
       - name: Verify publish secrets
         env:
           DEPLOY_TOKEN: ${{ secrets.MICROPYTHON_LIB_DEPLOY_TOKEN }}
-          TESTPYPI_TOKEN: ${{ secrets.TESTPYPI_API_TOKEN }}
         run: |
           set -euo pipefail
           missing=()
           if [[ -z "${DEPLOY_TOKEN}" ]]; then
             missing+=("MICROPYTHON_LIB_DEPLOY_TOKEN")
-          fi
-          if [[ "${{ github.event_name }}" == "push" || "${{ inputs.upload_testpypi }}" == "true" ]]; then
-            if [[ -z "${TESTPYPI_TOKEN}" ]]; then
-              missing+=("TESTPYPI_API_TOKEN")
-            fi
           fi
           if [[ ${#missing[@]} -gt 0 ]]; then
             echo "::error::GitHub did not supply secrets to PyDevices/pygraphics: ${missing[*]}"
@@ -114,10 +103,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-
-      - name: Install publish tools
-        if: github.event_name == 'push' || inputs.upload_testpypi == true
-        run: pip install hatch twine
 
       - name: Configure micropython-lib git
         run: |
@@ -138,10 +123,7 @@ jobs:
           if [[ -z "$MSG" ]]; then
             MSG="pygraphics: Release v${VERSION} (${GITHUB_SHA::7})."
           fi
-          EXTRA=(--commit-message "$MSG" --push)
-          if [[ "${{ github.event_name }}" != "push" && "${{ inputs.upload_testpypi }}" != "true" ]]; then
-            EXTRA=(--skip-pypi --commit-message "$MSG" --push)
-          fi
+          EXTRA=(--skip-pypi --commit-message "$MSG" --push)
           chmod +x scripts/publish_micropython_lib.sh
           ./scripts/publish_micropython_lib.sh "${EXTRA[@]}"
 

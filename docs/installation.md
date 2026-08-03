@@ -16,13 +16,13 @@ under the new name after the next publish.
 Copy the `pygraphics/` package folder onto `sys.path` (from
 `lib/pygraphics/` in this repo, or from micropython-lib).
 
-## CPython — native (preferred when available)
+## CPython — native/C extension (preferred when available)
 
 ```bash
 pip install \
   -i https://test.pypi.org/simple/ \
   --extra-index-url https://pypi.org/simple/ \
-  pygraphics-cmod
+  pygraphics
 ```
 
 ## Pyodide / browser (WASM)
@@ -32,10 +32,10 @@ micropip selects it automatically:
 
 ```python
 import micropip
-await micropip.install("pygraphics-cmod", index_urls="https://test.pypi.org/simple/")
+await micropip.install("pygraphics", index_urls="https://test.pypi.org/simple/")
 ```
 
-## CPython — pure Python
+## CPython — pure Python (for users who do not want to compile)
 
 ```bash
 pip install \
@@ -50,7 +50,7 @@ pip install \
 |------|---------|----------------------|
 | Import | `pygraphics` | `graphics` |
 | Pure-Python pip | `pygraphics` | `pydisplay-graphics` |
-| Native pip | `pygraphics-cmod` | `graphics-cmod` |
+| Native/C pip | `pygraphics` | `graphics-cmod` |
 | MIP | `pygraphics` | `graphics` |
 
 TestPyPI may still list the old project names until they age out; install the
