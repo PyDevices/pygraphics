@@ -74,13 +74,18 @@ int gfx_bmp565_read_header_from_file(const char *path, int *width, int *height, 
     }
     uint32_t header_size, w, h;
     uint16_t planes, bpp;
+    uint32_t compression;
     if (read_u32_le(f, &header_size) < 0 || read_u32_le(f, &w) < 0 || read_u32_le(f, &h) < 0
-        || read_u16_le(f, &planes) < 0 || read_u16_le(f, &bpp) < 0) {
+        || read_u16_le(f, &planes) < 0 || read_u16_le(f, &bpp) < 0
+        || read_u32_le(f, &compression) < 0) {
         fclose(f);
         return -1;
     }
     fclose(f);
     if (planes != 1 || bpp != GFX_BMP565_BPP) {
+        return -1;
+    }
+    if (compression != 0 && compression != 3) { /* BI_RGB or BI_BITFIELDS */
         return -1;
     }
     *width = (int)w;
@@ -275,17 +280,20 @@ int gfx_bmp565_save(const gfx_bmp565_t *bmp, const char *path) {
         fclose(f);
         return -1;
     }
-    if (write_u32_le(f, (uint32_t)(14 + 40 + data_size)) < 0
+    if (write_u32_le(f, (uint32_t)(14 + 40 + 12 + data_size)) < 0
         || fwrite("\x00\x00\x00\x00", 1, 4, f) != 4
-        || write_u32_le(f, 14 + 40) < 0
+        || write_u32_le(f, 14 + 40 + 12) < 0
         || write_u32_le(f, 40) < 0
         || write_u32_le(f, (uint32_t)bmp->width) < 0
         || write_u32_le(f, (uint32_t)bmp->height) < 0
         || write_u16_le(f, 1) < 0
         || write_u16_le(f, GFX_BMP565_BPP) < 0
-        || fwrite("\x00\x00\x00\x00", 1, 4, f) != 4
+        || write_u32_le(f, 3) < 0  /* BI_BITFIELDS */
         || write_u32_le(f, (uint32_t)data_size) < 0
-        || fwrite("\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 1, 16, f) != 16) {
+        || fwrite("\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00", 1, 16, f) != 16
+        || write_u32_le(f, 0xF800) < 0  /* R mask */
+        || write_u32_le(f, 0x07E0) < 0  /* G mask */
+        || write_u32_le(f, 0x001F) < 0) { /* B mask */
         fclose(f);
         return -1;
     }
