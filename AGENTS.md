@@ -29,6 +29,24 @@ echo 0.0.0 > VERSION
 PYTHONPATH=lib .venv/bin/python -c "import pygraphics; assert pygraphics.implementation() == 'pygraphics_python'"
 ```
 
+## Parity testing (native vs pure-Python)
+
+`tools/compare_graphics*.py` and `tools/compare_framebuf_mp.py` byte-compare
+native `pygraphics` against the pure-Python `lib/pygraphics` package (and, for
+`framebuf`, MicroPython's built-in C `framebuf` against `lib/pygraphics/framebuf.py`).
+Run from the repo root:
+
+```bash
+micropython tools/compare_graphics_run.py    # single runtime, native + staged lib/pygraphics
+python tools/compare_graphics_matrix.py      # all desktop runtimes (installs pygraphics
+                                              # from TestPyPI for cpython-venv/python.exe)
+micropython tools/compare_framebuf_mp.py     # MicroPython C framebuf vs lib/pygraphics/framebuf.py
+```
+
+`compare_graphics_matrix.py` resolves runtimes itself (PATH, `~/bin/<name>`,
+and `.venv/bin/python` for `cpython-venv`) — it has no dependency on
+pydisplay's `tools/example_runtimes.toml`.
+
 ## Publishing
 
 One tag `vX.Y.Z` publishes:
