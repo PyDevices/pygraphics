@@ -1,6 +1,6 @@
 // CircuitPython shared-bindings header for pygraphics.
-#ifndef SHARED_BINDINGS_GRAPHICS___INIT___H
-#define SHARED_BINDINGS_GRAPHICS___INIT___H
+#ifndef SHARED_BINDINGS_PYGRAPHICS___INIT___H
+#define SHARED_BINDINGS_PYGRAPHICS___INIT___H
 
 #include "py/obj.h"
 

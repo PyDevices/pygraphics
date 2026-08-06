@@ -2022,7 +2022,7 @@ const mp_obj_module_t mp_module_pygraphics = {
 };
 
 #if CIRCUITPY
-/* shared-bindings/graphics registers ``mp_module_graphics`` (import graphics). */
+/* Alias for any leftover shared-bindings that still reference mp_module_graphics. */
 const mp_obj_module_t mp_module_graphics = {
     .base = { &mp_type_module },
     .globals = (mp_obj_dict_t *)&graphics_module_globals,

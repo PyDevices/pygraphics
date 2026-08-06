@@ -16,6 +16,18 @@ under the new name after the next publish.
 Copy the `pygraphics/` package folder onto `sys.path` (from
 `lib/pygraphics/` in this repo, or from micropython-lib).
 
+To link the **native** cmod into a CircuitPython unix build (standalone — no
+cmods required):
+
+```bash
+# siblings: circuitpython/ and pygraphics/
+./apply_cp_unix_pygraphics_patches.sh --apply
+cd ../circuitpython/ports/unix && make -j VARIANT=coverage
+```
+
+Or from a [cmods](https://github.com/PyDevices/cmods) workspace:
+`./build_cp.sh --port unix --variant coverage` (also applies usdl2 + LVGL).
+
 ## CPython — native/C extension (preferred when available)
 
 ```bash
