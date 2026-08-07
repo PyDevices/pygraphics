@@ -16,11 +16,15 @@
   <div id="pydevices-site-header"></div>
 
   <section class="hero wrap">
-    <div class="logo-badge product-mark"><img src="img/product.svg" alt="pygraphics" width="112" height="112"></div>
-    <span class="eyebrow">PyDevices / pygraphics</span>
-    <h1>pygraphics</h1>
-    <p>Native all-C <strong>pygraphics-cmod</strong> and pure-Python <strong>pygraphics</strong> (<code>lib/pygraphics/</code>) for MicroPython, CircuitPython, and CPython. Same public API either way: <code>Area</code>, framebuf-compatible <code>FrameBuffer</code>, format constants, plus <code>framebuf_backend()</code>, <code>capabilities()</code>, and <code>implementation()</code>.</p>
-    <p>One release tag publishes both products. Prefer the cmod when linked or installed (<code>implementation()</code> → <code>native_cmod</code>); otherwise use TestPyPI <code>pygraphics</code> or MIP <code>pygraphics</code> (<code>pygraphics_python</code>).</p>
+    <div class="hero-lead">
+      <div class="hero-brand">
+        <div class="logo-badge product-mark"><img src="img/product.svg" alt="pygraphics" width="112" height="112"></div>
+        <span class="eyebrow">PyDevices / pygraphics</span>
+      </div>
+      <h1>pygraphics</h1>
+    </div>
+    <p>Native and Python graphics for MicroPython, CircuitPython, and CPython. Same public API either way: <code>Area</code>, framebuf-compatible <code>FrameBuffer</code>, format constants, plus <code>framebuf_backend()</code>, <code>capabilities()</code>, and <code>implementation()</code>. The native module can be compiled into MicroPython as a user C module, into CircuitPython as a native extension, or pip-installed on CPython; the mip package installs the Python implementation (<code>lib/pygraphics/</code>).</p>
+    <p>One release tag publishes both products. Prefer the native module when linked or installed (<code>implementation()</code> → <code>native_cmod</code>); otherwise <code>pip install pygraphics</code> (TestPyPI) or <code>mip install pygraphics</code>.</p>
     <div class="cta">
       <a class="btn primary" href="https://pygraphics.readthedocs.io">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
