@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 # Apply CircuitPython pygraphics integration (unix only).
 #
+# Out-of-tree substitute for Adafruit Extending CircuitPython (no upstream PR):
+#   Learn / design-guide step              This script
+#   shared-bindings/<mod>/                 copy spike → CP shared-bindings/pygraphics/
+#   shared-module/<mod>/                   copy spike → CP shared-module/pygraphics/
+#   enable CIRCUITPY_* / mpconfig          CIRCUITPY_PYGRAPHICS in variant mk + mpconfig
+#   list sources in port Makefile          variant .mk SRC lists + SRC_PATTERNS
+#   build CircuitPython                    caller runs make (or workspace build_cp.sh)
+# Conceptual refs:
+#   https://learn.adafruit.com/extending-circuitpython
+#   https://docs.circuitpython.org/en/latest/docs/design_guide.html
+#
 # Usage:
 #   ./apply_cp_patches.sh --dry-run [--port PORT] [--variant VARIANT]
 #   ./apply_cp_patches.sh --apply [--port PORT] [--variant VARIANT]

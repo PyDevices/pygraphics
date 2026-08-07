@@ -128,6 +128,21 @@ cd ../../..
 
 ### CircuitPython (unix)
 
+Adafruit’s [Extending CircuitPython](https://learn.adafruit.com/extending-circuitpython)
+guide (and the [design guide — native modules](https://docs.circuitpython.org/en/latest/docs/design_guide.html))
+describe adding `shared-bindings/` + `shared-module/` **inside** the CircuitPython
+tree. This repo keeps those sources out-of-tree under `src/circuitpython_spike/`
+and applies them with `./apply_cp_patches.sh` into a local (uncommitted)
+CircuitPython clone — Adafruit has no separate out-of-tree C-module path.
+
+| Adafruit step | This repo |
+|---------------|-----------|
+| `shared-bindings/<mod>/` | `src/circuitpython_spike/shared-bindings/pygraphics/` |
+| `shared-module/<mod>/` | `src/circuitpython_spike/shared-module/pygraphics/` |
+| Enable `CIRCUITPY_*` | Patches set `CIRCUITPY_PYGRAPHICS` |
+| List sources in port Makefile | Variant `.mk` + `SRC_PATTERNS` |
+| Build | `make` after `--apply` |
+
 Clone as a sibling of `circuitpython/`:
 
 ```bash

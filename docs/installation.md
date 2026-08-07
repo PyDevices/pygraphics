@@ -16,7 +16,9 @@ under the new name after the next publish.
 Copy the `pygraphics/` package folder onto `sys.path` (from
 `lib/pygraphics/` in this repo, or from micropython-lib).
 
-To link the **native** cmod into a CircuitPython unix build:
+To link the **native** cmod into a CircuitPython unix build (out-of-tree
+[Extending CircuitPython](https://learn.adafruit.com/extending-circuitpython)
+layout via spike + `apply_cp_patches.sh` — see [README](../README.md#circuitpython-unix)):
 
 ```bash
 # siblings: circuitpython/ and pygraphics/
