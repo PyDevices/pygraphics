@@ -114,7 +114,7 @@ Clone as a sibling of `micropython/`:
 
 ```
 workspace/
-  graphics/       ← this repo
+  pygraphics/     ← this repo
   micropython/
 ```
 
@@ -123,10 +123,20 @@ cd micropython/ports/unix
 make submodules
 make USER_C_MODULES=../../..
 cd ../../..
-./micropython/ports/unix/build-standard/micropython graphics/tests/test_area.py
+./micropython/ports/unix/build-standard/micropython pygraphics/tests/test_area.py
 ```
 
-([cmods](https://github.com/PyDevices/cmods) is an optional convenience workspace with `./build_mp.sh`; it is not required.)
+### CircuitPython (unix)
+
+Clone as a sibling of `circuitpython/`:
+
+```bash
+# siblings: circuitpython/ and pygraphics/
+./apply_cp_patches.sh --apply
+cd ../circuitpython/ports/unix && make -j VARIANT=coverage
+```
+
+See the [cmods workspace](https://github.com/PyDevices/cmods) for an easier way to build this repo with other user C modules (MicroPython) or extensions (CircuitPython).
 
 ### pydisplay integration
 

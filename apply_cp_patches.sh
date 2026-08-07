@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
-# Apply CircuitPython pygraphics integration (unix/coverage by default).
+# Apply CircuitPython pygraphics integration (unix only).
 #
 # Usage:
-#   ./apply_cp_unix_pygraphics_patches.sh --dry-run
-#   ./apply_cp_unix_pygraphics_patches.sh --apply
-#   ./apply_cp_unix_pygraphics_patches.sh --status
+#   ./apply_cp_patches.sh --dry-run [--port PORT] [--variant VARIANT]
+#   ./apply_cp_patches.sh --apply [--port PORT] [--variant VARIANT]
+#   ./apply_cp_patches.sh --status [--port PORT] [--variant VARIANT]
 #
 # Environment:
 #   CP_DIR          CircuitPython tree (default: sibling circuitpython/ next to this repo)
 #   WORKSPACE_DIR   Parent of pygraphics (default: parent of this repo)
+#   PORT            Must be unix (default: unix); other ports skip with exit 0
 #   VARIANT         Unix variant (default: coverage)
 #
 # Standalone: clone circuitpython + pygraphics as siblings, then:
-#   ./apply_cp_unix_pygraphics_patches.sh --apply
+#   ./apply_cp_patches.sh --apply --port unix --variant coverage
 #   cd ../circuitpython/ports/unix && make -j VARIANT=coverage
-# No cmods workspace or other usermods required.
+# No other usermods required.
 #
 # Migrates legacy ``graphics`` / ``graphics-cmod`` / ``CIRCUITPY_GRAPHICS``
 # patches to ``pygraphics`` / ``CIRCUITPY_PYGRAPHICS``.
@@ -24,43 +25,58 @@ set -euo pipefail
 PYGRAPHICS_MOD_DIR=$(cd "$(dirname "$0")" && pwd)
 WORKSPACE_DIR="${WORKSPACE_DIR:-$(cd "$PYGRAPHICS_MOD_DIR/.." && pwd)}"
 
-# Resolve CircuitPython without requiring a cmods workspace. Override with CP_DIR.
-if [[ -z "${CP_DIR:-}" ]] || [[ ! -d "${CP_DIR}/ports" ]]; then
-    CP_DIR=""
-    for _cand in \
-        "$WORKSPACE_DIR/circuitpython" \
-        "$HOME/github/circuitpython" \
-        "$HOME/gh/circuitpython" \
-        "$HOME/gh/pydevices/cmods/circuitpython"
-    do
-        if [[ -d "$_cand/ports" ]]; then
-            CP_DIR=$(cd "$_cand" && pwd)
-            break
-        fi
-    done
-fi
-unset _cand
-PORT=unix
+PORT="${PORT:-unix}"
+BOARD="${BOARD:-}"
 VARIANT="${VARIANT:-coverage}"
+MODE=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --dry-run|--apply|--status|--force-apply) MODE="$1"; shift ;;
+        --port)    PORT="$2"; shift 2 ;;
+        --board)   BOARD="$2"; shift 2 ;;
+        --variant) VARIANT="$2"; shift 2 ;;
+        -h|--help)
+            sed -n '2,20p' "$0"
+            exit 0
+            ;;
+        *)
+            echo "Unknown argument: $1 (try --help)" >&2
+            exit 1
+            ;;
+    esac
+done
+
+MODE="${MODE:---dry-run}"
+case "$MODE" in
+    --force-apply) MODE=--apply ;;
+    --dry-run|--apply|--status) ;;
+    *)
+        echo "Unknown mode: $MODE (try --help)" >&2
+        exit 1
+        ;;
+esac
+
+if [[ "$PORT" != unix ]]; then
+    echo "pygraphics apply_cp_patches: port=$PORT is not unix; skipping"
+    exit 0
+fi
+
+# Resolve CircuitPython: CP_DIR, else sibling circuitpython/ under WORKSPACE_DIR.
+if [[ -n "${CP_DIR:-}" && -d "${CP_DIR}/ports" ]]; then
+    CP_DIR=$(cd "$CP_DIR" && pwd)
+elif [[ -d "$WORKSPACE_DIR/circuitpython/ports" ]]; then
+    CP_DIR=$(cd "$WORKSPACE_DIR/circuitpython" && pwd)
+else
+    CP_DIR=""
+fi
+
 SPIKE_DIR="$PYGRAPHICS_MOD_DIR/src/circuitpython_spike"
 SPIKE_MANIFEST="$SPIKE_DIR/copy_manifest.txt"
 
 MARKER_TAG="pygraphics-cmod begin"
 MARKER_BEGIN="# >>> $MARKER_TAG"
 MARKER_END="# >>> pygraphics-cmod end"
-
-MODE="${1:---dry-run}"
-case "$MODE" in
-    --dry-run|--apply|--status) ;;
-    -h|--help)
-        sed -n '2,18p' "$0"
-        exit 0
-        ;;
-    *)
-        echo "Unknown mode: $MODE (try --help)" >&2
-        exit 1
-        ;;
-esac
 
 DRY_RUN=0
 APPLY=0
@@ -74,7 +90,7 @@ log() { echo "$*"; }
 die() { echo "error: $*" >&2; exit 1; }
 
 if [[ -z "${CP_DIR:-}" ]] || [[ ! -d "$CP_DIR/ports" ]]; then
-    die "CircuitPython not found (looked for sibling circuitpython/ under $WORKSPACE_DIR). Set CP_DIR."
+    die "CircuitPython not found (set CP_DIR, or place circuitpython/ next to this repo under $WORKSPACE_DIR)."
 fi
 CP_DIR=$(cd "$CP_DIR" && pwd)
 [[ -f "$SPIKE_MANIFEST" ]] || die "Spike manifest missing: $SPIKE_MANIFEST"
@@ -384,10 +400,8 @@ if [ "$DRY_RUN" = 0 ]; then
     status_report
     if [ "$APPLY" = 1 ]; then
         echo
-        log "Next (standalone make — no cmods required):"
+        log "Next:"
         log "  cd $PORT_DIR && make -j VARIANT=$VARIANT"
-        if [[ -x "$WORKSPACE_DIR/build_cp.sh" ]]; then
-            log "Or from a cmods workspace: $WORKSPACE_DIR/build_cp.sh --port unix --variant $VARIANT"
-        fi
+        log "See https://github.com/PyDevices/cmods for an easier way to build with other extensions."
     fi
 fi

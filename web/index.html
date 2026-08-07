@@ -22,7 +22,6 @@
       </a>
       <nav class="nav">
         <a href="https://pydevices.github.io/pydisplay/">pydisplay</a>
-        <a href="https://pydevices.github.io/cmods/">cmods</a>
         <a href="https://pygraphics.readthedocs.io">Docs</a>
         <a href="api/">API reference</a>
         <a href="https://github.com/PyDevices/pygraphics">Source</a>
@@ -51,7 +50,6 @@
       </a>
       <a class="btn" href="api/">API reference</a>
       <a class="btn" href="https://pydevices.github.io/pydisplay/">pydisplay</a>
-      <a class="btn" href="https://pydevices.github.io/cmods/">cmods</a>
     </div>
   </section>
 
@@ -97,9 +95,16 @@ make submodules
 make USER_C_MODULES=../../..
 
 ./micropython/ports/unix/build-standard/micropython \
-  graphics/tests/test_area.py
+  pygraphics/tests/test_area.py
 ./micropython/ports/unix/build-standard/micropython \
-  graphics/tests/test_pygraphics.py</code></pre>
+  pygraphics/tests/test_pygraphics.py</code></pre>
+      </div>
+      <div class="snippet-card">
+        <h3>CircuitPython unix</h3>
+        <p>Patch the sibling CircuitPython tree, then make.</p>
+        <pre><code>./apply_cp_patches.sh --apply
+cd ../circuitpython/ports/unix
+make -j VARIANT=coverage</code></pre>
       </div>
     </div>
 
@@ -110,13 +115,13 @@ make USER_C_MODULES=../../..
       <li><a href="https://github.com/PyDevices/pygraphics/tree/main/lib/pygraphics"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>pygraphics — pure-Python package in this repo</a></li>
       <li><a href="https://pydevices.github.io/pydisplay/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>pydisplay — consumers of <code>import pygraphics</code></a></li>
       <li><a href="https://pydevices.github.io/displayif/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>displayif — native display bus / framebuffer</a></li>
-      <li><a href="https://pydevices.github.io/cmods/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>cmods — optional build workspace</a></li>
+      <li><a href="https://github.com/PyDevices/cmods"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>cmods — easier builds with other user C modules or CP extensions</a></li>
     </ul>
   </main>
 
   <footer class="site-footer">
     <div class="wrap">
-      <span>graphics &middot; <a href="https://github.com/PyDevices/pygraphics">PyDevices/pygraphics</a></span>
+      <span>pygraphics &middot; <a href="https://github.com/PyDevices/pygraphics">PyDevices/pygraphics</a></span>
       <span><a href="https://pydevices.github.io/">PyDevices</a></span>
     </div>
   </footer>

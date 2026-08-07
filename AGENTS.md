@@ -60,9 +60,6 @@ See `docs/publishing.md`. The next shared release continues the `pygraphics` lin
 
 ## After C changes
 
-Refresh pydisplay’s committed runtimes with `../build_pydisplay_runtimes.sh`
-from the cmods workspace root when the usermod is linked into those interpreters.
-
 Font C headers: `python3 scripts/sync_fonts.py` (source of truth is
 `lib/pygraphics/_font_8x*.py`).
 

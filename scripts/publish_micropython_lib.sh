@@ -172,10 +172,12 @@ do
     fi
 done
 
-cp "$README_FULL_PATH" "$DEST_DIR/README.md"
-
+# Do not commit the full source-repo README into micropython-lib (MIP packages
+# are package trees/manifest only). Copy it temporarily for TestPyPI long_description.
 if [[ "$SKIP_PYPI" -eq 0 ]]; then
+    cp "$README_FULL_PATH" "$DEST_DIR/README.md"
     ./scripts/publish_make_pyproject.py --output "$PYPI_DIR/$BASENAME" "$DEST_DIR/manifest.py"
+    rm -f "$DEST_DIR/README.md"
     pushd "$PYPI_DIR/$BASENAME"
     build_and_upload_pypi
     popd
