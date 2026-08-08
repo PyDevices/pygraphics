@@ -31,11 +31,11 @@ manylinux-x86_64-image = "manylinux_2_28"
 [tool.cibuildwheel.windows]
 archs = ["AMD64"]
 
-# Phones/TVs: arm64_v8a (primary) + armeabi_v7a (older 32-bit devices/sticks).
-# Emulators: x86_64 (typical PC AVD). API 21 tags remain installable when the
-# app minSdk is higher (e.g. p4a android.minapi = 24).
+# cibuildwheel 4.x Android archs are only arm64_v8a and x86_64 (no armeabi_v7a).
+# Phones/TVs: arm64_v8a. Emulators: x86_64. API 21 tags remain installable when
+# the app minSdk is higher (e.g. p4a android.minapi = 24).
 [tool.cibuildwheel.android]
-archs = ["arm64_v8a", "armeabi_v7a", "x86_64"]
+archs = ["arm64_v8a", "x86_64"]
 environment = { ANDROID_API_LEVEL = "21" }
 test-command = "python -c \"import pygraphics; assert pygraphics.framebuf_backend() == 'native'\""
 test-skip = "*"
