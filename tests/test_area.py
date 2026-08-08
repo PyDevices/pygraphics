@@ -21,6 +21,10 @@ assert Area(0, 0, 2, 2) + Area(4, 4, 2, 2) == Area(0, 0, 6, 6)
 x, y, w, h = Area(1, 2, 3, 4)
 assert (x, y, w, h) == (1, 2, 3, 4)
 assert repr(Area(1, 2, 3, 4)) == "Area(1, 2, 3, 4)"
+# Truthiness: positive size is true; empty is false (nb_bool / __bool__).
+assert bool(Area(1, 2, 3, 4)) is True
+assert bool(Area(0, 0, 0, 0)) is False
+assert (Area(0, 0, 0, 0) or Area(1, 2, 3, 4)) == Area(1, 2, 3, 4)
 try:
     hash(Area(1, 2, 3, 4))
     raise AssertionError("Area should be unhashable")

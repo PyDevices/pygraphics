@@ -204,8 +204,10 @@ static PyObject *area_add(PyObject *lhs, PyObject *rhs) {
     return area_from_gfx(&result);
 }
 
-static PyObject *area_bool(GfxAreaObject *self) {
-    return PyBool_FromLong(self->area.w > 0 && self->area.h > 0);
+/* nb_bool is inquiry: return 1/0/-1, not a PyObject*. Returning PyBool_*
+ * (cast to inquiry) breaks on CPython 3.14+ (SystemError from bool/or). */
+static int area_bool(GfxAreaObject *self) {
+    return (self->area.w > 0 && self->area.h > 0) ? 1 : 0;
 }
 
 static PyObject *area_get_x(GfxAreaObject *self, void *closure) {
