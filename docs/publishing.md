@@ -89,7 +89,7 @@ optionally copies it to `web/wheels/` (+ `pygraphics.json`).
 - **Read the Docs** (guides + pure-Python API): https://pygraphics.readthedocs.io  
   Config: `.readthedocs.yaml` + `mkdocs.yml`. Connected via the org
   [Read the Docs Community GitHub App](https://github.com/organizations/PyDevices/settings/installations/149173814)
-  (no per-repo webhook). See pydisplay
+  (no per-repo webhook). See pydevices-examples
   [Building docs](https://pydisplay.readthedocs.io/en/latest/building-docs/) for
   first-time import / legacy migration notes.
 - **GitHub Pages** (marketing + Sourcey native API): https://pydevices.github.io/pygraphics/

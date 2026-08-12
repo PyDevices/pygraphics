@@ -62,7 +62,7 @@ print(pygraphics.implementation())  # native_cmod or pygraphics_python
 - [Source-linked API reference](https://pydevices.github.io/pygraphics/api/)
 - [Source](https://github.com/PyDevices/pygraphics)
 - [Issues](https://github.com/PyDevices/pygraphics/issues)
-- Related: [pydisplay](https://github.com/PyDevices/pydisplay)
+- Related: [pydevices-examples](https://github.com/PyDevices/pydevices-examples)
 
 ## License
 
@@ -153,7 +153,7 @@ cd ../circuitpython/ports/unix && make -j VARIANT=coverage
 
 See the [cmods workspace](https://github.com/PyDevices/cmods) for an easier way to build this repo with other user C modules (MicroPython) or extensions (CircuitPython).
 
-### pydisplay integration
+### pydevices-examples integration
 
 When this cmod is installed or linked, `pygraphics.framebuf_backend()` reports
 `native` and `pygraphics.implementation()` reports `native_cmod`. Otherwise the

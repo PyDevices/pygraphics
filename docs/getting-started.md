@@ -30,7 +30,7 @@ print(pygraphics.implementation())  # native_cmod or pygraphics_python
 ### Draw to an off-screen buffer first
 
 Use a `FrameBuffer` or the display driver itself as a canvas, then copy the
-result to the display. This is the pattern used by pydisplay's animated demos:
+result to the display. This is the pattern used by pydevices-examples's animated demos:
 
 ```python
 import pygraphics
@@ -56,7 +56,7 @@ area = pygraphics.circle(buf, 80, 40, 12, 0x07E0, f=True)
 ### Build a scene, then present it
 
 For simple UI work, clear the frame, draw widgets or text, and then present the
-updated buffer. The pydisplay examples use that pattern for bouncing balls,
+updated buffer. The pydevices-examples applications use that pattern for bouncing balls,
 scrolling text, and gradient backgrounds.
 
 ## What you get
@@ -70,5 +70,5 @@ scrolling text, and gradient backgrounds.
 ## Examples
 
 Drawing demos live in
-[pydisplay `src/examples/`](https://github.com/PyDevices/pydisplay/tree/main/src/examples)
+[pydevices-examples `src/examples/`](https://github.com/PyDevices/pydevices-examples/tree/main/src/examples)
 for patterns such as bouncing balls, scrolling text, and gradient scenes.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Verify graphics cmod exports match pydisplay __all__."""
+"""Verify graphics cmod exports match pure-Python pygraphics.__all__."""
 
 import pygraphics
 

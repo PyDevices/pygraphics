@@ -61,7 +61,7 @@ pip install \
 | Role | Current | Retired (do not use) |
 |------|---------|----------------------|
 | Import | `pygraphics` | `graphics` |
-| Pure-Python pip | `pydevices-pygraphics` | `pygraphics`, `pydisplay-graphics` |
+| Pure-Python pip | `pydevices-pygraphics` | `pygraphics` |
 | Native/C pip | `pydevices-pygraphics` | `pygraphics`, `graphics-cmod` |
 | MIP | `pygraphics` | `graphics` |
 

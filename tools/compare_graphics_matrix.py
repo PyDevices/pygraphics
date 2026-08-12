@@ -46,7 +46,7 @@ RESULTS_JSON = _temp_dir() / "compare_graphics_results.json"
 RESULT_RE = re.compile(r"^GRAPHICS_COMPARE_RESULT=(.+)$", re.MULTILINE)
 
 # Desktop subprocess interpreters that can load native pygraphics alongside
-# staged pure-Python pygraphics. Self-contained (no dependency on pydisplay's
+# staged pure-Python pygraphics. Self-contained (no dependency on pydevices-examples's
 # tools/example_runtimes.toml) — resolved via PATH, ~/bin/<name>, and (for
 # cpython-venv) the repo-root .venv.
 DEFAULT_RUNTIME_IDS = (

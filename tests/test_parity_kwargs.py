@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-"""Parity probe: kwargs + missing methods vs pydisplay lib/pygraphics contract."""
+"""Parity probe: kwargs + missing methods vs the pure-Python lib/pygraphics contract."""
 
 try:
     import pygraphics

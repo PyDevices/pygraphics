@@ -41,7 +41,7 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #endif
 
-/* Format IDs — match MicroPython framebuf + pydisplay RGB888 extension */
+/* Format IDs — match MicroPython framebuf + PyDevices RGB888 extension */
 #define GFX_MVLSB    0
 #define GFX_RGB565   1
 #define GFX_GS4_HMSB 2

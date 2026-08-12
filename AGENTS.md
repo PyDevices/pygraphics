@@ -45,7 +45,7 @@ micropython tools/compare_framebuf_mp.py     # MicroPython C framebuf vs lib/pyg
 
 `compare_graphics_matrix.py` resolves runtimes itself (PATH, `~/bin/<name>`,
 and `.venv/bin/python` for `cpython-venv`) — it has no dependency on
-pydisplay's `tools/example_runtimes.toml`.
+pydevices-examples's `tools/example_runtimes.toml`.
 
 ## Publishing
 

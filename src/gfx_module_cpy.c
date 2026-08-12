@@ -3,7 +3,7 @@
  *
  * Full-parity binding surface matching the MicroPython/CircuitPython bindings
  * (gfx_module_mp.c / gfx_bindings_mp.c) and the pure-Python reference under
- * pydisplay src/lib/pygraphics. All shape/text/blit primitives share the same C
+ * pure-Python lib/pygraphics. All shape/text/blit primitives share the same C
  * core (gfx_shapes/gfx_font/gfx_files/gfx_bmp565) as the MP bindings.
  *
  * SPDX-License-Identifier: MIT

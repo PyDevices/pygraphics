@@ -2,7 +2,7 @@
 # Build an Emscripten / Pyodide wheel for import pygraphics (micropip-installable).
 #
 # Target ABI: pyemscripten_2026_0 (Python 3.14 / Pyodide 314.x) — matches the
-# Pyodide vendored by pydisplay (web/pyscript/vendor/pyodide).
+# Pyodide vendored by pydevices-examples (web/pyscript/vendor/pyodide).
 #
 # Usage (from repo root):
 #   ./scripts/build_pyodide_wheel.sh
@@ -145,7 +145,7 @@ fi
 cat <<EOF
 
 Next:
-  # After a tagged Publish TestPyPI release (preferred for pydisplay):
+  # After a tagged Publish TestPyPI release (preferred for pydevices-examples):
   #   await micropip.install("pydevices-pygraphics", index_urls="https://test.pypi.org/simple/")
   #
   # Local micropip (needs COI-friendly server if testing from a page):
