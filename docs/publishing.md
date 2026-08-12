@@ -4,7 +4,7 @@ One annotated tag `vX.Y.Z` publishes **both** products at that version:
 
 | Product | Channel | Workflow |
 |---------|---------|----------|
-| **pygraphics** | TestPyPI (native/C-extension platform + Pyodide wasm wheels) | `publish-testpypi.yml` |
+| **pydevices-pygraphics** | TestPyPI (native/C-extension platform + Pyodide wasm wheels; import `pygraphics`) | `publish-testpypi.yml` |
 | **pygraphics** | micropython-lib / MIP (pure Python, for users who do not want to compile) | `publish-micropython-lib.yml` |
 
 ## Pipeline
@@ -25,15 +25,13 @@ pygraphics (commit on main)
 
 ## Version numbers
 
-Shared tag for **both** products. After reclaiming the historical
-`pygraphics` TestPyPI line (last `0.0.24` from pydisplay), the next
-release is **`v0.0.25`** (not `v0.0.11`). Later tags continue from the highest
-`v*` tag:
+Shared tag for **both** products. The TestPyPI distribution is now
+`pydevices-pygraphics`; the import and MIP package remain `pygraphics`. Tags
+continue from the highest `v*` tag:
 
 ```bash
 ./scripts/next_release_version.sh --verbose
 ./scripts/publish_release_tag.sh --dry-run
-# first reclaim: ./scripts/publish_release_tag.sh 0.0.25 --push
 ```
 
 ## Secrets
@@ -49,15 +47,15 @@ Grant both secrets to the **pygraphics** repository (org secret repository acces
 
 ```bash
 # native/C extension (desktop / Android)
-pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pygraphics
+pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pydevices-pygraphics
 
 # pure Python (micropython-lib / MIP, for users who do not want to compile)
-pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pygraphics
+pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pydevices-pygraphics
 ```
 
 ```python
 # Pyodide / micropip (pyemscripten_2026_0 wasm32 wheel from the same release)
-await micropip.install("pygraphics", index_urls="https://test.pypi.org/simple/")
+await micropip.install("pydevices-pygraphics", index_urls="https://test.pypi.org/simple/")
 ```
 
 ```python
@@ -83,7 +81,7 @@ Host Python **3.14** + Node.js (see `scripts/build_pyodide_wheel.sh`):
 ./scripts/build_pyodide_wheel.sh --no-copy
 ```
 
-Produces `dist/pygraphics-*-cp314-cp314-pyemscripten_2026_0_wasm32.whl` and
+Produces `dist/pydevices_pygraphics-*-cp314-cp314-pyemscripten_2026_0_wasm32.whl` and
 optionally copies it to `web/wheels/` (+ `pygraphics.json`).
 
 ## Documentation

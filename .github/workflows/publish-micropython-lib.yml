@@ -81,11 +81,15 @@ jobs:
       - name: Verify publish secrets
         env:
           DEPLOY_TOKEN: ${{ secrets.MICROPYTHON_LIB_DEPLOY_TOKEN }}
+          TESTPYPI_TOKEN: ${{ secrets.TESTPYPI_API_TOKEN }}
         run: |
           set -euo pipefail
           missing=()
           if [[ -z "${DEPLOY_TOKEN}" ]]; then
             missing+=("MICROPYTHON_LIB_DEPLOY_TOKEN")
+          fi
+          if [[ -z "${TESTPYPI_TOKEN}" ]]; then
+            missing+=("TESTPYPI_API_TOKEN")
           fi
           if [[ ${#missing[@]} -gt 0 ]]; then
             echo "::error::GitHub did not supply secrets to PyDevices/pygraphics: ${missing[*]}"
@@ -123,7 +127,7 @@ jobs:
           if [[ -z "$MSG" ]]; then
             MSG="pygraphics: Release v${VERSION} (${GITHUB_SHA::7})."
           fi
-          EXTRA=(--skip-pypi --commit-message "$MSG" --push)
+          EXTRA=(--commit-message "$MSG" --push)
           chmod +x scripts/publish_micropython_lib.sh
           ./scripts/publish_micropython_lib.sh "${EXTRA[@]}"
 

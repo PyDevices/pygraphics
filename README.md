@@ -7,7 +7,7 @@ Import as `pygraphics`.
 
 | Product | Pip / MIP | Role |
 |---------|-----------|------|
-| **pygraphics** | TestPyPI `pygraphics` | Native/C-extension wheel for CPython and for embedded builds that include the module (prefer on desktop/Android/Pyodide when available) |
+| **pygraphics** | TestPyPI `pydevices-pygraphics` | Native/C-extension wheel for CPython and for embedded builds that include the module (prefer on desktop/Android/Pyodide when available) |
 | **pygraphics** | MIP `pygraphics` | Pure-Python package for users who do not want to compile their own build (same public API) |
 
 One release tag `vX.Y.Z` publishes both products at that version.
@@ -20,7 +20,7 @@ One release tag `vX.Y.Z` publishes both products at that version.
 pip install \
   -i https://test.pypi.org/simple/ \
   --extra-index-url https://pypi.org/simple/ \
-  pygraphics
+  pydevices-pygraphics
 ```
 
 ### Pure Python (MIP)

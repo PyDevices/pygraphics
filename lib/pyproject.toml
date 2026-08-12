@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pygraphics"
+name = "pydevices-pygraphics"
 version = "0.0.25"
-description = "Pure-Python graphics (FrameBuffer, Draw, fonts); import as graphics"
+description = "Pure-Python graphics (FrameBuffer, Draw, fonts); import as pygraphics"
 readme = "pygraphics/README.md"
 license = "MIT"
 requires-python = ">=3.8"
@@ -16,4 +16,4 @@ urls = { Homepage = "https://github.com/PyDevices/pygraphics", Issues = "https:/
 packages = ["pygraphics"]
 
 [tool.hatch.build.targets.sdist]
-include = ["graphics"]
+include = ["pygraphics"]

@@ -9,7 +9,7 @@ Run from the pygraphics repo root::
     python tools/compare_graphics_matrix.py
     python tools/compare_graphics_matrix.py --only-runtime micropython,cpython-venv
 
-For ``cpython-venv`` and ``python.exe``, installs ``pygraphics`` from TestPyPI
+For ``cpython-venv`` and ``python.exe``, installs ``pydevices-pygraphics`` from TestPyPI
 (first time per interpreter) so ``import pygraphics`` resolves to the native wheel.
 
 Results: summary table on stderr, JSON in the system temp directory.
@@ -127,7 +127,7 @@ def ensure_graphics_native(python_exe: str, *, verbose: bool) -> tuple[bool, str
     if impl == "pygraphics_python":
         if verbose:
             print(
-                "Installing pygraphics from TestPyPI for {}...".format(python_exe),
+                "Installing pydevices-pygraphics from TestPyPI for {}...".format(python_exe),
                 file=sys.stderr,
             )
     elif impl:
@@ -135,7 +135,7 @@ def ensure_graphics_native(python_exe: str, *, verbose: bool) -> tuple[bool, str
     else:
         if verbose:
             print(
-                "graphics not importable in {}; installing pygraphics...".format(python_exe),
+                "graphics not importable in {}; installing pydevices-pygraphics...".format(python_exe),
                 file=sys.stderr,
             )
 
@@ -151,14 +151,14 @@ def ensure_graphics_native(python_exe: str, *, verbose: bool) -> tuple[bool, str
         TESTPYPI_INDEX,
         "--extra-index-url",
         PYPI_INDEX,
-        "pygraphics",
+        "pydevices-pygraphics",
     ]
     subprocess.run(install, check=True)
 
     impl = _graphics_impl(python_exe)
     if impl != "native_cmod":
         return False, "pygraphics install failed (implementation={!r})".format(impl)
-    return True, "installed pygraphics from TestPyPI"
+    return True, "installed pydevices-pygraphics from TestPyPI"
 
 
 def parse_result(stdout: str) -> dict | None:

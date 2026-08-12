@@ -107,9 +107,9 @@ pyodide build . -o dist/ -v
 
 shopt -s nullglob
 wheels=(
-  dist/pygraphics-*-pyemscripten_*_wasm32.whl
-  dist/pygraphics-*-pyodide_*_wasm32.whl
-  dist/pygraphics-*-emscripten_*_wasm32.whl
+  dist/pydevices_pygraphics-*-pyemscripten_*_wasm32.whl
+  dist/pydevices_pygraphics-*-pyodide_*_wasm32.whl
+  dist/pydevices_pygraphics-*-emscripten_*_wasm32.whl
 )
 if ((${#wheels[@]} == 0)); then
   echo "error: no Pyodide/wasm wheel produced in dist/" >&2
@@ -123,9 +123,9 @@ printf '  %s\n' "${wheels[@]}"
 if [[ "$COPY_TO_WEB" -eq 1 ]]; then
   mkdir -p "$OUT_WHEELS"
   # Keep only current wasm wheels in the Pages-served folder.
-  rm -f "$OUT_WHEELS"/pygraphics-*-pyemscripten_*_wasm32.whl \
-        "$OUT_WHEELS"/pygraphics-*-pyodide_*_wasm32.whl \
-        "$OUT_WHEELS"/pygraphics-*-emscripten_*_wasm32.whl
+  rm -f "$OUT_WHEELS"/pydevices_pygraphics-*-pyemscripten_*_wasm32.whl \
+        "$OUT_WHEELS"/pydevices_pygraphics-*-pyodide_*_wasm32.whl \
+        "$OUT_WHEELS"/pydevices_pygraphics-*-emscripten_*_wasm32.whl
   cp -f "${wheels[@]}" "$OUT_WHEELS/"
   # Index for micropip consumers: must name a real wheel file.
   primary="${wheels[0]}"
@@ -138,7 +138,7 @@ if [[ "$COPY_TO_WEB" -eq 1 ]]; then
   primary_base="$(basename "$primary")"
   printf '%s\n' "{\"wheel\": \"${primary_base}\"}" > "$OUT_WHEELS/pygraphics.json"
   echo "Copied to $OUT_WHEELS/"
-  printf '  %s\n' "$OUT_WHEELS"/pygraphics-*.whl
+  printf '  %s\n' "$OUT_WHEELS"/pydevices_pygraphics-*.whl
   echo "  $OUT_WHEELS/pygraphics.json → ${primary_base}"
 fi
 
@@ -146,7 +146,7 @@ cat <<EOF
 
 Next:
   # After a tagged Publish TestPyPI release (preferred for pydisplay):
-  #   await micropip.install("pygraphics", index_urls="https://test.pypi.org/simple/")
+  #   await micropip.install("pydevices-pygraphics", index_urls="https://test.pypi.org/simple/")
   #
   # Local micropip (needs COI-friendly server if testing from a page):
   #   await micropip.install('./wheels/<wheel-name>')

@@ -1,4 +1,4 @@
-# Build native pygraphics wheels (Linux + Windows + Android + Pyodide/wasm) and upload them to TestPyPI as pygraphics.
+# Build native pygraphics wheels (Linux + Windows + Android + Pyodide/wasm) and upload them to TestPyPI as pydevices-pygraphics.
 #
 # Release trigger: push an annotated semver tag vX.Y.Z (see scripts/publish_release_tag.sh),
 # or workflow_dispatch.
@@ -7,9 +7,9 @@
 #   TESTPYPI_API_TOKEN — TestPyPI API token (same as PyDevices/pydisplay)
 #
 # Install from TestPyPI (wheels are platform-specific):
-#   pip install -i https://test.pypi.org/simple/ pygraphics
+#   pip install -i https://test.pypi.org/simple/ pydevices-pygraphics
 # Pyodide / micropip (pyemscripten_2026_0 wasm32 wheel, same release version):
-#   await micropip.install("pygraphics", index_urls="https://test.pypi.org/simple/")
+#   await micropip.install("pydevices-pygraphics", index_urls="https://test.pypi.org/simple/")
 
 name: Publish TestPyPI
 
@@ -156,9 +156,9 @@ jobs:
           mkdir -p wheelhouse
           shopt -s nullglob
           wheels=(
-            dist/pygraphics-*-pyemscripten_*_wasm32.whl
-            dist/pygraphics-*-pyodide_*_wasm32.whl
-            dist/pygraphics-*-emscripten_*_wasm32.whl
+            dist/pydevices_pygraphics-*-pyemscripten_*_wasm32.whl
+            dist/pydevices_pygraphics-*-pyodide_*_wasm32.whl
+            dist/pydevices_pygraphics-*-emscripten_*_wasm32.whl
           )
           if ((${#wheels[@]} == 0)); then
             echo "error: no wasm wheel in dist/" >&2

@@ -34,7 +34,7 @@ See the [cmods workspace](https://github.com/PyDevices/cmods) for an easier way 
 pip install \
   -i https://test.pypi.org/simple/ \
   --extra-index-url https://pypi.org/simple/ \
-  pygraphics
+  pydevices-pygraphics
 ```
 
 ## Pyodide / browser (WASM)
@@ -44,7 +44,7 @@ micropip selects it automatically:
 
 ```python
 import micropip
-await micropip.install("pygraphics", index_urls="https://test.pypi.org/simple/")
+await micropip.install("pydevices-pygraphics", index_urls="https://test.pypi.org/simple/")
 ```
 
 ## CPython — pure Python (for users who do not want to compile)
@@ -53,7 +53,7 @@ await micropip.install("pygraphics", index_urls="https://test.pypi.org/simple/")
 pip install \
   -i https://test.pypi.org/simple/ \
   --extra-index-url https://pypi.org/simple/ \
-  pygraphics
+  pydevices-pygraphics
 ```
 
 ## Name cutover
@@ -61,8 +61,8 @@ pip install \
 | Role | Current | Retired (do not use) |
 |------|---------|----------------------|
 | Import | `pygraphics` | `graphics` |
-| Pure-Python pip | `pygraphics` | `pydisplay-graphics` |
-| Native/C pip | `pygraphics` | `graphics-cmod` |
+| Pure-Python pip | `pydevices-pygraphics` | `pygraphics`, `pydisplay-graphics` |
+| Native/C pip | `pydevices-pygraphics` | `pygraphics`, `graphics-cmod` |
 | MIP | `pygraphics` | `graphics` |
 
 TestPyPI may still list the old project names until they age out; install the

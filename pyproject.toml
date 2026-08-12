@@ -3,7 +3,7 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pygraphics"
+name = "pydevices-pygraphics"
 dynamic = ["version"]
 description = "Native graphics cmod for CPython (FrameBuffer, Area); import as pygraphics"
 readme = "README.md"
