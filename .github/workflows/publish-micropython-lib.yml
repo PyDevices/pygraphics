@@ -108,6 +108,9 @@ jobs:
         with:
           python-version: '3.13'
 
+      - name: Install publish tooling
+        run: python -m pip install --upgrade hatch twine
+
       - name: Configure micropython-lib git
         run: |
           git -C micropython-lib config user.name 'github-actions[bot]'
