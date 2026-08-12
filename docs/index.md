@@ -16,6 +16,7 @@ matching wheel is available.
 
 - [Getting started](getting-started.md)
 - [Installation](installation.md)
+- [API overview](api-overview.md)
 - [API Reference](reference/pygraphics/index.md)
 - [Native source-linked API (Pages)](https://pydevices.github.io/pygraphics/api/)
 - [pydevices-examples documentation](https://pydisplay.readthedocs.io)

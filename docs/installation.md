@@ -18,7 +18,8 @@ Copy the `pygraphics/` package folder onto `sys.path` (from
 
 To link the **native** cmod into a CircuitPython unix build (out-of-tree
 [Extending CircuitPython](https://learn.adafruit.com/extending-circuitpython)
-layout via spike + `apply_cp_patches.sh` — see [README](../README.md#circuitpython-unix)):
+layout via spike + `apply_cp_patches.sh` — see the
+[repository README](https://github.com/PyDevices/pygraphics#circuitpython-unix)):
 
 ```bash
 # siblings: circuitpython/ and pygraphics/

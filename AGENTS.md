@@ -68,3 +68,10 @@ Font C headers: `python3 scripts/sync_fonts.py` (source of truth is
 - MkDocs under `docs/` → https://pygraphics.readthedocs.io (`.readthedocs.yaml`)
 - Sourcey native API under `tools/sourcey-api/` → Pages `/api/`
 - Local: `python3 -m venv .venv-docs && .venv-docs/bin/pip install -r docs/requirements.txt && .venv-docs/bin/mkdocs serve`
+- Use practical examples from `pydevices-examples` and emphasize off-screen
+  rendering, dirty-rectangle updates, hit testing, sprite blits, gradients, and
+  text drawing.
+- Treat `lib/pygraphics` as the source of truth for generated Python API pages,
+  while keeping all behavioral guidance compatible with the native C module.
+- Do not replace usage guidance with placeholder method lists or document an API
+  shape that differs between the native and pure-Python implementations.
