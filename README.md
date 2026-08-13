@@ -49,10 +49,11 @@ fb.fill_rect(10, 10, 40, 40, 0xF800)
 print(pygraphics.implementation())  # native_cmod or pygraphics_python
 ```
 
-## What You Get
+`pygraphics` has **zero external dependencies** on any other PyDevices libraries or hardware modules. It functions as an independent, portable 2D graphics engine that can be used in any MicroPython, CircuitPython, or CPython project needing fast drawing primitives or off-screen framebuffer manipulation, regardless of whether you are using PyDevices displays.
 
 `pygraphics` extends MicroPython's standard `framebuf` into a powerful 2D graphics engine while preserving full API compatibility:
 
+* **Zero Dependencies & Universal Use**: No required external packages; usable in any Python application.
 * **Dual Invocation & `Draw` Class**: Call methods directly on `FrameBuffer` instances (`fb.circle(...)`), invoke standalone canvas functions (`pygraphics.circle(fb, ...)`), or use the **`Draw`** styling context for maximum architectural flexibility.
 * **Exposed Attributes**: Direct read-only access to `.buf`, `.width`, `.height`, `.stride`, `.format`, and `.color_depth` on every `FrameBuffer` instance.
 * **24-bit True Color (`RGB888`)**: Supports 24-bit packed RGB color format (format constant `RGB888`), ideal for 24-bit displays as well as **NeoPixel (WS2812B)** and **DotStar (APA102)** LED matrix arrays.
@@ -62,6 +63,7 @@ print(pygraphics.implementation())  # native_cmod or pygraphics_python
 * **Image & File I/O**: Load and save images directly using `load_image`, `save_image`, `export_framebuffer`, `BMP565`, and PBM/PGM codecs.
 * **Colorkey Blitting**: `blit_transparent()` for transparent sprite overlays.
 * **Native C Speed & Fallback Safety**: C acceleration compiled for MicroPython, CircuitPython, and CPython wheels (TestPyPI `pydevices-pygraphics`), with a pure-Python fallback available whenever precompiled binaries are not present in the firmware or environment.
+
 
 
 ## Links
