@@ -49,12 +49,20 @@ fb.fill_rect(10, 10, 40, 40, 0xF800)
 print(pygraphics.implementation())  # native_cmod or pygraphics_python
 ```
 
-## What you get
+## What You Get
 
-- `Area` — rectangle geometry helper
-- `FrameBuffer` — framebuf-compatible drawing surface (returns `Area` bounds)
-- Format constants: `MONO_VLSB`, `MONO_HLSB`, `MONO_HMSB`, `RGB565`, `GS2_HMSB`, `GS4_HMSB`, `GS8`, `RGB888`
-- `framebuf_backend()`, `capabilities()`, `implementation()`
+`pygraphics` extends MicroPython's standard `framebuf` into a powerful 2D graphics engine while preserving full API compatibility:
+
+* **Dual Invocation & `Draw` Class**: Call methods directly on `FrameBuffer` instances (`fb.circle(...)`), invoke standalone canvas functions (`pygraphics.circle(fb, ...)`), or use the **`Draw`** styling context for maximum architectural flexibility.
+* **Exposed Attributes**: Direct read-only access to `.buf`, `.width`, `.height`, `.stride`, `.format`, and `.color_depth` on every `FrameBuffer` instance.
+* **24-bit True Color (`RGB888`)**: Supports 24-bit packed RGB color format (format constant `RGB888`), ideal for 24-bit displays as well as **NeoPixel (WS2812B)** and **DotStar (APA102)** LED matrix arrays.
+* **Dirty `Area` Returns**: Drawing operations return an `Area(x, y, w, h)` bounding box so drivers can flush only modified screen regions.
+* **Rich Primitive Library**: Standard shapes plus `round_rect`, `circle`, `arc`, `triangle`, `polygon`, and `gradient_rect`.
+* **Multi-Font Engine**: Built-in 8x8 (`text8`), 8x14 (`text14`), 8x16 (`text16`), and custom `Font` support.
+* **Image & File I/O**: Load and save images directly using `load_image`, `save_image`, `export_framebuffer`, `BMP565`, and PBM/PGM codecs.
+* **Colorkey Blitting**: `blit_transparent()` for transparent sprite overlays.
+* **Native C Speed & Fallback Safety**: C acceleration compiled for MicroPython, CircuitPython, and CPython wheels (TestPyPI `pydevices-pygraphics`), with a pure-Python fallback available whenever precompiled binaries are not present in the firmware or environment.
+
 
 ## Links
 
@@ -67,6 +75,7 @@ print(pygraphics.implementation())  # native_cmod or pygraphics_python
 ## License
 
 MIT (framebuf algorithms derived from MicroPython `extmod/modframebuf.c`, Damien P. George).
+
 
 ---
 
