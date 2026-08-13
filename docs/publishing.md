@@ -36,12 +36,7 @@ continue from the highest `v*` tag:
 
 ## Secrets
 
-| Secret | Purpose |
-|--------|---------|
-| `TESTPYPI_API_TOKEN` | TestPyPI upload (cmod + pygraphics) |
-| `MICROPYTHON_LIB_DEPLOY_TOKEN` | PAT with `contents:write` on PyDevices/micropython-lib |
-
-Grant both secrets to the **pygraphics** repository (org secret repository access).
+Requires repository authentication secrets for package uploads and index syncing.
 
 ## Install
 
