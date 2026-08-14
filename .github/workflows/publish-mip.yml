@@ -1,12 +1,12 @@
-# Publish the pure-Python pygraphics package to micropython-lib and the MIP index.
+# Publish the pure-Python pygraphics package to mip and the MIP index.
 # Native pygraphics wheels are published by publish-testpypi.yml on the same tag.
 #
 # Release trigger: push tag vX.Y.Z (see scripts/publish_release_tag.sh).
 #
 # Secrets:
-#   MICROPYTHON_LIB_DEPLOY_TOKEN — PAT with contents:write on PyDevices/micropython-lib
+#   MICROPYTHON_LIB_DEPLOY_TOKEN — PAT with contents:write on PyDevices/mip
 
-name: Publish micropython-lib
+name: Publish MIP package index
 
 on:
   push:
@@ -19,7 +19,7 @@ on:
         type: string
         required: false
       sync_sources:
-        description: Sync pygraphics into micropython-lib
+        description: Sync pygraphics into mip
         type: boolean
         default: true
       publish_mip_index:
@@ -27,16 +27,16 @@ on:
         type: boolean
         default: true
       commit_message:
-        description: micropython-lib commit message
+        description: mip commit message
         type: string
         required: false
 
 permissions:
   contents: read
 
-# Sibling repos also push to micropython-lib; scripts rebase-retry on conflict.
+# Sibling repos also push to mip; scripts rebase-retry on conflict.
 concurrency:
-  group: publish-micropython-lib-${{ github.repository }}
+  group: publish-mip-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
@@ -132,8 +132,8 @@ jobs:
             MSG="pygraphics: Release v${VERSION} (${GITHUB_SHA::7})."
           fi
           EXTRA=(--commit-message "$MSG" --push)
-          chmod +x scripts/publish_micropython_lib.sh
-          ./scripts/publish_micropython_lib.sh "${EXTRA[@]}"
+          chmod +x scripts/publish_mip.sh
+          ./scripts/publish_mip.sh "${EXTRA[@]}"
 
       - name: Publish MIP index to gh-pages
         if: github.event_name == 'push' || inputs.publish_mip_index == true

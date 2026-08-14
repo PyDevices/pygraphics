@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Sync pygraphics into PyDevices/micropython-lib, build TestPyPI wheels, push MIP index.
+# Sync pygraphics into PyDevices/mip, build TestPyPI wheels, push MIP index.
 #
-# CI: MICROPYTHON_LIB_DIR=../micropython-lib ./scripts/publish_micropython_lib.sh --push
+# CI: MICROPYTHON_LIB_DIR=../micropython-lib ./scripts/publish_mip.sh --push
 # MIP: mip.install("pygraphics", index="https://PyDevices.github.io/mip")
 
 set -euo pipefail
@@ -14,16 +14,16 @@ CLI_VERSION=""
 
 usage() {
     cat <<'EOF'
-Usage: ./scripts/publish_micropython_lib.sh [OPTION]
+Usage: ./scripts/publish_mip.sh [OPTION]
 
-Copy pygraphics lib/ into micropython-lib, optionally upload TestPyPI wheels,
+Copy pygraphics lib/ into mip, optionally upload TestPyPI wheels,
 then commit (and optionally push) on the PyDevices branch.
 
 Options:
   --skip-pypi           Sync manifests only; skip hatch/twine TestPyPI uploads.
   --version X.Y.Z       Release version (overrides tag / GRAPHICS_VERSION).
-  --commit-message MSG  Commit micropython-lib changes (non-interactive).
-  --push                Push micropython-lib after commit.
+  --commit-message MSG  Commit mip changes (non-interactive).
+  --push                Push mip after commit.
   --help, -h            Show this message.
 
 Environment:
@@ -130,7 +130,7 @@ push_micropython_lib() {
             return 0
         fi
         if (( attempt >= max_attempts )); then
-            echo "Error: push to micropython-lib ${branch} failed after ${max_attempts} attempts" >&2
+            echo "Error: push to mip ${branch} failed after ${max_attempts} attempts" >&2
             return 1
         fi
         echo "Push rejected (likely concurrent publish); rebase onto origin/${branch} and retry (${attempt}/${max_attempts})..."
@@ -173,7 +173,7 @@ do
     fi
 done
 
-# Do not commit the full source-repo README into micropython-lib (MIP packages
+# Do not commit the full source-repo README into mip (MIP packages
 # are package trees/manifest only). Copy it temporarily for TestPyPI long_description.
 if [[ "$SKIP_PYPI" -eq 0 ]]; then
     cp "$README_FULL_PATH" "$DEST_DIR/README.md"
@@ -191,7 +191,7 @@ find "$DEST_DIR" \( \
 
 if [[ "$INTERACTIVE_COMMIT" -eq 1 ]] || [[ -n "$COMMIT_MESSAGE" ]]; then
     if [[ "$INTERACTIVE_COMMIT" -eq 1 ]] && [[ -z "$COMMIT_MESSAGE" ]]; then
-        read -r -p "Enter micropython-lib commit message: " COMMIT_MESSAGE
+        read -r -p "Enter mip commit message: " COMMIT_MESSAGE
     fi
     if [[ -n "$COMMIT_MESSAGE" ]]; then
         if [[ -z "$(git -C "$DEST_REPO" status --porcelain)" ]]; then

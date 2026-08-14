@@ -53,7 +53,7 @@ One tag `vX.Y.Z` publishes:
 
 1. **pydevices-pygraphics** (native/C-extension; import `pygraphics`) — `publish-testpypi.yml` (cibuildwheel Linux/Windows/Android
    + Pyodide `pyemscripten_2026_0` wasm32 via `scripts/build_pyodide_wheel.sh`)
-2. **pydevices-pygraphics** (pure Python wheel) + unprefixed MIP `pygraphics` — `publish-micropython-lib.yml` (micropython-lib + gh-pages)
+2. **pydevices-pygraphics** (pure Python wheel) + unprefixed MIP `pygraphics` — `publish-mip.yml` (micropython-lib + gh-pages)
 
 See `docs/publishing.md`. The next shared release continues the existing
 `pygraphics` version line (`v0.0.31` → `v0.0.32`).

@@ -7,14 +7,14 @@ import mip
 mip.install("pygraphics", index="https://PyDevices.github.io/mip")
 ```
 
-The package path on micropython-lib is `micropython/pygraphics/` (import name
+The package path on mip is `micropython/pygraphics/` (import name
 `pygraphics`). Older installs that used MIP name `graphics` should reinstall
 under the new name after the next publish.
 
 ## CircuitPython / copy install
 
 Copy the `pygraphics/` package folder onto `sys.path` (from
-`lib/pygraphics/` in this repo, or from micropython-lib).
+`lib/pygraphics/` in this repo, or from mip).
 
 To link the **native** cmod into a CircuitPython unix build (out-of-tree
 [Extending CircuitPython](https://learn.adafruit.com/extending-circuitpython)

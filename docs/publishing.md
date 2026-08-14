@@ -5,7 +5,7 @@ One annotated tag `vX.Y.Z` publishes **both** products at that version:
 | Product | Channel | Workflow |
 |---------|---------|----------|
 | **pydevices-pygraphics** | TestPyPI (native/C-extension platform + Pyodide wasm wheels; import `pygraphics`) | `publish-testpypi.yml` |
-| **pygraphics** | micropython-lib / MIP (pure Python, for users who do not want to compile) | `publish-micropython-lib.yml` |
+| **pygraphics** | MIP package index (pure Python, for users who do not want to compile) | `publish-mip.yml` |
 
 ## Pipeline
 
@@ -17,7 +17,7 @@ pygraphics (commit on main)
            │     cibuildwheel → Linux + Windows + Android → pygraphics
            │     build_pyodide_wheel.sh → pyemscripten_2026_0 wasm32
            │
-           └─► publish-micropython-lib.yml
+           └─► publish-mip.yml
                  sync → micropython/pygraphics/
                  rebuild mip/PyDevices → gh-pages
                  remove legacy micropython/graphics/ and pydisplay/graphics/
@@ -44,7 +44,7 @@ Requires repository authentication secrets for package uploads and index syncing
 # native/C extension (desktop / Android)
 pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pydevices-pygraphics
 
-# pure Python (micropython-lib / MIP, for users who do not want to compile)
+# pure Python (MIP package index, for users who do not want to compile)
 pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pydevices-pygraphics
 ```
 
