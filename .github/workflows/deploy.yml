@@ -1,24 +1,12 @@
 name: Deploy Pages site
 
 on:
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'docs/**'
-      - 'web/**'
-      - 'tools/sourcey-api/**'
-      - 'README.md'
-      - '.github/workflows/deploy-pages.yml'
   push:
     branches:
       - main
     paths:
-      - 'docs/**'
-      - 'web/**'
-      - 'tools/sourcey-api/**'
-      - 'README.md'
-      - '.github/workflows/deploy-pages.yml'
+      - ".site/**"
+      - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
 permissions:
@@ -29,35 +17,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          # Full history + tags so the Sourcey generator can resolve a release line
-          # via `git describe` (default shallow checkouts have neither).
-          fetch-depth: 0
-          fetch-tags: true
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: npm
-          cache-dependency-path: tools/sourcey-api/package-lock.json
-
-      - name: Install Sourcey documentation dependencies
-        run: npm ci --prefix tools/sourcey-api
-
-      - name: Build and verify Sourcey native reference
-        run: npm run check --prefix tools/sourcey-api
 
       - name: Assemble GitHub Pages site
         run: |
           mkdir -p _site
-          cp -r web/* _site/
-          mkdir -p _site/api
-          cp -r tools/sourcey-api/dist/* _site/api/
+          cp -r .site/* _site/
           touch _site/.nojekyll
 
       - name: Deploy to gh-pages
-        if: github.event_name != 'pull_request'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
