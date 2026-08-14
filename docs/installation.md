@@ -4,7 +4,7 @@
 
 ```python
 import mip
-mip.install("pygraphics", index="https://PyDevices.github.io/micropython-lib/mip/PyDevices")
+mip.install("pygraphics", index="https://PyDevices.github.io/mip")
 ```
 
 The package path on micropython-lib is `micropython/pygraphics/` (import name

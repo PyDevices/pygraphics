@@ -54,7 +54,7 @@ await micropip.install("pydevices-pygraphics", index_urls="https://test.pypi.org
 ```
 
 ```python
-mip.install("pygraphics", index="https://PyDevices.github.io/micropython-lib/mip/PyDevices")
+mip.install("pygraphics", index="https://PyDevices.github.io/mip")
 ```
 
 ## Local cmod wheel smoke

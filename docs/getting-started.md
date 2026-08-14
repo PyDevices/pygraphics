@@ -6,7 +6,7 @@ Install from [MIP](installation.md) or [TestPyPI](installation.md):
 
 ```python
 import mip
-mip.install("pygraphics", index="https://PyDevices.github.io/micropython-lib/mip/PyDevices")
+mip.install("pygraphics", index="https://PyDevices.github.io/mip")
 ```
 
 Development clone — put `lib/` on `PYTHONPATH`, or `pip install -e .` for the
