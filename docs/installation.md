@@ -48,21 +48,12 @@ import micropip
 await micropip.install("pydevices-pygraphics", index_urls="https://test.pypi.org/simple/")
 ```
 
-## CPython — pure Python (for users who do not want to compile)
-
-```bash
-pip install \
-  -i https://test.pypi.org/simple/ \
-  --extra-index-url https://pypi.org/simple/ \
-  pydevices-pygraphics
-```
-
 ## Name cutover
 
 | Role | Current | Retired (do not use) |
 |------|---------|----------------------|
 | Import | `pygraphics` | `graphics` |
-| Pure-Python pip | `pydevices-pygraphics` | `pygraphics` |
+| Pure-Python pip | Not published; use MIP | `pygraphics` |
 | Native/C pip | `pydevices-pygraphics` | `pygraphics`, `graphics-cmod` |
 | MIP | `pygraphics` | `graphics` |
 

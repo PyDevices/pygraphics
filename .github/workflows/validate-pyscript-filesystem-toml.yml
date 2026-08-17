@@ -1,0 +1,24 @@
+name: Validate PyScript filesystem TOML
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - lib/**
+      - pygraphics.toml
+  pull_request:
+    paths:
+      - lib/**
+      - pygraphics.toml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-pyscript-filesystem-toml:
+    uses: PyDevices/.github/.github/workflows/reusable-validate-pyscript-filesystem-toml.yml@publishing-v1
+    with:
+      config-path: pygraphics.toml
+      source-mappings: lib=/lib

@@ -1,42 +1,34 @@
 # Publishing and releases
 
-One annotated tag `vX.Y.Z` publishes **both** products at that version:
+One published GitHub Release `vX.Y.Z` publishes **both** products at that version:
 
 | Product | Channel | Workflow |
 |---------|---------|----------|
-| **pydevices-pygraphics** | TestPyPI (native/C-extension platform + Pyodide wasm wheels; import `pygraphics`) | `publish-testpypi.yml` |
-| **pygraphics** | MIP package index (pure Python, for users who do not want to compile) | `publish-mip.yml` |
+| **pydevices-pygraphics** | TestPyPI (native/C-extension platform + PyEmscripten WASM wheels; import `pygraphics`) | `publish-release-packages.yml` |
+| **pygraphics** | MIP package index (pure Python) | `publish-release-packages.yml` |
 
 ## Pipeline
 
 ```text
-pygraphics (commit on main)
-  ./scripts/publish_release_tag.sh --push   # next patch after highest v*
-           │
-           ├─► publish-testpypi.yml
-           │     cibuildwheel → Linux + Windows + Android → pygraphics
-           │     build_pyodide_wheel.sh → pyemscripten_2026_0 wasm32
-           │
-           └─► publish-mip.yml
-                 sync → micropython/pygraphics/
-                 rebuild mip/PyDevices → gh-pages
-                 remove legacy micropython/graphics/ and pydisplay/graphics/
+published GitHub Release vX.Y.Z
+  publish-release-packages.yml
+    ├─ shared native matrix → Linux + Windows + Android wheels
+    ├─ shared PyEmscripten build → WASM wheel
+    ├─ Trusted Publishing → one pydevices-pygraphics distribution
+    └─ pure lib/pygraphics → serialized PyDevices/mip queue
 ```
 
 ## Version numbers
 
 Shared tag for **both** products. The TestPyPI distribution is now
 `pydevices-pygraphics`; the import and MIP package remain `pygraphics`. Tags
-continue from the highest `v*` tag:
+continue from the highest `v*` tag. Update `VERSION`, create `vX.Y.Z`, and
+publish the GitHub Release. Manual retries use that same exact tag.
 
-```bash
-./scripts/next_release_version.sh --verbose
-./scripts/publish_release_tag.sh --dry-run
-```
+## Authentication
 
-## Secrets
-
-Requires repository authentication secrets for package uploads and index syncing.
+TestPyPI uses Trusted Publishing with the `testpypi` GitHub environment. The
+existing `MICROPYTHON_LIB_DEPLOY_TOKEN` dispatches the MIP queue.
 
 ## Install
 
@@ -44,8 +36,7 @@ Requires repository authentication secrets for package uploads and index syncing
 # native/C extension (desktop / Android)
 pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pydevices-pygraphics
 
-# pure Python (MIP package index, for users who do not want to compile)
-pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pydevices-pygraphics
+# There is no pure-Python pip distribution; use MIP for that implementation.
 ```
 
 ```python
