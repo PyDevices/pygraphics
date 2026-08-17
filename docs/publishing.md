@@ -14,7 +14,7 @@ published GitHub Release vX.Y.Z
   publish-release-packages.yml
     ├─ shared native matrix → Linux + Windows + Android wheels
     ├─ shared PyEmscripten build → WASM wheel
-    ├─ Trusted Publishing → one pydevices-pygraphics distribution
+    ├─ API-token upload → one pydevices-pygraphics distribution
     └─ pure lib/pygraphics → serialized PyDevices/mip queue
 ```
 
@@ -27,8 +27,9 @@ publish the GitHub Release. Manual retries use that same exact tag.
 
 ## Authentication
 
-TestPyPI uses Trusted Publishing with the `testpypi` GitHub environment. The
-existing `MICROPYTHON_LIB_DEPLOY_TOKEN` dispatches the MIP queue.
+TestPyPI uses the existing `TESTPYPI_API_TOKEN`, owned by `bdbarnett`, while
+the PyDevices TestPyPI organization request is pending. The existing
+`MICROPYTHON_LIB_DEPLOY_TOKEN` dispatches the MIP queue.
 
 ## Install
 
