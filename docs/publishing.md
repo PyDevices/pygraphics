@@ -66,6 +66,13 @@ python3 -m venv .venv
 .venv/bin/python tests/test_pygraphics.py
 ```
 
+After publishing to TestPyPI, verify the namespaced distribution in a fresh
+environment:
+
+```bash
+./tools/test_testpypi_standalone.sh
+```
+
 ## Local Pyodide / wasm wheel
 
 Host Python **3.14** + Node.js (see `scripts/build_pyodide_wheel.sh`):
