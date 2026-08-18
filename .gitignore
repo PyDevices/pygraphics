@@ -25,5 +25,7 @@ wheelhouse/
 # Local packaging stamp written by build/publish helpers (see AGENTS.md)
 tools/sourcey-api/node_modules/
 tools/sourcey-api/dist/
+# Generated API reference: regenerate with tools/sourcey-api/scripts/generate_reference.py
+tools/sourcey-api/generated/
 site/
 .venv-docs/

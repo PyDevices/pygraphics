@@ -14,23 +14,19 @@ One release tag `vX.Y.Z` publishes both products at that version.
 
 ## Install
 
-### Native (TestPyPI)
-
 ```bash
-pip install \
-  -i https://test.pypi.org/simple/ \
-  --extra-index-url https://pypi.org/simple/ \
-  pydevices-pygraphics
+# Native C extension (CPython desktop, Android, Pyodide)
+pip install -i https://test.pypi.org/simple/ \
+  --extra-index-url https://pypi.org/simple/ pydevices-pygraphics
 ```
 
-### Pure Python (MIP)
-
-The MIP index serves the pure-Python build for MicroPython and CircuitPython:
-
 ```python
+# Pure Python, for MicroPython and CircuitPython
 import mip
 mip.install("pygraphics", index="https://PyDevices.github.io/mip")
 ```
+
+Full options and verification: [docs/installation.md](docs/installation.md).
 
 ### Quick start
 

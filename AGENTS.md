@@ -49,14 +49,8 @@ pydevices-examples's `tools/example_runtimes.toml`.
 
 ## Publishing
 
-One published GitHub Release `vX.Y.Z` publishes:
-
-1. **pydevices-pygraphics** (native/C-extension; import `pygraphics`) — `publish-release-packages.yml` (shared cibuildwheel Linux/Windows/Android
-   + Pyodide `pyemscripten_2026_0` wasm32 via `scripts/build_pyodide_wheel.sh`)
-2. Unprefixed MIP **pygraphics** — pure Python only. It is not published as a pip wheel.
-
-See `docs/publishing.md`. The next shared release continues the existing
-`pygraphics` version line (`v0.0.31` → `v0.0.32`).
+Org-wide procedure: [.github/docs/publishing-automation.md](https://github.com/PyDevices/.github/blob/main/docs/publishing-automation.md).
+Local wheel builds: [docs/building-wheels.md](docs/building-wheels.md).
 
 ## After C changes
 
@@ -66,7 +60,7 @@ Font C headers: `python3 scripts/sync_fonts.py` (source of truth is
 ## Documentation
 
 - MkDocs under `docs/` → https://pygraphics.readthedocs.io (`.readthedocs.yaml`)
-- Sourcey native API under `tools/sourcey-api/` → Pages `/api/`
+- Sourcey native-C API generator under `tools/sourcey-api/`; output is gitignored and unpublished (regenerate with `scripts/generate_reference.py`)
 - Local: `python3 -m venv .venv-docs && .venv-docs/bin/pip install -r docs/requirements.txt && .venv-docs/bin/mkdocs serve`
 - Use practical examples from `pydevices-examples` and emphasize off-screen
   rendering, dirty-rectangle updates, hit testing, sprite blits, gradients, and
