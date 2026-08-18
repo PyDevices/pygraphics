@@ -11,7 +11,6 @@ import unittest
 
 import _env  # noqa: F401
 from _support import count_set, make_fb
-
 from pygraphics import Area, Draw
 
 _WHITE = 0xFFFF

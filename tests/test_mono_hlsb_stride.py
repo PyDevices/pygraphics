@@ -3,7 +3,7 @@
 
 import unittest
 
-from pygraphics import FrameBuffer, MONO_HLSB, RGB565
+from pygraphics import MONO_HLSB, RGB565, FrameBuffer
 
 
 class TestMonoHlsbStride(unittest.TestCase):

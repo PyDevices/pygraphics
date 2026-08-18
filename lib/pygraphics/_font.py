@@ -403,7 +403,6 @@ class Font:
             f.write("_FONT =\\\n")
             for i in range(256):
                 f.write("b'")
-                for j in range(self.height):
-                    f.write(f"\\x{mv[(i * self.height) + j]:02x}")
+                f.writelines(f"\\x{mv[(i * self.height) + j]:02x}" for j in range(self.height))
                 f.write("'\\\n")
             f.write("\nFONT = memoryview(_FONT)\n")

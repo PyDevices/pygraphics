@@ -13,7 +13,6 @@ import tempfile
 import unittest
 
 import _env  # noqa: F401
-
 from pygraphics import (
     BMP565,
     GS2_HMSB,

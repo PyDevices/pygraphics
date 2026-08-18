@@ -1,0 +1,44 @@
+name: Unit tests
+
+# pygraphics had no test CI until 2026-08. tests/_support.py was never committed,
+# so five of the fifteen test modules failed at import and nobody saw it. This job
+# exists so that cannot recur silently.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'src/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'pyproject.toml'
+      - '.github/workflows/tests.yml'
+  pull_request:
+    paths:
+      - 'lib/**'
+      - 'src/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install ruff
+        run: pip install ruff
+      - name: Ruff
+        run: ruff check lib tests
+      # Pure-Python only. The native C extension is exercised by the wheel
+      # builds; a checkout has no built .so, and tests/_env.py puts lib/ on
+      # sys.path so `import pygraphics` resolves to the pure-Python package.
+      - name: Unit tests
+        env:
+          PYTHONPATH: lib
+        run: python -m unittest discover -s tests -v

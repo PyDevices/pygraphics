@@ -8,8 +8,7 @@ for _p in list(sys.path):
     if _p.endswith("/graphics") and "repos" in _p:
         sys.path.remove(_p)
 
-import pygraphics
-from pygraphics import FrameBuffer, RGB565, Area
+from pygraphics import RGB565, Area, FrameBuffer
 
 
 class SubBuffer(FrameBuffer):

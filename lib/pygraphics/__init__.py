@@ -74,7 +74,7 @@ _LAZY = {
 def __getattr__(name):
     spec = _LAZY.get(name)
     if spec is None:
-        raise AttributeError("module 'pygraphics' has no attribute {!r}".format(name))
+        raise AttributeError(f"module 'pygraphics' has no attribute {name!r}")
     mod_name, attr = spec
     mod = __import__(__name__ + "." + mod_name, None, None, (attr,))
     value = getattr(mod, attr)

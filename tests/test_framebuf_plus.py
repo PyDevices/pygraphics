@@ -12,8 +12,6 @@ import unittest
 
 import _env  # noqa: F401
 from _support import make_fb
-
-import pygraphics
 from pygraphics import (
     GS2_HMSB,
     GS4_HMSB,

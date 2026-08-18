@@ -8,8 +8,7 @@ for _p in list(sys.path):
 
 import array
 
-import pygraphics
-from pygraphics import Area, FrameBuffer, RGB565, capabilities, framebuf_backend
+from pygraphics import RGB565, Area, FrameBuffer, capabilities, framebuf_backend
 
 print("backend:", framebuf_backend())
 assert framebuf_backend() == "native", capabilities()

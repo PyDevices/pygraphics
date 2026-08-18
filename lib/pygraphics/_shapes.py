@@ -112,22 +112,14 @@ def arc(canvas, x, y, r, a0, a1, c):
         x1 = x + ((r * c1) >> 15)
         y1 = y + ((r * s1) >> 15)
         line(canvas, x0, y0, x1, y1, c)
-        if x0 < x_min:
-            x_min = x0
-        if x1 < x_min:
-            x_min = x1
-        if x0 > x_max:
-            x_max = x0
-        if x1 > x_max:
-            x_max = x1
-        if y0 < y_min:
-            y_min = y0
-        if y1 < y_min:
-            y_min = y1
-        if y0 > y_max:
-            y_max = y0
-        if y1 > y_max:
-            y_max = y1
+        x_min = min(x_min, x0)
+        x_min = min(x_min, x1)
+        x_max = max(x_max, x0)
+        x_max = max(x_max, x1)
+        y_min = min(y_min, y0)
+        y_min = min(y_min, y1)
+        y_max = max(y_max, y0)
+        y_max = max(y_max, y1)
         x0 = x1
         y0 = y1
     return Area(x_min, y_min, x_max - x_min, y_max - y_min)
@@ -607,10 +599,10 @@ def line(canvas, x0, y0, x1, y1, c):
     """
     bx0, by0, bx1, by1 = x0, y0, x1, y1
     if x0 == x1:
-        y = y0 if y0 < y1 else y1
+        y = min(y1, y0)
         return vline(canvas, x0, y, abs(y1 - y0) + 1, c)
     if y0 == y1:
-        x = x0 if x0 < x1 else x1
+        x = min(x1, x0)
         return hline(canvas, x, y0, abs(x1 - x0) + 1, c)
 
     steep = abs(y1 - y0) > abs(x1 - x0)
@@ -640,8 +632,8 @@ def line(canvas, x0, y0, x1, y1, c):
             y0 += ystep
             err += dx
         x0 += 1
-    left = bx0 if bx0 < bx1 else bx1
-    top = by0 if by0 < by1 else by1
+    left = min(bx1, bx0)
+    top = min(by1, by0)
     return Area(left, top, abs(bx1 - bx0), abs(by1 - by0))
 
 
@@ -708,14 +700,10 @@ def poly(canvas, x, y, coords, c, f=False):
     left = right = xs[0]
     top = bottom = ys[0]
     for i in range(1, n):
-        if xs[i] < left:
-            left = xs[i]
-        if xs[i] > right:
-            right = xs[i]
-        if ys[i] < top:
-            top = ys[i]
-        if ys[i] > bottom:
-            bottom = ys[i]
+        left = min(left, xs[i])
+        right = max(right, xs[i])
+        top = min(top, ys[i])
+        bottom = max(bottom, ys[i])
 
     if f:
         # Integer scanline fill — same node formula as gfx_shapes_poly (C).
@@ -733,7 +721,7 @@ def poly(canvas, x, y, coords, c, f=False):
                         32,
                     )
                     nodes.append(node)
-                elif row == (py1 if py1 > py2 else py2):
+                elif row == (max(py2, py1)):
                     if py1 < py2:
                         _set_pixel(canvas, x + px2, y + py2, c)
                     elif py2 < py1:
@@ -801,14 +789,10 @@ def polygon(canvas, points, x, y, color, angle=0, center_x=0, center_y=0):
             cur_x = x + int(points[i][0])
             cur_y = y + int(points[i][1])
         line(canvas, prev_x, prev_y, cur_x, cur_y, color)
-        if cur_x < left:
-            left = cur_x
-        if cur_x > right:
-            right = cur_x
-        if cur_y < top:
-            top = cur_y
-        if cur_y > bottom:
-            bottom = cur_y
+        left = min(left, cur_x)
+        right = max(right, cur_x)
+        top = min(top, cur_y)
+        bottom = max(bottom, cur_y)
         prev_x = cur_x
         prev_y = cur_y
     return Area(left, top, right - left, bottom - top)

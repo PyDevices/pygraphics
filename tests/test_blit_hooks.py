@@ -7,14 +7,22 @@ import unittest
 
 import _env  # noqa: F401
 from _support import make_fb
+from pygraphics import Area, Draw, blit_rect
 
-from pygraphics import Area, Draw, blit, blit_rect
-from pygraphics._blit_hooks import (
-    blit_rect_dispatch,
-    canvas_accepts_blit_rect,
-    canvas_accepts_blit_transparent,
-    try_fast_framebuffer_blit,
-)
+# These target pure-Python internals. When the native C extension is the
+# loaded implementation, pygraphics is a single extension module rather than
+# a package, so these submodules do not exist and the tests do not apply.
+try:
+    from pygraphics._blit_hooks import (
+        blit_rect_dispatch,
+        canvas_accepts_blit_rect,
+        canvas_accepts_blit_transparent,
+        try_fast_framebuffer_blit,
+    )
+except ImportError as exc:  # pragma: no cover - depends on which build is installed
+    raise unittest.SkipTest(
+        "pygraphics._blit_hooks is pure-Python only; the native build is loaded (" + str(exc) + ")"
+    ) from None
 
 
 class _BlitRectCanvas:

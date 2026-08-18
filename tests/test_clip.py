@@ -6,9 +6,17 @@
 import unittest
 
 import _env  # noqa: F401
-
 from pygraphics import RGB565, Area, FrameBuffer
-from pygraphics._clip import ClippedCanvas, crop_rgb565_buffer, intersect_rect
+
+# These target pure-Python internals. When the native C extension is the
+# loaded implementation, pygraphics is a single extension module rather than
+# a package, so these submodules do not exist and the tests do not apply.
+try:
+    from pygraphics._clip import ClippedCanvas, crop_rgb565_buffer, intersect_rect
+except ImportError as exc:  # pragma: no cover - depends on which build is installed
+    raise unittest.SkipTest(
+        "pygraphics._clip is pure-Python only; the native build is loaded (" + str(exc) + ")"
+    ) from None
 
 
 def make_fb(w=8, h=8):

@@ -8,12 +8,11 @@ These are the functions re-exported from the package top level (``hline``,
 return an :class:`pygraphics.Area` bounding box.
 """
 
-from array import array
 import unittest
+from array import array
 
 import _env  # noqa: F401
 from _support import count_set, make_fb
-
 from pygraphics import (
     Area,
     arc,
