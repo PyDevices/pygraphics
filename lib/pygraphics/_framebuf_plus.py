@@ -108,8 +108,8 @@ class FrameBuffer(_FrameBuffer):
             width (int): Width in pixels.
             height (int): Height in pixels.
             format (int): Pixel format constant (``RGB565``, ``RGB888``, etc.).
-            *args: Forwarded to the base ``framebuf.FrameBuffer`` (e.g. stride).
-            **kwargs: Forwarded to the base constructor (e.g. ``stride=``).
+            *args (Any): Forwarded to the base ``framebuf.FrameBuffer`` (e.g. stride).
+            **kwargs (Any): Forwarded to the base constructor (e.g. ``stride=``).
 
         Raises:
             ValueError: If ``format`` is not a supported constant.

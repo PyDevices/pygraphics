@@ -5,6 +5,14 @@ edit_uri: edit/main/docs/
 copyright: "Copyright 2024, Brad Barnett"
 docs_dir: docs
 site_dir: site
+strict: true
+
+# docs/README.md is the curated GitHub-browsing index for the docs/ folder
+# (see repo convention: every docs/ directory has a README.md). It duplicates
+# docs/index.md, which is the MkDocs site landing page, so exclude it from
+# the built site to resolve the index.md/README.md conflict.
+exclude_docs: |
+  README.md
 
 theme:
   name: material
@@ -48,6 +56,15 @@ plugins:
             show_symbol_type_heading: true
             show_symbol_type_toc: true
             docstring_style: google
+            docstring_options:
+              # Convention (see dotgithub/docs/docstrings.md) documents bare
+              # `Returns:\n    Area: description` — a type, not a name. Griffe's
+              # default (returns_named_value: true) requires the type in
+              # parens (`(Area): description`) and otherwise treats a bare
+              # leading word as the return *name*, which is a false-positive
+              # "no type" warning under --strict. This option makes the bare
+              # `type: description` form the expected one, matching our style.
+              returns_named_value: false
             merge_init_into_class: true
             filters:
               - "!^_"
