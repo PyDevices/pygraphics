@@ -25,12 +25,7 @@ pip install \
 
 ### Pure Python (MIP)
 
-```python
-import mip
-mip.install("pygraphics", index="https://PyDevices.github.io/mip")
-```
-
-### MicroPython (MIP)
+The MIP index serves the pure-Python build for MicroPython and CircuitPython:
 
 ```python
 import mip
