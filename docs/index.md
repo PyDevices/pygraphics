@@ -19,5 +19,5 @@ matching wheel is available.
 - [API overview](api-overview.md)
 - [API Reference](reference/pygraphics/index.md)
 - [Native source-linked API (Pages)](https://pydevices.github.io/pygraphics/api/)
-- [pydevices-examples documentation](https://pydisplay.readthedocs.io)
+- [pydevices-examples](https://github.com/PyDevices/pydevices-examples) — companion demos and gallery
 - [GitHub](https://github.com/PyDevices/pygraphics)

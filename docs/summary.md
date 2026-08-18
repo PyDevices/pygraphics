@@ -1,6 +1,8 @@
 * [Home](index.md)
 * [Getting started](getting-started.md)
 * [Installation](installation.md)
+* [Graphics guide](graphics-guide.md)
+* [Graphics files](graphics-files.md)
 * [API overview](api-overview.md)
 * [Publishing](publishing.md)
 * [API Reference](reference/)
