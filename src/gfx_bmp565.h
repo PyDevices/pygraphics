@@ -12,6 +12,15 @@
 #define GFX_BMP565_BPP 16
 #define GFX_BMP565_BYTES_PER_PIXEL 2
 
+/* RGB565 BMPs must declare BI_BITFIELDS plus explicit channel masks: BI_RGB at
+ * 16bpp conventionally means RGB555, so a reader has no other way to learn the
+ * layout. BITMAPFILEHEADER (14) + BITMAPINFOHEADER (40) + three masks (12). */
+#define GFX_BMP565_COMPRESSION_BITFIELDS 3
+#define GFX_BMP565_DATA_OFFSET (14 + 40 + 12)
+#define GFX_BMP565_R_MASK 0xF800u
+#define GFX_BMP565_G_MASK 0x07E0u
+#define GFX_BMP565_B_MASK 0x001Fu
+
 typedef struct gfx_bmp565 {
     uint8_t *buffer;
     size_t buffer_len;

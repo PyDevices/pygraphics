@@ -276,7 +276,7 @@ int gfx_image_encoded_size(const gfx_fb_t *fb, size_t *out_len, const char **out
     size_t pixels = pixel_bytes(fb);
     size_t total;
     if (fb->format == GFX_RGB565) {
-        total = 14 + 40 + pixels; /* BITMAPFILEHEADER + BITMAPINFOHEADER + data */
+        total = GFX_BMP565_DATA_OFFSET + pixels;
     } else {
         total = pnm_header_len(fb, NULL) + pixels;
     }
@@ -298,7 +298,7 @@ int gfx_image_encode(const gfx_fb_t *fb, uint8_t *dst, size_t dst_len, size_t *o
     size_t pixels = pixel_bytes(fb);
 
     if (fb->format == GFX_RGB565) {
-        size_t data_off = 14 + 40;
+        size_t data_off = GFX_BMP565_DATA_OFFSET;
         memset(dst, 0, data_off);
         dst[0] = 'B';
         dst[1] = 'M';
@@ -324,11 +324,24 @@ int gfx_image_encode(const gfx_fb_t *fb, uint8_t *dst, size_t dst_len, size_t *o
         /* planes @26 = 1, bpp @28 = 16 */
         dst[26] = 1;
         dst[28] = GFX_BMP565_BPP;
+        /* compression @30 = BI_BITFIELDS */
+        dst[30] = GFX_BMP565_COMPRESSION_BITFIELDS;
         /* image size @34 */
         dst[34] = (uint8_t)(pixels);
         dst[35] = (uint8_t)(pixels >> 8);
         dst[36] = (uint8_t)(pixels >> 16);
         dst[37] = (uint8_t)(pixels >> 24);
+        /* RGB565 channel masks @54, @58, @62 */
+        static const uint32_t bmp565_masks[3] = {
+            GFX_BMP565_R_MASK, GFX_BMP565_G_MASK, GFX_BMP565_B_MASK
+        };
+        for (int m = 0; m < 3; m++) {
+            size_t at = 54 + (size_t)m * 4;
+            dst[at]     = (uint8_t)(bmp565_masks[m]);
+            dst[at + 1] = (uint8_t)(bmp565_masks[m] >> 8);
+            dst[at + 2] = (uint8_t)(bmp565_masks[m] >> 16);
+            dst[at + 3] = (uint8_t)(bmp565_masks[m] >> 24);
+        }
 
         size_t row_bytes = (size_t)fb->width * GFX_BMP565_BYTES_PER_PIXEL;
         const uint8_t *src = (const uint8_t *)fb->buf;
