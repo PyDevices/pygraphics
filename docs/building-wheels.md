@@ -29,16 +29,20 @@ environment:
 
 ## Local Pyodide / wasm wheel
 
-Host Python **3.14** + Node.js (see `scripts/build_pyodide_wheel.sh`):
+cibuildwheel drives pyodide-build and the emscripten toolchain:
 
 ```bash
-./scripts/build_pyodide_wheel.sh
-# CI uses:
-./scripts/build_pyodide_wheel.sh --no-copy
+pipx run cibuildwheel --platform pyodide
 ```
 
-Produces `dist/pydevices_pygraphics-*-cp314-cp314-pyemscripten_2026_0_wasm32.whl` and
-optionally copies it to `web/wheels/` (+ `pygraphics.json`).
+Wheels land in `wheelhouse/`. CI runs the same command.
+
+Produces one wheel per Pyodide target, currently:
+
+```
+pydevices_pygraphics-<version>-cp313-cp313-pyemscripten_2025_0_wasm32.whl
+pydevices_pygraphics-<version>-cp314-cp314-pyemscripten_2026_0_wasm32.whl
+```
 
 ## Documentation
 
