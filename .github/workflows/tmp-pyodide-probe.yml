@@ -1,0 +1,27 @@
+# TEMPORARY probe: confirm cibuildwheel can build the Pyodide wheel directly,
+# so scripts/build_pyodide_wheel.sh can be retired. Delete after the result.
+name: TEMP pyodide probe
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: v0.0.33
+
+      - name: Build WASM wheel with cibuildwheel
+        uses: pypa/cibuildwheel@v4.1.0
+        env:
+          CIBW_PLATFORM: pyodide
+
+      - name: Show what was produced
+        run: |
+          echo "--- wheelhouse ---"
+          ls -la wheelhouse/ || echo "(no wheelhouse)"
