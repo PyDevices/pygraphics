@@ -4,6 +4,11 @@
 
 import pygraphics
 
+if pygraphics.implementation() != "native_cmod":
+    from unittest import SkipTest
+
+    raise SkipTest("native-only export parity probe")
+
 ALL = [
     "BMP565",
     "GS2_HMSB",

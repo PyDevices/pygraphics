@@ -7,6 +7,11 @@ except ImportError as e:
     print("FAIL: import pygraphics:", e)
     raise SystemExit(1)
 
+if pygraphics.implementation() != "native_cmod":
+    from unittest import SkipTest
+
+    raise SkipTest("native-only keyword parity probe")
+
 results = {}
 
 

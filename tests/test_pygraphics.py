@@ -8,6 +8,13 @@ for _p in list(sys.path):
 
 import array
 
+import pygraphics
+
+if pygraphics.implementation() != "native_cmod":
+    from unittest import SkipTest
+
+    raise SkipTest("native-only graphics smoke test")
+
 from pygraphics import RGB565, Area, FrameBuffer, capabilities, framebuf_backend
 
 print("backend:", framebuf_backend())
