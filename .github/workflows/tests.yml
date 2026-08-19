@@ -35,12 +35,21 @@ jobs:
         run: pip install ruff
       - name: Ruff
         run: ruff check lib tests
-      # Pure-Python mode; tests/_env.py puts lib/ on sys.path. Note PYTHONPATH
-      # alone does NOT select it -- the cwd precedes PYTHONPATH on sys.path, so
-      # an in-place native build would win. _env.py is the switch.
-      #
-      # A PYGRAPHICS_TEST_NATIVE=1 job belongs here too, but the native build
-      # currently has 11 divergences from the pure-Python reference (see
-      # tests/README.md); adding it now would fail every push.
+      # tests/_env.py is the implementation switch. Note PYTHONPATH alone does
+      # NOT select pure Python -- the cwd precedes PYTHONPATH on sys.path, so an
+      # in-place native build would win.
       - name: Unit tests (pure Python)
+        run: python -m unittest discover -s tests -v
+
+      # Both implementations must agree. Eleven divergences were found and fixed
+      # in August 2026 once the suite could actually run; this job is what keeps
+      # them from coming back.
+      - name: Build the native extension
+        run: |
+          pip install "setuptools>=77" wheel
+          python setup.py build_ext --inplace
+
+      - name: Unit tests (native extension)
+        env:
+          PYGRAPHICS_TEST_NATIVE: '1'
         run: python -m unittest discover -s tests -v

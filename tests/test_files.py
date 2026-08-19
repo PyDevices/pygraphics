@@ -168,10 +168,15 @@ class TestConverters(_TmpDirTest):
 
 class TestBmp565(_TmpDirTest):
     def _write_minimal_bmp(self, path, width, height, pixels):
-        from pygraphics._bmp565 import write_bmp565_file
+        """Write an RGB565 BMP fixture through the public API.
 
-        with open(path, "wb") as f:
-            write_bmp565_file(f, pixels, width, height)
+        This used to call pygraphics._bmp565.write_bmp565_file directly, which
+        exists only in the pure-Python build -- so the test errored out under the
+        native extension, where pygraphics is a single module rather than a
+        package. BMP565.save is public and present in both, and the point of the
+        test is the reader anyway.
+        """
+        BMP565(source=bytearray(pixels), width=width, height=height).save(path)
 
     def test_bmp_to_framebuffer(self):
         path = self._path("tiny.bmp")

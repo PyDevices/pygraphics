@@ -80,6 +80,15 @@ static PyObject *area_from_gfx(const gfx_area_t *a) {
     return (PyObject *)o;
 }
 
+/* blit reports "nothing drawn" as an empty area; the pure-Python implementation
+ * returns None there, and callers treat the result as a dirty rectangle. */
+static PyObject *area_or_none_from_gfx(const gfx_area_t *a) {
+    if (a->w == 0 && a->h == 0) {
+        Py_RETURN_NONE;
+    }
+    return area_from_gfx(a);
+}
+
 /* Build an Area result, but surface any pending Python error first (a Python
  * duck-typed canvas callback may have raised during the C drawing loop). */
 #define RETURN_AREA(a) do { if (PyErr_Occurred()) { return NULL; } return area_from_gfx(&(a)); } while (0)
@@ -651,6 +660,13 @@ static PyObject *do_text(const gfx_canvas_t *canvas, const char *s, int x, int y
         gfx_font_init_from_data(&font, view.buf, (size_t)view.len, height);
         have_view = 1;
     } else {
+        /* Only 8, 14, and 16 have embedded romfont data. gfx_font_init_default
+         * silently falls back to 8 for anything else, which hides a typo; the
+         * pure-Python selector raises instead. */
+        if (height != 8 && height != 14 && height != 16) {
+            PyErr_Format(PyExc_ValueError, "Unsupported font height: %d", height);
+            return NULL;
+        }
         gfx_font_init_default(&font, height);
     }
     gfx_area_t area = gfx_font_text(canvas, &font, s, x, y, c, scale, inverted);
@@ -846,6 +862,121 @@ static PyObject *framebuffer_ellipse(GfxFrameBufferObject *self, PyObject *args,
     return area_from_gfx(&result);
 }
 
+/* Coordinate handling for poly(), matching _poly_xy_lists() in the pure-Python
+ * reference: accept either a sequence of (x, y) pairs or a flat buffer/sequence
+ * of alternating coordinates, and reject fewer than three vertices or a flat
+ * sequence of odd length. The native build previously required the buffer
+ * protocol, so a plain list of points raised TypeError and neither length rule
+ * was enforced. */
+typedef struct {
+    Py_buffer view;
+    int have_view;
+    int16_t *owned;
+    Py_ssize_t len;      /* bytes */
+    Py_ssize_t itemsize;
+    const char *format;
+} cpy_poly_coords_t;
+
+static void cpy_poly_coords_release(cpy_poly_coords_t *c) {
+    if (c->have_view) {
+        PyBuffer_Release(&c->view);
+        c->have_view = 0;
+    }
+    if (c->owned) {
+        PyMem_Free(c->owned);
+        c->owned = NULL;
+    }
+}
+
+static int cpy_poly_coords_is_point_list(PyObject *coords) {
+    if (!PyList_Check(coords) && !PyTuple_Check(coords)) {
+        return 0;
+    }
+    if (PySequence_Size(coords) <= 0) {
+        return 0;
+    }
+    PyObject *first = PySequence_GetItem(coords, 0);
+    if (!first) {
+        PyErr_Clear();
+        return 0;
+    }
+    int is_pair = PyList_Check(first) || PyTuple_Check(first);
+    Py_DECREF(first);
+    return is_pair;
+}
+
+static int cpy_poly_coords_get(PyObject *coords, cpy_poly_coords_t *out) {
+    memset(out, 0, sizeof(*out));
+
+    if (cpy_poly_coords_is_point_list(coords)) {
+        Py_ssize_t n = PySequence_Size(coords);
+        if (n < 3) {
+            PyErr_SetString(PyExc_ValueError, "polygon must have at least 3 vertices");
+            return -1;
+        }
+        out->owned = (int16_t *)PyMem_Malloc((size_t)n * 2 * sizeof(int16_t));
+        if (!out->owned) {
+            PyErr_NoMemory();
+            return -1;
+        }
+        for (Py_ssize_t i = 0; i < n; i++) {
+            PyObject *pt = PySequence_GetItem(coords, i);
+            if (!pt) {
+                cpy_poly_coords_release(out);
+                return -1;
+            }
+            PyObject *px = PySequence_GetItem(pt, 0);
+            PyObject *py = PySequence_GetItem(pt, 1);
+            Py_DECREF(pt);
+            if (!px || !py) {
+                Py_XDECREF(px);
+                Py_XDECREF(py);
+                cpy_poly_coords_release(out);
+                return -1;
+            }
+            long vx = PyLong_AsLong(px);
+            long vy = PyLong_AsLong(py);
+            Py_DECREF(px);
+            Py_DECREF(py);
+            if (PyErr_Occurred()) {
+                cpy_poly_coords_release(out);
+                return -1;
+            }
+            out->owned[i * 2] = (int16_t)vx;
+            out->owned[i * 2 + 1] = (int16_t)vy;
+        }
+        out->len = n * 2 * (Py_ssize_t)sizeof(int16_t);
+        out->itemsize = (Py_ssize_t)sizeof(int16_t);
+        out->format = "h";
+        return 0;
+    }
+
+    if (PyObject_GetBuffer(coords, &out->view, PyBUF_FORMAT) < 0) {
+        return -1;
+    }
+    out->have_view = 1;
+    Py_ssize_t itemsize = out->view.itemsize > 0 ? out->view.itemsize : 1;
+    Py_ssize_t elems = out->view.len / itemsize;
+    if (elems % 2 != 0) {
+        cpy_poly_coords_release(out);
+        PyErr_SetString(PyExc_ValueError, "coords must have an even number of elements");
+        return -1;
+    }
+    if (elems / 2 < 3) {
+        cpy_poly_coords_release(out);
+        PyErr_SetString(PyExc_ValueError, "polygon must have at least 3 vertices");
+        return -1;
+    }
+    out->len = out->view.len;
+    out->itemsize = out->view.itemsize;
+    out->format = out->view.format;
+    return 0;
+}
+
+static const void *cpy_poly_coords_buf(const cpy_poly_coords_t *c) {
+    return c->owned ? (const void *)c->owned : c->view.buf;
+}
+
 static PyObject *framebuffer_poly(GfxFrameBufferObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = {"x", "y", "coords", "c", "f", "fill", NULL};
     int x, y, col, f = 0, fill = 0;
@@ -853,13 +984,13 @@ static PyObject *framebuffer_poly(GfxFrameBufferObject *self, PyObject *args, Py
     if (!PyArg_ParseTupleAndKeywords(args, kwds, "iiOi|pp", kwlist, &x, &y, &coords, &col, &f, &fill)) {
         return NULL;
     }
-    Py_buffer view;
-    if (PyObject_GetBuffer(coords, &view, PyBUF_FORMAT) < 0) {
+    cpy_poly_coords_t pc;
+    if (cpy_poly_coords_get(coords, &pc) < 0) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_poly(
-        &self->canvas, x, y, view.buf, (size_t)view.len, (size_t)view.itemsize, view.format, col, f || fill);
-    PyBuffer_Release(&view);
+        &self->canvas, x, y, cpy_poly_coords_buf(&pc), (size_t)pc.len, (size_t)pc.itemsize, pc.format, col, f || fill);
+    cpy_poly_coords_release(&pc);
     return area_from_gfx(&area);
 }
 
@@ -954,7 +1085,7 @@ static PyObject *framebuffer_blit(GfxFrameBufferObject *self, PyObject *args, Py
     if (phave) {
         PyBuffer_Release(&pview);
     }
-    return area_from_gfx(&area);
+    return area_or_none_from_gfx(&area);
 }
 
 static PyObject *framebuffer_blit_rect(GfxFrameBufferObject *self, PyObject *args) {
@@ -1401,13 +1532,13 @@ static PyObject *mod_poly(PyObject *self, PyObject *args, PyObject *kwds) {
     if (cpy_canvas_resolve(target, &slot) < 0) {
         return NULL;
     }
-    Py_buffer view;
-    if (PyObject_GetBuffer(coords, &view, PyBUF_FORMAT) < 0) {
+    cpy_poly_coords_t pc;
+    if (cpy_poly_coords_get(coords, &pc) < 0) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_poly(
-        &slot.canvas, x, y, view.buf, (size_t)view.len, (size_t)view.itemsize, view.format, col, f || fill);
-    PyBuffer_Release(&view);
+        &slot.canvas, x, y, cpy_poly_coords_buf(&pc), (size_t)pc.len, (size_t)pc.itemsize, pc.format, col, f || fill);
+    cpy_poly_coords_release(&pc);
     RETURN_AREA(area);
 }
 
@@ -1473,7 +1604,8 @@ static PyObject *mod_blit(PyObject *self, PyObject *args, PyObject *kwds) {
     if (phave) {
         PyBuffer_Release(&pview);
     }
-    RETURN_AREA(area);
+    if (PyErr_Occurred()) { return NULL; }
+    return area_or_none_from_gfx(&area);
 }
 
 static PyObject *mod_blit_rect(PyObject *self, PyObject *args) {
@@ -1889,12 +2021,12 @@ static PyObject *draw_poly(GfxDrawObject *self, PyObject *args, PyObject *kwds) 
     if (!t) {
         return NULL;
     }
-    Py_buffer view;
-    if (PyObject_GetBuffer(coords, &view, PyBUF_FORMAT) < 0) {
+    cpy_poly_coords_t pc;
+    if (cpy_poly_coords_get(coords, &pc) < 0) {
         return NULL;
     }
-    gfx_area_t area = gfx_shapes_poly(t, x, y, view.buf, (size_t)view.len, (size_t)view.itemsize, view.format, col, f || fill);
-    PyBuffer_Release(&view);
+    gfx_area_t area = gfx_shapes_poly(t, x, y, cpy_poly_coords_buf(&pc), (size_t)pc.len, (size_t)pc.itemsize, pc.format, col, f || fill);
+    cpy_poly_coords_release(&pc);
     RETURN_AREA(area);
 }
 
@@ -1964,7 +2096,8 @@ static PyObject *draw_blit(GfxDrawObject *self, PyObject *args, PyObject *kwds) 
     if (phave) {
         PyBuffer_Release(&pview);
     }
-    RETURN_AREA(area);
+    if (PyErr_Occurred()) { return NULL; }
+    return area_or_none_from_gfx(&area);
 }
 
 static PyObject *draw_blit_rect(GfxDrawObject *self, PyObject *args) {
@@ -1987,10 +2120,11 @@ static PyObject *draw_blit_rect(GfxDrawObject *self, PyObject *args) {
     RETURN_AREA(area);
 }
 
-static PyObject *draw_blit_transparent(GfxDrawObject *self, PyObject *args) {
+static PyObject *draw_blit_transparent(GfxDrawObject *self, PyObject *args, PyObject *kwds) {
+    static char *kwlist[] = {"buf", "x", "y", "w", "h", "key", NULL};
     PyObject *buf;
     int x, y, w, h, key;
-    if (!PyArg_ParseTuple(args, "Oiiiii", &buf, &x, &y, &w, &h, &key)) {
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oiiiii", kwlist, &buf, &x, &y, &w, &h, &key)) {
         return NULL;
     }
     const gfx_canvas_t *t = draw_target(self);
@@ -2088,13 +2222,27 @@ static PyMethodDef draw_methods[] = {
     {"polygon", (PyCFunction)draw_polygon, METH_VARARGS | METH_KEYWORDS, NULL},
     {"blit", (PyCFunction)draw_blit, METH_VARARGS | METH_KEYWORDS, NULL},
     {"blit_rect", (PyCFunction)draw_blit_rect, METH_VARARGS, NULL},
-    {"blit_transparent", (PyCFunction)draw_blit_transparent, METH_VARARGS, NULL},
+    {"blit_transparent", (PyCFunction)draw_blit_transparent, METH_VARARGS | METH_KEYWORDS, NULL},
     {"text", (PyCFunction)draw_text, METH_VARARGS | METH_KEYWORDS, NULL},
     {"text8", (PyCFunction)draw_text8, METH_VARARGS | METH_KEYWORDS, NULL},
     {"text14", (PyCFunction)draw_text14, METH_VARARGS | METH_KEYWORDS, NULL},
     {"text16", (PyCFunction)draw_text16, METH_VARARGS | METH_KEYWORDS, NULL},
     {"clip", (PyCFunction)draw_clip, METH_VARARGS, NULL},
     {NULL},
+};
+
+/* The pure-Python Draw keeps the canvas it was constructed with as .canvas;
+ * callers read it back. The native type exposed no such attribute. */
+static PyObject *draw_get_canvas(GfxDrawObject *self, void *closure) {
+    (void)closure;
+    PyObject *obj = self->canvas_obj ? self->canvas_obj : Py_None;
+    Py_INCREF(obj);
+    return obj;
+}
+
+static PyGetSetDef draw_getset[] = {
+    {"canvas", (getter)draw_get_canvas, NULL, "The canvas this Draw writes to.", NULL},
+    {NULL}
 };
 
 static PyTypeObject GfxDrawType = {
@@ -2104,6 +2252,7 @@ static PyTypeObject GfxDrawType = {
     .tp_dealloc = (destructor)draw_dealloc,
     .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_methods = draw_methods,
+    .tp_getset = draw_getset,
     .tp_new = draw_new,
 };
 

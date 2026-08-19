@@ -241,7 +241,10 @@ gfx_area_t gfx_shapes_ellipse(const gfx_canvas_t *canvas, int cx, int cy, int xr
             ychange += two_asquare;
         }
     }
-    return gfx_area_from_rect(cx - xradius, cy - yradius, 2 * xradius + 1, 2 * yradius + 1);
+    /* Bounds are 2*r on each axis, matching the pure-Python reference in
+     * lib/pygraphics/_shapes.py: Area(x0 - r1, y0 - r2, 2 * r1, 2 * r2).
+     * The +1 here overstated the dirty rectangle by one pixel per axis. */
+    return gfx_area_from_rect(cx - xradius, cy - yradius, 2 * xradius, 2 * yradius);
 }
 
 int gfx_shapes_poly_int_from_buffer(const void *buf, size_t len, size_t itemsize, const char *fmt, size_t index, int *out) {
@@ -284,6 +287,28 @@ gfx_area_t gfx_shapes_poly(const gfx_canvas_t *canvas, int x, int y, const void 
     int n_poly = (int)(coords_len / (itemsize * 2));
     if (n_poly == 0) {
         return gfx_area_from_rect(0, 0, 0, 0);
+    }
+
+    /* Bounding box over the vertices, matching the pure-Python reference:
+     * Area(x + left, y + top, right - left, bottom - top). This was previously
+     * never computed -- every poly() returned a zero-size area at (x, y),
+     * making the result useless as a dirty rectangle. */
+    int bb_left = 0, bb_right = 0, bb_top = 0, bb_bottom = 0;
+    for (int i = 0; i < n_poly; i++) {
+        int vx, vy;
+        if (gfx_shapes_poly_int_from_buffer(coords, coords_len, itemsize, fmt, (size_t)i * 2, &vx) < 0
+            || gfx_shapes_poly_int_from_buffer(coords, coords_len, itemsize, fmt, (size_t)i * 2 + 1, &vy) < 0) {
+            return gfx_area_from_rect(0, 0, 0, 0);
+        }
+        if (i == 0) {
+            bb_left = bb_right = vx;
+            bb_top = bb_bottom = vy;
+        } else {
+            bb_left = MIN(bb_left, vx);
+            bb_right = MAX(bb_right, vx);
+            bb_top = MIN(bb_top, vy);
+            bb_bottom = MAX(bb_bottom, vy);
+        }
     }
 
     if (fill) {
@@ -376,7 +401,7 @@ gfx_area_t gfx_shapes_poly(const gfx_canvas_t *canvas, int x, int y, const void 
             py1 = py2;
         } while (i >= 0);
     }
-    return gfx_area_from_rect(x, y, 0, 0);
+    return gfx_area_from_rect(x + bb_left, y + bb_top, bb_right - bb_left, bb_bottom - bb_top);
 }
 
 gfx_area_t gfx_shapes_blit(const gfx_canvas_t *canvas, const gfx_fb_t *source, int x, int y, int key, const gfx_fb_t *palette) {
@@ -391,7 +416,10 @@ gfx_area_t gfx_shapes_blit(const gfx_canvas_t *canvas, const gfx_fb_t *source, i
     int x0end = MIN(canvas->width, x + source->width);
     int y0end = MIN(canvas->height, y + source->height);
 
-    for (; y0 < y0end; ++y0) {
+    /* Iterate with a separate cursor: y0 is the origin of the returned Area and
+     * must survive the loop. Advancing it directly made every blit report
+     * Area(x0, y0end, w, 0) -- the wrong origin and a zero height. */
+    for (int cy0 = y0; cy0 < y0end; ++cy0) {
         int cx1 = x1;
         for (int cx0 = x0; cx0 < x0end; ++cx0) {
             uint32_t col = gfx_fb_getpixel(source, (unsigned int)cx1, (unsigned int)y1);
@@ -399,7 +427,7 @@ gfx_area_t gfx_shapes_blit(const gfx_canvas_t *canvas, const gfx_fb_t *source, i
                 col = gfx_fb_getpixel(palette, (unsigned int)col, 0);
             }
             if ((int)col != key) {
-                canvas->pixel(canvas->ctx, cx0, y0, (int)col, 1);
+                canvas->pixel(canvas->ctx, cx0, cy0, (int)col, 1);
             }
             ++cx1;
         }

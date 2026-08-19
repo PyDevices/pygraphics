@@ -17,14 +17,11 @@ Every test module must `import _env` before importing `pygraphics`.
 
 ## Current state
 
-**Pure Python passes** — 98 tests, with 3 native-only parity probes skipped.
+**Both implementations pass.** Pure Python runs 98 tests (3 native-only parity
+probes skipped); the native build runs 85 (2 skipped — `test_clip` and
+`test_blit_hooks` import pure-Python-only submodules, and a native build is one
+extension module, not a package).
 
-**The native build does not.** As of 2026-08-18 it has 11 behavioral divergences
-from the pure-Python reference; the suite reports 6 failures and 5 errors. These
-are native defects, not test bugs: the same tests pass against the pure-Python
-implementation. Two more modules skip under native (`test_clip`,
-`test_blit_hooks`) because they import pure-Python-only submodules — a native
-build is one extension module, not a package.
-
-CI runs the pure-Python mode only, so it stays green. A native job should be
-added once those divergences are closed, or it would fail on every push.
+CI runs both, so a divergence between them fails the build. Eleven such
+divergences existed as of August 2026 and were invisible because the suite could
+not run; see the Phase 10 notes in the consolidation plan.
