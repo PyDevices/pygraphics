@@ -44,7 +44,8 @@ from displaydev.psdisplay import PSDisplay
 
 # Initialize display canvas (320x240)
 display = PSDisplay(CANVAS_ID, width=320, height=240)
-fb = pygraphics.FrameBuffer(bytearray(320 * 240 * 2), 320, 240, pygraphics.RGB565)
+buf = bytearray(320 * 240 * 2)
+fb = pygraphics.FrameBuffer(buf, 320, 240, pygraphics.RGB565)
 fb.fill(0x1082)
 
 # Draw shapes with Area returns
@@ -58,7 +59,7 @@ pygraphics.text14(fb, "Romfont 8x14", 20, 150, 0x07FF)
 pygraphics.text16(fb, "Romfont 8x16", 20, 175, 0xFFFF)
 
 # Blit to display and present
-display.blit_rect(fb.buffer, 0, 0, 320, 240)
+display.blit_rect(buf, 0, 0, 320, 240)
 display.show()
 print(f"Drawn shapes in {pygraphics.implementation()} backend!")
     </textarea>
