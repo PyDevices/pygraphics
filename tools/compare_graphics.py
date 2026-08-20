@@ -19,8 +19,8 @@ Pure-Python sources are resolved from (first hit wins):
   ``PYDEVICES_PYGRAPHICS_SRC`` / ``PYDEVICES_GRAPHICS_SRC`` overrides, kept
   as a fallback for callers that still set them)
 
-Used by ``compare_graphics_run.py`` (single runtime) and
-``compare_graphics_matrix.py`` (all desktop runtimes).
+Used by ``compare_graphics_run.py`` (single interpreter) and
+``compare_graphics_matrix.py`` (all desktop interpreters).
 """
 
 import json

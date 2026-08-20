@@ -37,15 +37,15 @@ native `pygraphics` against the pure-Python `lib/pygraphics` package (and, for
 Run from the repo root:
 
 ```bash
-micropython tools/compare_graphics_run.py    # single runtime, native + staged lib/pygraphics
-python tools/compare_graphics_matrix.py      # all desktop runtimes (installs pygraphics
+micropython tools/compare_graphics_run.py    # single interpreter, native + staged lib/pygraphics
+python tools/compare_graphics_matrix.py      # all desktop interpreters (installs pygraphics
                                               # from TestPyPI for cpython-venv/python.exe)
 micropython tools/compare_framebuf_mp.py     # MicroPython C framebuf vs lib/pygraphics/framebuf.py
 ```
 
-`compare_graphics_matrix.py` resolves runtimes itself (PATH, `~/bin/<name>`,
+`compare_graphics_matrix.py` resolves interpreters itself (PATH, `~/bin/<name>`,
 and `.venv/bin/python` for `cpython-venv`) — it has no dependency on
-pydevices-examples's `tools/example_runtimes.toml`.
+pydevices-examples's `tools/example_interpreters.toml`.
 
 ## Publishing
 

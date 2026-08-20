@@ -250,7 +250,7 @@ fb = pygraphics.load_image("image.bmp")  # or FrameBuffer.from_file(...)
 | Destination | Fast path |
 |-------------|-----------|
 | Display driver (`blit_rect` / `blit_transparent`) | SPI/SDL/pygame bulk copy |
-| `FrameBuffer` | `pygraphics.framebuf`'s `blit()` (same implementation on every runtime) |
+| `FrameBuffer` | `pygraphics.framebuf`'s `blit()` (same implementation on every interpreter) |
 
 Use `Draw(display_drv).blit(sprite_fb, x, y)` instead of a per-pixel loop — it routes to `display_drv.blit_rect` for RGB565 sprites.
 

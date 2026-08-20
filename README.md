@@ -105,8 +105,8 @@ PYTHONPATH=lib python3 -c "import pygraphics; print(pygraphics.implementation())
 ### Parity testing (native vs pure-Python)
 
 ```bash
-micropython tools/compare_graphics_run.py    # single runtime
-python tools/compare_graphics_matrix.py      # all desktop runtimes
+micropython tools/compare_graphics_run.py    # single interpreter
+python tools/compare_graphics_matrix.py      # all desktop interpreters
 micropython tools/compare_framebuf_mp.py     # C framebuf vs lib/pygraphics/framebuf.py
 ```
 

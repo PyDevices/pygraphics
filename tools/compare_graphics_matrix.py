@@ -2,12 +2,12 @@
 # SPDX-FileCopyrightText: 2026 Brad Barnett
 #
 # SPDX-License-Identifier: MIT
-"""Cross-runtime matrix: native ``pygraphics`` vs pure-Python ``pygraphics``.
+"""Cross-interpreter matrix: native ``pygraphics`` vs pure-Python ``pygraphics``.
 
 Run from the pygraphics repo root::
 
     python tools/compare_graphics_matrix.py
-    python tools/compare_graphics_matrix.py --only-runtime micropython,cpython-venv
+    python tools/compare_graphics_matrix.py --only-interpreter micropython,cpython-venv
 
 For ``cpython-venv`` and ``python.exe``, installs ``pydevices-pygraphics`` from TestPyPI
 (first time per interpreter) so ``import pygraphics`` resolves to the native wheel.
@@ -47,9 +47,9 @@ RESULT_RE = re.compile(r"^GRAPHICS_COMPARE_RESULT=(.+)$", re.MULTILINE)
 
 # Desktop subprocess interpreters that can load native pygraphics alongside
 # staged pure-Python pygraphics. Self-contained (no dependency on pydevices-examples's
-# tools/example_runtimes.toml) — resolved via PATH, ~/bin/<name>, and (for
+# tools/example_interpreters.toml) — resolved via PATH, ~/bin/<name>, and (for
 # cpython-venv) the repo-root .venv.
-DEFAULT_RUNTIME_IDS = (
+DEFAULT_INTERPRETER_IDS = (
     "micropython",
     "micropython.exe",
     "circuitpython",
@@ -57,9 +57,9 @@ DEFAULT_RUNTIME_IDS = (
     "python.exe",
 )
 
-# runtime_id -> resolution rule. "cpython-venv" resolves solely to the
+# interpreter_id -> resolution rule. "cpython-venv" resolves solely to the
 # repo's own .venv; the others resolve by executable name via PATH / ~/bin.
-RUNTIME_EXE_NAMES = {
+INTERPRETER_EXE_NAMES = {
     "micropython": "micropython",
     "micropython.exe": "micropython.exe",
     "circuitpython": "circuitpython",
@@ -69,19 +69,19 @@ RUNTIME_EXE_NAMES = {
 TESTPYPI_INDEX = os.environ.get("TESTPYPI_INDEX", "https://test.pypi.org/simple/")
 PYPI_INDEX = os.environ.get("PYPI_INDEX", "https://pypi.org/simple/")
 
-CPYTHON_RUNTIME_IDS = frozenset({"cpython-venv", "python.exe"})
+CPYTHON_INTERPRETER_IDS = frozenset({"cpython-venv", "python.exe"})
 
 
 def _expand_user(path: str) -> str:
     return os.path.expanduser(path)
 
 
-def resolve_runtime_exe(runtime_id: str) -> str | None:
-    if runtime_id == "cpython-venv":
+def resolve_interpreter_exe(interpreter_id: str) -> str | None:
+    if interpreter_id == "cpython-venv":
         candidate = REPO / ".venv" / "bin" / "python"
         return str(candidate) if candidate.exists() else None
 
-    name = RUNTIME_EXE_NAMES.get(runtime_id)
+    name = INTERPRETER_EXE_NAMES.get(interpreter_id)
     if not name:
         return None
 
@@ -96,8 +96,8 @@ def resolve_runtime_exe(runtime_id: str) -> str | None:
     return None
 
 
-def runtime_available(runtime_id: str) -> bool:
-    return resolve_runtime_exe(runtime_id) is not None
+def interpreter_available(interpreter_id: str) -> bool:
+    return resolve_interpreter_exe(interpreter_id) is not None
 
 
 def _graphics_impl(python_exe: str) -> str | None:
@@ -170,22 +170,22 @@ def parse_result(stdout: str) -> dict | None:
     return None
 
 
-def run_case(runtime_id: str, *, verbose: bool, timeout_s: float) -> dict:
-    exe = resolve_runtime_exe(runtime_id)
+def run_case(interpreter_id: str, *, verbose: bool, timeout_s: float) -> dict:
+    exe = resolve_interpreter_exe(interpreter_id)
     if not exe:
         return {
-            "runtime": runtime_id,
+            "interpreter": interpreter_id,
             "status": "skip",
-            "summary": "runtime not available",
+            "summary": "interpreter not available",
             "returncode": None,
         }
 
     setup_note = ""
-    if runtime_id in CPYTHON_RUNTIME_IDS:
+    if interpreter_id in CPYTHON_INTERPRETER_IDS:
         ok, setup_note = ensure_graphics_native(exe, verbose=verbose)
         if not ok:
             return {
-                "runtime": runtime_id,
+                "interpreter": interpreter_id,
                 "status": "error",
                 "summary": setup_note,
                 "returncode": 1,
@@ -219,7 +219,7 @@ def run_case(runtime_id: str, *, verbose: bool, timeout_s: float) -> dict:
 
     result = parse_result(stdout)
     row = {
-        "runtime": runtime_id,
+        "interpreter": interpreter_id,
         "exe": exe,
         "returncode": returncode,
         "timed_out": timed_out,
@@ -264,14 +264,14 @@ def run_case(runtime_id: str, *, verbose: bool, timeout_s: float) -> dict:
 
 
 def print_table(rows: list[dict]) -> None:
-    runtimes = [row["runtime"] for row in rows]
-    width = max([8, *[len(r) for r in runtimes]])
+    interpreters = [row["interpreter"] for row in rows]
+    width = max([8, *[len(r) for r in interpreters]])
     print(file=sys.stderr)
-    print("{:<{w}} | summary".format("runtime", w=width), file=sys.stderr)
+    print("{:<{w}} | summary".format("interpreter", w=width), file=sys.stderr)
     print("{}-+-{}".format("-" * width, "-" * 60), file=sys.stderr)
     for row in rows:
         print(
-            "{:<{w}} | {}".format(row["runtime"], row.get("summary", ""), w=width),
+            "{:<{w}} | {}".format(row["interpreter"], row.get("summary", ""), w=width),
             file=sys.stderr,
         )
 
@@ -281,41 +281,41 @@ def main(argv: list[str] | None = None) -> int:
         description="Native pygraphics vs pure-Python pygraphics parity matrix"
     )
     parser.add_argument(
-        "--only-runtime",
-        help="Comma-separated runtime ids (default: all desktop subprocess runtimes)",
+        "--only-interpreter",
+        help="Comma-separated interpreter ids (default: all desktop subprocess interpreters)",
     )
-    parser.add_argument("--timeout", type=float, default=120.0, help="Per-runtime timeout seconds")
+    parser.add_argument("--timeout", type=float, default=120.0, help="Per-interpreter timeout seconds")
     parser.add_argument("--verbose", action="store_true", help="Show install/setup notes")
     args = parser.parse_args(argv)
 
-    if args.only_runtime:
-        wanted = [x.strip() for x in args.only_runtime.split(",") if x.strip()]
+    if args.only_interpreter:
+        wanted = [x.strip() for x in args.only_interpreter.split(",") if x.strip()]
     else:
-        wanted = list(DEFAULT_RUNTIME_IDS)
+        wanted = list(DEFAULT_INTERPRETER_IDS)
 
     rows: list[dict] = []
-    for runtime_id in wanted:
-        if runtime_id not in DEFAULT_RUNTIME_IDS and runtime_id not in RUNTIME_EXE_NAMES:
+    for interpreter_id in wanted:
+        if interpreter_id not in DEFAULT_INTERPRETER_IDS and interpreter_id not in INTERPRETER_EXE_NAMES:
             rows.append(
                 {
-                    "runtime": runtime_id,
+                    "interpreter": interpreter_id,
                     "status": "skip",
-                    "summary": "unknown runtime id",
+                    "summary": "unknown interpreter id",
                 }
             )
             continue
-        if not runtime_available(runtime_id):
+        if not interpreter_available(interpreter_id):
             rows.append(
                 {
-                    "runtime": runtime_id,
+                    "interpreter": interpreter_id,
                     "status": "skip",
                     "summary": "not available",
                 }
             )
             continue
         if args.verbose:
-            print("Running {}...".format(runtime_id), file=sys.stderr)
-        rows.append(run_case(runtime_id, verbose=args.verbose, timeout_s=args.timeout))
+            print("Running {}...".format(interpreter_id), file=sys.stderr)
+        rows.append(run_case(interpreter_id, verbose=args.verbose, timeout_s=args.timeout))
 
     RESULTS_JSON.parent.mkdir(parents=True, exist_ok=True)
     RESULTS_JSON.write_text(json.dumps(rows, indent=2) + "\n", encoding="utf-8")

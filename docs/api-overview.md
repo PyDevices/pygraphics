@@ -9,7 +9,7 @@ See the [installation guide](installation.md) for MIP and TestPyPI options.
 
 ## Key entry points
 
-- `pygraphics.FrameBuffer` — subclass of the bundled `pygraphics.framebuf.FrameBuffer` with shape helpers and Area returns (same implementation on every runtime)
+- `pygraphics.FrameBuffer` — subclass of the bundled `pygraphics.framebuf.FrameBuffer` with shape helpers and Area returns (same implementation on every interpreter)
 - `pygraphics.Draw` — draws on any framebuf-compatible canvas
 - `pygraphics.Area` — dirty rectangle with union/clip helpers
 - Module functions — `circle`, `rect`, `text8`, … (same primitives as FrameBuffer)
