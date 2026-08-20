@@ -14,9 +14,9 @@ Usage (from repo root)::
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 import re
 import sys
+from pathlib import Path
 
 _PYGRAPHICS_DIR = Path(__file__).resolve().parents[1]
 _INCLUDE_DIR = _PYGRAPHICS_DIR / "src"
@@ -37,7 +37,7 @@ def _load_font_bytes(py_path: Path) -> bytes:
 def _format_c_array(data: bytes, *, cols: int = 16) -> str:
     lines = []
     row = []
-    for i, byte in enumerate(data):
+    for _i, byte in enumerate(data):
         row.append(f"0x{byte:02x}")
         if len(row) == cols:
             lines.append("    " + ", ".join(row) + ",")
