@@ -48,7 +48,7 @@ Features:
 - Row mirroring for rotated scroll backgrounds
 - Use an existing bytearray as buffer (screenshots)
 
-Examples: `bmp565_simpletest.py`, `bmp565_sprite.py`, `bmp565_scroll.py`
+Examples: [`bmp565_simpletest.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=bmp565_simpletest&deps=pydevices-pygraphics), [`bmp565_sprite.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=bmp565_sprite&deps=pydevices-pygraphics), [`bmp565_scroll.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=bmp565_scroll&deps=pydevices-pygraphics)
 
 ## tft_text / tft_write bitmap helpers (pydevices-examples)
 

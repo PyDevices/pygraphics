@@ -161,16 +161,16 @@ and heights 8/14/16, use `pygraphics.text8` / `text14` / `text16` or `pygraphics
 controls transparency, RAM use, and how much data hits the panel bus.
 
 The multipath `font_simpletest.py` example uses the same `Font` + romfont `.bin` files but
-cycles different targets in one run. [`pydevices_demo`](https://github.com/PyDevices/pydevices-examples/blob/main/lib/examples/pydevices_demo.py) follows the
+cycles different targets in one run. [`pydevices_demo`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=pydevices_demo&deps=pydevices-pygraphics) follows the
 **string framebuffer + one blit** pattern (`string_blit`).
 
 | Pattern | Example | Background | Extra RAM | What hits the display | Typical sweet spot |
 |---------|---------|------------|-----------|----------------------|-------------------|
 | **Module helpers on canvas** | `pygraphics.text8(display_drv, …)` | Transparent (foreground pixels only) | None | One small `fill_rect` per lit pixel | Short labels, minimum RAM |
-| **String FB → one blit** | [`font_simpletest.py`](https://github.com/PyDevices/pydevices-examples/blob/main/lib/examples/font_simpletest.py) (`string_blit`) | **Opaque** — `fb.fill(bg)` before `font.text` | One buffer sized to the string (reusable slice is better; see pydevices_demo) | **One** `blit_rect` per string | Desktop/SDL (batch then `show()`), SPI panels when RAM is tight |
-| **Draw on `display_drv`** | [`font_simpletest.py`](https://github.com/PyDevices/pydevices-examples/blob/main/lib/examples/font_simpletest.py) (`per_pixel`) | Transparent | None | One `fill_rect` per lit pixel on the live driver | Simplest code path; **slowest** on MCU and desktop |
-| **Full-screen `DisplayBuffer` + dirty blit** | [`font_simpletest.py`](https://github.com/PyDevices/pydevices-examples/blob/main/lib/examples/font_simpletest.py) (`displaybuf`) | Transparent over existing buffer contents | **Full panel** `DisplayBuffer` | `display.show(dirty)` — one row `blit_rect` per dirty scanline | MCUs with enough RAM; many text updates; fastest of the three modes |
-| **Catalog / inspect fonts** | [`font_list.py`](https://github.com/PyDevices/pydevices-examples/blob/main/lib/examples/font_list.py) | Opaque row buffer | One strip `width × height` per font | One `blit_rect` per font row | Browsing `.bin` files on disk |
+| **String FB → one blit** | [`font_simpletest.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=font_simpletest&deps=pydevices-palettes,pydevices-pygraphics) (`string_blit`) | **Opaque** — `fb.fill(bg)` before `font.text` | One buffer sized to the string (reusable slice is better; see pydevices_demo) | **One** `blit_rect` per string | Desktop/SDL (batch then `show()`), SPI panels when RAM is tight |
+| **Draw on `display_drv`** | [`font_simpletest.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=font_simpletest&deps=pydevices-palettes,pydevices-pygraphics) (`per_pixel`) | Transparent | None | One `fill_rect` per lit pixel on the live driver | Simplest code path; **slowest** on MCU and desktop |
+| **Full-screen `DisplayBuffer` + dirty blit** | [`font_simpletest.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=font_simpletest&deps=pydevices-palettes,pydevices-pygraphics) (`displaybuf`) | Transparent over existing buffer contents | **Full panel** `DisplayBuffer` | `display.show(dirty)` — one row `blit_rect` per dirty scanline | MCUs with enough RAM; many text updates; fastest of the three modes |
+| **Catalog / inspect fonts** | [`font_list.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=font_list) | Opaque row buffer | One strip `width × height` per font | One `blit_rect` per font row | Browsing `.bin` files on disk |
 
 #### Module helpers (`text8`, `text14`, `text16`)
 
@@ -295,20 +295,22 @@ with draw.clip(10, 10, 50, 40):
 
 For streaming/large BMP assets, use `pygraphics.BMP565` (sliceable, optional streaming reads) — see [Graphics files](graphics-files.md).
 
-## pydevices-examples integration
+## 🎮 Live Interactive Gallery Examples
 
-These live in [pydevices-examples](https://github.com/PyDevices/pydevices-examples), not here:
+Run full interactive `pygraphics` games and demos directly in your browser:
 
-| Need | Use |
-|------|-----|
-| Scrollable full-screen buffer | `utils/displaybuf.DisplayBuffer` |
-| TFT proportional fonts | `tft_text` / `tft_write` add-ons |
-| Large BMP sprites | `pygraphics.BMP565` |
+| Example | Description | Live PyScript Link |
+|:---|:---|:---|
+| **`bouncing_balls`** | Animated high-framerate vector bouncing balls | [**Launch `bouncing_balls`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=bouncing_balls&deps=pydevices-pygraphics) |
+| **`alien`** | Animated retro sprite invasion arcade | [**Launch `alien`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?manifests=alien&deps=pydevices-pygraphics) |
+| **`calc_graphics`** | Pure 2D graphics pocket calculator | [**Launch `calc_graphics`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=calc_graphics,calc_engine&deps=pydevices-pygraphics) |
+| **`dino`** | Chrome runner obstacle jumping arcade | [**Launch `dino`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=dino&deps=pydevices-pygraphics) |
+| **`simon`** | Simon touch memory sequence game | [**Launch `simon`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=simon&deps=pydevices-pygraphics) |
+| **`piano`** | Interactive multi-key musical keyboard | [**Launch `piano`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=piano&deps=pydevices-pygraphics) |
+| **`testris`** | Complete falling-blocks arcade game | [**Launch `testris`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=testris&deps=pydevices-pygraphics) |
+| **`rotations`** | Hardware and software panel rotation suite | [**Launch `rotations`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=rotations&deps=pydevices-palettes,pydevices-pygraphics) |
 
-Other font mechanisms available in that repo: `tft_text.text()` (widths 8/16,
-heights in multiples of 8) and `tft_write.write()` (proportional fonts), both
-from @russhughes converters, and Peter Hinch's **Writer** on MicroPython — none
-of which return `Area` objects.
+---
 
 ## FAQ
 
