@@ -2,17 +2,75 @@
 
 ## Setup
 
-Install from [MIP](installation.md) or [TestPyPI](installation.md):
+=== "MicroPython (MIP)"
 
-```python
-import mip
-mip.install("pygraphics", index="https://PyDevices.github.io/mip")
-```
+    ```python
+    import mip
+    mip.install("pygraphics", index="https://PyDevices.github.io/mip")
+    ```
 
-Development clone — put `lib/` on `PYTHONPATH`, or `pip install -e .` for the
-native cmod.
+=== "CPython (TestPyPI)"
 
-## Basic usage
+    ```bash
+    pip install -i https://test.pypi.org/simple/ \
+      --extra-index-url https://pypi.org/simple/ pydevices-pygraphics
+    ```
+
+=== "CircuitPython"
+
+    Copy `lib/pygraphics/` to your board's `CIRCUITPY/lib/` directory.
+
+=== "PyScript / Pyodide"
+
+    ```python
+    # pyscript mip: pygraphics
+    # pyodide wheels: pygraphics
+    ```
+
+---
+
+## 💻 Live Interactive Drawing Canvas
+
+Experiment with 2D shapes, colors, and font rendering live in your browser:
+
+<div class="pydevices-live-demo">
+  <div class="demo-editor-pane">
+    <textarea class="code-editor">
+import pygraphics
+from displaydev.psdisplay import PSDisplay
+
+# Initialize display canvas (240x200)
+display = PSDisplay(CANVAS_ID, width=240, height=200)
+fb = pygraphics.FrameBuffer(bytearray(240 * 200 * 2), 240, 200, pygraphics.RGB565)
+fb.fill(0x0000)
+
+# Draw filled & outlined shapes
+area1 = fb.round_rect(15, 15, 90, 50, 8, 0xF800, f=True)
+area2 = fb.circle(170, 45, 25, 0x07E0, f=True)
+area3 = fb.rect(15, 80, 210, 40, 0x001F)
+
+# Draw text
+pygraphics.text14(fb, "Area Updates!", 25, 92, 0xFFFF)
+
+display.blit_rect(fb.buffer, 0, 0, 240, 200)
+display.show()
+print(f"Shapes drawn! Dirty bounds: {area1 + area2}")
+    </textarea>
+    <div class="demo-controls">
+      <button class="run-btn" disabled>▶ Run</button>
+      <button class="reset-btn">↺ Reset</button>
+      <span class="demo-status">Initializing Python…</span>
+    </div>
+    <pre class="demo-output"></pre>
+  </div>
+  <div class="demo-canvas-pane">
+    <canvas id="canvas_pygraphics_getting_started" width="240" height="200" tabindex="0"></canvas>
+  </div>
+</div>
+
+---
+
+## Basic Usage
 
 ```python
 import pygraphics
@@ -25,12 +83,12 @@ assert isinstance(area, Area)
 print(pygraphics.implementation())  # native_cmod or pygraphics_python
 ```
 
-## Common patterns
+---
 
-### Draw to an off-screen buffer first
+## Common Patterns
 
-Use a `FrameBuffer` or the display driver itself as a canvas, then copy the
-result to the display. This is the pattern used by pydevices-examples's animated demos:
+### 1. Draw to an off-screen buffer first
+Use a `FrameBuffer` as a canvas, then copy the result to the display:
 
 ```python
 import pygraphics
@@ -42,33 +100,11 @@ pygraphics.fill_rect(buf, 10, 10, 40, 20, 0xF800)
 text8(buf, "Hello", 12, 14, 0xFFFF)
 ```
 
-### Use the returned `Area` as a dirty rectangle
-
-Many draw helpers return an `Area` describing the pixels they changed. That is
-useful when you want to refresh only the part of the screen that changed instead
-of redrawing the whole frame.
+### 2. Use the returned `Area` as a dirty rectangle
+Many draw helpers return an `Area` describing the pixels they changed. That is useful when refreshing only the part of the screen that changed:
 
 ```python
 area = pygraphics.circle(buf, 80, 40, 12, 0x07E0, f=True)
 # area.x, area.y, area.w, area.h describe the changed region
+display_drv.blit_rect(buf.buffer, area.x, area.y, area.w, area.h)
 ```
-
-### Build a scene, then present it
-
-For simple UI work, clear the frame, draw widgets or text, and then present the
-updated buffer. The pydevices-examples applications use that pattern for bouncing balls,
-scrolling text, and gradient backgrounds.
-
-## What you get
-
-- `Area` — rectangle geometry for dirty regions / clipping
-- `FrameBuffer` — framebuf-compatible surface; draw methods return `Area`
-- Format constants: `MONO_*`, `RGB565`, `GS*`, `RGB888`
-- `Draw`, `Font`, BMP565 / PBM / PGM helpers
-- `implementation()` — tells you whether the native cmod or pure-Python package is active
-
-## Examples
-
-Drawing demos live in
-[pydevices-examples `src/examples/`](https://github.com/PyDevices/pydevices-examples/tree/main/src/examples)
-for patterns such as bouncing balls, scrolling text, and gradient scenes.

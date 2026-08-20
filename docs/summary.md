@@ -4,5 +4,6 @@
 * [Graphics guide](graphics-guide.md)
 * [Graphics files](graphics-files.md)
 * [API overview](api-overview.md)
+* [Benchmarks](benchmarks.md)
 * [Building wheels](building-wheels.md)
 * [API Reference](reference/)

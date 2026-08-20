@@ -27,6 +27,35 @@ with `modframebuf.c`) and always builds `pygraphics.FrameBuffer` on top of it â€
 runs on MicroPython, CircuitPython, and CPython, so there is no native-vs-pure-Python backend to
 inspect or branch on.
 
+## Drawing Pipeline Architecture
+
+```mermaid
+flowchart TD
+    subgraph Primitives ["Drawing Operations"]
+        P1["fill_rect(x, y, w, h)"]
+        P2["circle(x, y, r)"]
+        P3["round_rect(x, y, w, h, r)"]
+        P4["text8 / text14 / text16"]
+    end
+
+    subgraph CoreEngine ["pygraphics Pipeline"]
+        Clip{"Active Clip Rect?<br/>(with draw.clip)"}
+        DrawOp["Rasterize to FrameBuffer / Canvas"]
+        AreaCalc["Compute Bounding Area(x, y, w, h)"]
+    end
+
+    subgraph Output ["Target Dispatch"]
+        Dirty["Dirty Region Accumulation<br/>(dirty = a + b)"]
+        FastBlit["Hardware Fast-Path<br/>(display_drv.blit_rect)"]
+    end
+
+    Primitives --> Clip
+    Clip -->|Intersect Bounds| DrawOp
+    DrawOp --> AreaCalc
+    AreaCalc --> Dirty
+    Dirty --> FastBlit
+```
+
 ## FrameBuffer vs Draw vs module functions
 
 | Style | When to use |
