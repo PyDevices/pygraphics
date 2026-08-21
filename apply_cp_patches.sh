@@ -68,11 +68,6 @@ case "$MODE" in
         ;;
 esac
 
-if [[ "$PORT" != unix ]]; then
-    echo "pygraphics apply_cp_patches: port=$PORT is not unix; skipping"
-    exit 0
-fi
-
 # Resolve CircuitPython: CP_DIR, else sibling circuitpython/ under WORKSPACE_DIR.
 if [[ -n "${CP_DIR:-}" && -d "${CP_DIR}/ports" ]]; then
     CP_DIR=$(cd "$CP_DIR" && pwd)
@@ -107,13 +102,21 @@ CP_DIR=$(cd "$CP_DIR" && pwd)
 [[ -f "$SPIKE_MANIFEST" ]] || die "Spike manifest missing: $SPIKE_MANIFEST"
 
 PORT_DIR="$CP_DIR/ports/$PORT"
-VARIANT_MK="$PORT_DIR/variants/$VARIANT/mpconfigvariant.mk"
+# The "enable" makefile differs by port: unix builds select features per
+# variant, MCU ports per board. Everything else this script touches
+# (circuitpy_mpconfig.mk, circuitpy_defns.mk, the port Makefile) is generic.
+if [[ "$PORT" == unix ]]; then
+    ENABLE_MK="$PORT_DIR/variants/$VARIANT/mpconfigvariant.mk"
+else
+    [[ -n "$BOARD" ]] || die "non-unix ports need --board (got port=$PORT)"
+    ENABLE_MK="$PORT_DIR/boards/$BOARD/mpconfigboard.mk"
+fi
 PORT_MK="$PORT_DIR/Makefile"
 MPCONFIG_MK="$CP_DIR/py/circuitpy_mpconfig.mk"
 DEFNS_MK="$CP_DIR/py/circuitpy_defns.mk"
 PYGRAPHICS_MOD_REL=$(python3 -c "import os; print(os.path.relpath('$PYGRAPHICS_MOD_DIR', '$PORT_DIR'))")
 
-for f in "$VARIANT_MK" "$PORT_MK" "$MPCONFIG_MK" "$DEFNS_MK"; do
+for f in "$ENABLE_MK" "$PORT_MK" "$MPCONFIG_MK" "$DEFNS_MK"; do
     [[ -f "$f" ]] || die "missing: $f"
 done
 
@@ -285,7 +288,7 @@ status_report() {
         "$( [[ -f $CP_DIR/shared-module/graphics/__init__.c ]] && echo STALE || echo gone )"
     echo
     grep -nE 'CIRCUITPY_(PY)?GRAPHICS|pygraphics-cmod|graphics-cmod|shared-bindings/(py)?graphics|SRC_PATTERNS \+= (py)?graphics' \
-        "$VARIANT_MK" "$PORT_MK" "$MPCONFIG_MK" "$DEFNS_MK" 2>/dev/null || true
+        "$ENABLE_MK" "$PORT_MK" "$MPCONFIG_MK" "$DEFNS_MK" 2>/dev/null || true
 }
 
 if [ "$MODE" = --status ]; then
@@ -312,7 +315,7 @@ fi
 copy_spike
 
 # Strip legacy and current marked blocks so we can rewrite cleanly.
-for f in "$VARIANT_MK" "$PORT_MK" "$MPCONFIG_MK" "$DEFNS_MK"; do
+for f in "$ENABLE_MK" "$PORT_MK" "$MPCONFIG_MK" "$DEFNS_MK"; do
     remove_marked_blocks "$f" \
         "graphics-cmod begin" \
         "graphics_native-cmod begin" \
@@ -321,12 +324,14 @@ done
 
 # Rewrite any leftover path references outside marked blocks.
 # Only match legacy ``graphics/`` paths (not the ``graphics`` suffix of ``pygraphics``).
-replace_in_file "$VARIANT_MK" $'shared-bindings/graphics/__init__.c \\' $'shared-bindings/pygraphics/__init__.c \\'
-replace_in_file "$VARIANT_MK" $'shared-module/graphics/__init__.c \\' $'shared-module/pygraphics/__init__.c \\'
+if [[ "$PORT" == unix ]]; then
+    replace_in_file "$ENABLE_MK" $'shared-bindings/graphics/__init__.c \\' $'shared-bindings/pygraphics/__init__.c \\'
+    replace_in_file "$ENABLE_MK" $'shared-module/graphics/__init__.c \\' $'shared-module/pygraphics/__init__.c \\'
+fi
 replace_in_file "$DEFNS_MK" $'\tgraphics/__init__.c \\' $'\tpygraphics/__init__.c \\'
 
 # Variant enable + include circuitpython.mk (relpath works for any sibling layout)
-ensure_block_append "$VARIANT_MK" "pygraphics-cmod begin" "$(cat <<EOF
+ensure_block_append "$ENABLE_MK" "pygraphics-cmod begin" "$(cat <<EOF
 # >>> pygraphics-cmod begin
 CIRCUITPY_PYGRAPHICS = 1
 CFLAGS += -DCIRCUITPY_PYGRAPHICS=1
@@ -336,28 +341,31 @@ include \$(PYGRAPHICS_MOD_DIR)/circuitpython.mk
 EOF
 )"
 
-# Module source lists: prefer lvgl anchor, else usdl2, else jpegio.
-if grep -qF $'shared-bindings/lvgl/__init__.c \\' "$VARIANT_MK"; then
-    insert_raw_after_line "$VARIANT_MK" $'shared-bindings/lvgl/__init__.c \\' \
-        $'\tshared-bindings/pygraphics/__init__.c \\' \
-        "shared-bindings/pygraphics/__init__.c"
-    insert_raw_after_line "$VARIANT_MK" $'shared-module/lvgl/__init__.c \\' \
-        $'\tshared-module/pygraphics/__init__.c \\' \
-        "shared-module/pygraphics/__init__.c"
-elif grep -qF $'shared-bindings/usdl2/__init__.c \\' "$VARIANT_MK"; then
-    insert_raw_after_line "$VARIANT_MK" $'shared-bindings/usdl2/__init__.c \\' \
-        $'\tshared-bindings/pygraphics/__init__.c \\' \
-        "shared-bindings/pygraphics/__init__.c"
-    insert_raw_after_line "$VARIANT_MK" $'shared-module/usdl2/__init__.c \\' \
-        $'\tshared-module/pygraphics/__init__.c \\' \
-        "shared-module/pygraphics/__init__.c"
-else
-    insert_raw_after_line "$VARIANT_MK" $'shared-bindings/jpegio/JpegDecoder.c \\' \
-        $'\tshared-bindings/pygraphics/__init__.c \\' \
-        "shared-bindings/pygraphics/__init__.c"
-    insert_raw_after_line "$VARIANT_MK" $'shared-module/jpegio/JpegDecoder.c \\' \
-        $'\tshared-module/pygraphics/__init__.c \\' \
-        "shared-module/pygraphics/__init__.c"
+# Module source lists (unix only: MCU ports resolve these through
+# SRC_PATTERNS += pygraphics/% in circuitpy_defns.mk).
+if [[ "$PORT" == unix ]]; then
+    if grep -qF $'shared-bindings/lvgl/__init__.c \\' "$ENABLE_MK"; then
+        insert_raw_after_line "$ENABLE_MK" $'shared-bindings/lvgl/__init__.c \\' \
+            $'\tshared-bindings/pygraphics/__init__.c \\' \
+            "shared-bindings/pygraphics/__init__.c"
+        insert_raw_after_line "$ENABLE_MK" $'shared-module/lvgl/__init__.c \\' \
+            $'\tshared-module/pygraphics/__init__.c \\' \
+            "shared-module/pygraphics/__init__.c"
+    elif grep -qF $'shared-bindings/usdl2/__init__.c \\' "$ENABLE_MK"; then
+        insert_raw_after_line "$ENABLE_MK" $'shared-bindings/usdl2/__init__.c \\' \
+            $'\tshared-bindings/pygraphics/__init__.c \\' \
+            "shared-bindings/pygraphics/__init__.c"
+        insert_raw_after_line "$ENABLE_MK" $'shared-module/usdl2/__init__.c \\' \
+            $'\tshared-module/pygraphics/__init__.c \\' \
+            "shared-module/pygraphics/__init__.c"
+    else
+        insert_raw_after_line "$ENABLE_MK" $'shared-bindings/jpegio/JpegDecoder.c \\' \
+            $'\tshared-bindings/pygraphics/__init__.c \\' \
+            "shared-bindings/pygraphics/__init__.c"
+        insert_raw_after_line "$ENABLE_MK" $'shared-module/jpegio/JpegDecoder.c \\' \
+            $'\tshared-module/pygraphics/__init__.c \\' \
+            "shared-module/pygraphics/__init__.c"
+    fi
 fi
 
 ensure_block_append "$PORT_MK" "pygraphics-cmod begin" "$(cat <<EOF
