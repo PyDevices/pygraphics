@@ -131,8 +131,14 @@ Missing or unreadable paths raise `FileNotFoundError`. A file whose size does no
 expected glyph count raises `RuntimeError`.
 
 Examples that load `.bin` fonts from disk: `font_simpletest.py` (cycles
-`string_blit` → `per_pixel` → `displaybuf`; PyScript copies ship under
-`lib/examples/assets/` via `packages/examples.json`).
+`string_blit` → `per_pixel` → `displaybuf`) and `font_list.py`. Both read font
+files from the filesystem, so they run on desktop and MCU but not in the
+browser.
+
+For a `Font` demo you can run right now, see
+[`tv_remote_menu.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=tv_remote_menu&deps=pydevices-pygraphics) or
+[`pydevices_demo.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=pydevices_demo&deps=pydevices-pygraphics),
+which use the built-in font (`Font(height=16)`) and need no font file.
 
 ### Romfont `.bin` format
 
@@ -167,10 +173,10 @@ cycles different targets in one run. [`pydevices_demo`](https://pydevices.github
 | Pattern | Example | Background | Extra RAM | What hits the display | Typical sweet spot |
 |---------|---------|------------|-----------|----------------------|-------------------|
 | **Module helpers on canvas** | `pygraphics.text8(display_drv, …)` | Transparent (foreground pixels only) | None | One small `fill_rect` per lit pixel | Short labels, minimum RAM |
-| **String FB → one blit** | [`font_simpletest.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=font_simpletest&deps=pydevices-palettes,pydevices-pygraphics) (`string_blit`) | **Opaque** — `fb.fill(bg)` before `font.text` | One buffer sized to the string (reusable slice is better; see pydevices_demo) | **One** `blit_rect` per string | Desktop/SDL (batch then `show()`), SPI panels when RAM is tight |
-| **Draw on `display_drv`** | [`font_simpletest.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=font_simpletest&deps=pydevices-palettes,pydevices-pygraphics) (`per_pixel`) | Transparent | None | One `fill_rect` per lit pixel on the live driver | Simplest code path; **slowest** on MCU and desktop |
-| **Full-screen `DisplayBuffer` + dirty blit** | [`font_simpletest.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=font_simpletest&deps=pydevices-palettes,pydevices-pygraphics) (`displaybuf`) | Transparent over existing buffer contents | **Full panel** `DisplayBuffer` | `display.show(dirty)` — one row `blit_rect` per dirty scanline | MCUs with enough RAM; many text updates; fastest of the three modes |
-| **Catalog / inspect fonts** | [`font_list.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=font_list) | Opaque row buffer | One strip `width × height` per font | One `blit_rect` per font row | Browsing `.bin` files on disk |
+| **String FB → one blit** | `font_simpletest.py` (`string_blit`) | **Opaque** — `fb.fill(bg)` before `font.text` | One buffer sized to the string (reusable slice is better; see pydevices_demo) | **One** `blit_rect` per string | Desktop/SDL (batch then `show()`), SPI panels when RAM is tight |
+| **Draw on `display_drv`** | `font_simpletest.py` (`per_pixel`) | Transparent | None | One `fill_rect` per lit pixel on the live driver | Simplest code path; **slowest** on MCU and desktop |
+| **Full-screen `DisplayBuffer` + dirty blit** | `font_simpletest.py` (`displaybuf`) | Transparent over existing buffer contents | **Full panel** `DisplayBuffer` | `display.show(dirty)` — one row `blit_rect` per dirty scanline | MCUs with enough RAM; many text updates; fastest of the three modes |
+| **Catalog / inspect fonts** | `font_list.py` | Opaque row buffer | One strip `width × height` per font | One `blit_rect` per font row | Browsing `.bin` files on disk |
 
 #### Module helpers (`text8`, `text14`, `text16`)
 
@@ -302,8 +308,8 @@ Run full interactive `pygraphics` games and demos directly in your browser:
 | Example | Description | Live PyScript Link |
 |:---|:---|:---|
 | **`bouncing_balls`** | Animated high-framerate vector bouncing balls | [**Launch `bouncing_balls`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=bouncing_balls&deps=pydevices-pygraphics) |
-| **`alien`** | Animated retro sprite invasion arcade | [**Launch `alien`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?manifests=alien&deps=pydevices-pygraphics) |
-| **`calc_graphics`** | Pure 2D graphics pocket calculator | [**Launch `calc_graphics`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=calc_graphics,calc_engine&deps=pydevices-pygraphics) |
+| **`alien`** | Animated retro sprite invasion arcade | [**Launch `alien`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?manifests=alien&deps=pydevices-palettes,pydevices-pygraphics) |
+| **`calc_graphics`** | Pure 2D graphics pocket calculator | [**Launch `calc_graphics`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=calc_graphics,calc_engine&deps=pydevices-palettes,pydevices-pygraphics) |
 | **`dino`** | Chrome runner obstacle jumping arcade | [**Launch `dino`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=dino&deps=pydevices-pygraphics) |
 | **`simon`** | Simon touch memory sequence game | [**Launch `simon`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=simon&deps=pydevices-pygraphics) |
 | **`piano`** | Interactive multi-key musical keyboard | [**Launch `piano`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=piano&deps=pydevices-pygraphics) |

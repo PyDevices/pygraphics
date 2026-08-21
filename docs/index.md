@@ -110,7 +110,7 @@ Explore complete applications and arcade games built with `pygraphics`:
   <div>
     <h3>👾 Alien Arcade</h3>
     <p>Retro Space Invaders-style sprite engine with transparency and animated framebuffers.</p>
-    <p><a href="https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?manifests=alien&deps=pydevices-pygraphics" target="_blank" rel="noopener"><strong>▶ Launch Live Demo</strong></a></p>
+    <p><a href="https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?manifests=alien&deps=pydevices-palettes,pydevices-pygraphics" target="_blank" rel="noopener"><strong>▶ Launch Live Demo</strong></a></p>
   </div>
   <div>
     <h3>🦖 Dino Runner</h3>
