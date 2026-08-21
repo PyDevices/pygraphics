@@ -23,9 +23,17 @@
 === "PyScript / Pyodide"
 
     ```python
-    # pyscript mip: pygraphics
-    # pyodide wheels: pygraphics
+    import micropip
+    await micropip.install(
+        "pydevices-pygraphics", index_urls="https://test.pypi.org/simple/"
+    )
+
+    import pygraphics
     ```
+
+    The wheel is named `pydevices-pygraphics`; the module you import is
+    `pygraphics`. On MicroPython the MIP package name is `pygraphics`
+    (`mip.install("pygraphics", index="https://PyDevices.github.io/mip")`).
 
 ---
 
