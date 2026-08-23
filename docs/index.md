@@ -105,22 +105,22 @@ Explore complete applications and arcade games built with `pygraphics`:
   <div>
     <h3>🔴 Bouncing Balls</h3>
     <p>High-framerate physics simulation with vector circles and bounding-box collision detection.</p>
-    <p><a href="https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=bouncing_balls&deps=pydevices-pygraphics" target="_blank" rel="noopener"><strong>▶ Launch Live Demo</strong></a></p>
+    <p><a href="https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=bouncing_balls&deps=pydevices-pygraphics" target="_blank" rel="noopener"><strong>▶ Launch Live Demo</strong></a></p>
   </div>
   <div>
     <h3>👾 Alien Arcade</h3>
     <p>Retro Space Invaders-style sprite engine with transparency and animated framebuffers.</p>
-    <p><a href="https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?manifests=alien&deps=pydevices-palettes,pydevices-pygraphics" target="_blank" rel="noopener"><strong>▶ Launch Live Demo</strong></a></p>
+    <p><a href="https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?manifests=alien&deps=pydevices-palettes,pydevices-pygraphics" target="_blank" rel="noopener"><strong>▶ Launch Live Demo</strong></a></p>
   </div>
   <div>
     <h3>🦖 Dino Runner</h3>
     <p>Classic obstacle jumping arcade running with dirty scanline refresh and physics.</p>
-    <p><a href="https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=dino&deps=pydevices-pygraphics" target="_blank" rel="noopener"><strong>▶ Launch Live Demo</strong></a></p>
+    <p><a href="https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=dino&deps=pydevices-pygraphics" target="_blank" rel="noopener"><strong>▶ Launch Live Demo</strong></a></p>
   </div>
   <div>
     <h3>🕹️ Testris Arcade</h3>
     <p>Full-featured falling-blocks game with matrix rotation, score tracking, and ghost pieces.</p>
-    <p><a href="https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=testris&deps=pydevices-pygraphics" target="_blank" rel="noopener"><strong>▶ Launch Live Demo</strong></a></p>
+    <p><a href="https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=testris&deps=pydevices-pygraphics" target="_blank" rel="noopener"><strong>▶ Launch Live Demo</strong></a></p>
   </div>
 </div>
 
