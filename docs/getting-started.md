@@ -45,10 +45,10 @@ Experiment with 2D shapes, colors, and font rendering live in your browser:
   <div class="demo-editor-pane">
     <textarea class="code-editor">
 import pygraphics
-from displaydev.psdisplay import PSDisplay
+from displaydev.auto import AutoDisplay
 
 # Initialize display canvas (240x200)
-display = PSDisplay(CANVAS_ID, width=240, height=200)
+display = AutoDisplay(width=240, height=200, canvas_id=CANVAS_ID)
 fb = pygraphics.FrameBuffer(bytearray(240 * 200 * 2), 240, 200, pygraphics.RGB565)
 fb.fill(0x0000)
 

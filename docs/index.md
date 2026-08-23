@@ -7,7 +7,7 @@
     <span class="badge badge-orange">📦 MIP: pygraphics</span>
     <span class="badge badge-orange">🐍 PyPI: pydevices-pygraphics</span>
     <span class="badge badge-green">⚡ Native C & Pure-Python Parity</span>
-    <span class="badge">🌐 MicroPython · CircuitPython · CPython · Pyodide</span>
+    <span class="badge">🌐 MicroPython · CircuitPython · CPython · Direct WebAssembly · Pyodide</span>
   </div>
 </div>
 
@@ -34,16 +34,16 @@
 
 ## 💻 Live Interactive 2D Drawing Demo
 
-Try editing the drawing primitives below and click **▶ Run** to execute live in your browser:
+Try editing the drawing primitives below and click **▶ Run** to execute them with direct MicroPython WebAssembly:
 
 <div class="pydevices-live-demo">
   <div class="demo-editor-pane">
     <textarea class="code-editor">
 import pygraphics
-from displaydev.psdisplay import PSDisplay
+from displaydev.auto import AutoDisplay
 
 # Initialize display canvas (320x240)
-display = PSDisplay(CANVAS_ID, width=320, height=240)
+display = AutoDisplay(width=320, height=240, canvas_id=CANVAS_ID)
 buf = bytearray(320 * 240 * 2)
 fb = pygraphics.FrameBuffer(buf, 320, 240, pygraphics.RGB565)
 fb.fill(0x1082)
