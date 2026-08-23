@@ -53,9 +53,9 @@ one opens a `.bmp` from the filesystem, so they run on desktop and MCU but not
 in the browser.
 
 To see `FrameBuffer` blitting live without an image file, run
-[`pbm_create_new.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=pbm_create_new&deps=pydevices-pygraphics),
+[`pbm_create_new.py`](https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=pbm_create_new&deps=pydevices-pygraphics),
 which builds an image in code and blits it, or
-[`framebuf_simpletest.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=framebuf_simpletest&deps=pydevices-pygraphics).
+[`framebuf_simpletest.py`](https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=framebuf_simpletest&deps=pydevices-pygraphics).
 
 ## tft_text / tft_write bitmap helpers (pydevices-examples)
 

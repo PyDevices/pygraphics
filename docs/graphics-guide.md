@@ -136,8 +136,8 @@ files from the filesystem, so they run on desktop and MCU but not in the
 browser.
 
 For a `Font` demo you can run right now, see
-[`tv_remote_menu.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=tv_remote_menu&deps=pydevices-pygraphics) or
-[`pydevices_demo.py`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=pydevices_demo&deps=pydevices-pygraphics),
+[`tv_remote_menu.py`](https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=tv_remote_menu&deps=pydevices-pygraphics) or
+[`pydevices_demo.py`](https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=pydevices_demo&deps=pydevices-pygraphics),
 which use the built-in font (`Font(height=16)`) and need no font file.
 
 ### Romfont `.bin` format
@@ -167,7 +167,7 @@ and heights 8/14/16, use `pygraphics.text8` / `text14` / `text16` or `pygraphics
 controls transparency, RAM use, and how much data hits the panel bus.
 
 The multipath `font_simpletest.py` example uses the same `Font` + romfont `.bin` files but
-cycles different targets in one run. [`pydevices_demo`](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=pydevices_demo&deps=pydevices-pygraphics) follows the
+cycles different targets in one run. [`pydevices_demo`](https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=pydevices_demo&deps=pydevices-pygraphics) follows the
 **string framebuffer + one blit** pattern (`string_blit`).
 
 | Pattern | Example | Background | Extra RAM | What hits the display | Typical sweet spot |
@@ -263,7 +263,7 @@ micropython examples/font_simpletest.py
 ```
 
 PyScript and the gallery load the same `.bin` assets from `lib/examples/assets/` (see the
-[pydevices-examples gallery](https://pydevices.github.io/pydevices-examples/pyscript/)).
+[pydevices-examples gallery](https://pydevices.github.io/pydevices-examples/gallery/)).
 
 ## Image loaders
 
@@ -307,14 +307,14 @@ Run full interactive `pygraphics` games and demos directly in your browser:
 
 | Example | Description | Live PyScript Link |
 |:---|:---|:---|
-| **`bouncing_balls`** | Animated high-framerate vector bouncing balls | [**Launch `bouncing_balls`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=bouncing_balls&deps=pydevices-pygraphics) |
-| **`alien`** | Animated retro sprite invasion arcade | [**Launch `alien`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?manifests=alien&deps=pydevices-palettes,pydevices-pygraphics) |
-| **`calc_graphics`** | Pure 2D graphics pocket calculator | [**Launch `calc_graphics`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=calc_graphics,calc_engine&deps=pydevices-palettes,pydevices-pygraphics) |
-| **`dino`** | Chrome runner obstacle jumping arcade | [**Launch `dino`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=dino&deps=pydevices-pygraphics) |
-| **`simon`** | Simon touch memory sequence game | [**Launch `simon`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=simon&deps=pydevices-pygraphics) |
-| **`piano`** | Interactive multi-key musical keyboard | [**Launch `piano`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=piano&deps=pydevices-pygraphics) |
-| **`testris`** | Complete falling-blocks arcade game | [**Launch `testris`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=testris&deps=pydevices-pygraphics) |
-| **`rotations`** | Hardware and software panel rotation suite | [**Launch `rotations`**](https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=rotations&deps=pydevices-palettes,pydevices-pygraphics) |
+| **`bouncing_balls`** | Animated high-framerate vector bouncing balls | [**Launch `bouncing_balls`**](https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=bouncing_balls&deps=pydevices-pygraphics) |
+| **`alien`** | Animated retro sprite invasion arcade | [**Launch `alien`**](https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?manifests=alien&deps=pydevices-palettes,pydevices-pygraphics) |
+| **`calc_graphics`** | Pure 2D graphics pocket calculator | [**Launch `calc_graphics`**](https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=calc_graphics,calc_engine&deps=pydevices-palettes,pydevices-pygraphics) |
+| **`dino`** | Chrome runner obstacle jumping arcade | [**Launch `dino`**](https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=dino&deps=pydevices-pygraphics) |
+| **`simon`** | Simon touch memory sequence game | [**Launch `simon`**](https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=simon&deps=pydevices-pygraphics) |
+| **`piano`** | Interactive multi-key musical keyboard | [**Launch `piano`**](https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=piano&deps=pydevices-pygraphics) |
+| **`testris`** | Complete falling-blocks arcade game | [**Launch `testris`**](https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=testris&deps=pydevices-pygraphics) |
+| **`rotations`** | Hardware and software panel rotation suite | [**Launch `rotations`**](https://pydevices.github.io/pydevices-examples/gallery/pyodide.html?modules=rotations&deps=pydevices-palettes,pydevices-pygraphics) |
 
 ---
 
