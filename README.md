@@ -46,7 +46,7 @@ print(pygraphics.implementation())  # native_cmod or pygraphics_python
 
 * **Zero Dependencies & Universal Use**: No required external packages; usable in any Python application.
 * **Dual Invocation & `Draw` Class**: Call methods directly on `FrameBuffer` instances (`fb.circle(...)`), invoke standalone canvas functions (`pygraphics.circle(fb, ...)`), or use the **`Draw`** styling context for maximum architectural flexibility.
-* **Exposed Attributes**: Direct read-only access to `.buf`, `.width`, `.height`, `.stride`, `.format`, and `.color_depth` on every `FrameBuffer` instance.
+* **Exposed Attributes**: Direct read-only access to `.buffer`, `.width`, `.height`, `.format`, and `.color_depth` on every `FrameBuffer` instance (stride is an internal implementation detail, not a public attribute).
 * **24-bit True Color (`RGB888`)**: Supports 24-bit packed RGB color format (format constant `RGB888`), ideal for 24-bit displays as well as **NeoPixel (WS2812B)** and **DotStar (APA102)** LED matrix arrays.
 * **Dirty `Area` Returns**: Drawing operations return an `Area(x, y, w, h)` bounding box so drivers can flush only modified screen regions.
 * **Rich Primitive Library**: Standard shapes plus `round_rect`, `circle`, `arc`, `triangle`, `polygon`, and `gradient_rect`.
@@ -57,10 +57,33 @@ print(pygraphics.implementation())  # native_cmod or pygraphics_python
 
 
 
+## Support and platforms
+
+pygraphics targets MicroPython, CircuitPython, and CPython, both as a native
+C extension and as the pure-Python fallback under `lib/pygraphics/`.
+
+The native `pydevices-pygraphics` wheel is currently built for:
+
+| Platform | Arch | Notes |
+|----------|------|-------|
+| manylinux | x86_64 | `manylinux_2_28` |
+| Windows | AMD64 (win_amd64) | |
+| Android | arm64_v8a, x86_64 | |
+| Pyodide / Emscripten | wasm32 | `pyemscripten_2026_0_wasm32` |
+
+macOS and Linux aarch64 wheels are **not built yet** — deliberately, not as
+an oversight. On those platforms, use the pure-Python package via MIP (or by
+copying `lib/pygraphics/` onto `sys.path`); the public API is identical to
+the native build.
+
+Native wheels are published to **TestPyPI only** (`pydevices-pygraphics`);
+this is also deliberate, not a placeholder — see [Install](#install) above
+for the exact `pip install` invocation with `--extra-index-url`.
+
 ## Links
 
 - [Documentation](https://pygraphics.readthedocs.io)
-- [Source-linked API reference](https://pydevices.github.io/pygraphics/api/)
+- [API reference](https://pygraphics.readthedocs.io/en/latest/reference/pygraphics/index.html)
 - [Source](https://github.com/PyDevices/pygraphics)
 - [Issues](https://github.com/PyDevices/pygraphics/issues)
 - Related: [pydevices-examples](https://github.com/PyDevices/pydevices-examples)
@@ -83,7 +106,7 @@ pygraphics/
   lib/pygraphics/            # pure-Python package (import pygraphics)
   tests/                   # native smoke / parity tests
   tools/                   # developer benchmarks / helpers
-  docs/ scripts/ web/
+  docs/ scripts/
 ```
 
 ### CPython native (editable)
@@ -99,8 +122,17 @@ python3 -m venv .venv
 ### Pure Python (no extension)
 
 ```bash
-PYTHONPATH=lib python3 -c "import pygraphics; print(pygraphics.implementation())"
+(cd /tmp && PYTHONPATH="$OLDPWD/lib" python3 -c "import pygraphics; print(pygraphics.implementation())")
 ```
+
+`PYTHONPATH=lib` alone is not enough after an in-place editable build (`pip
+install -e .` / `build_ext --inplace`, above): the current directory precedes
+`PYTHONPATH` on `sys.path`, so the native extension sitting at the repo root
+wins over `lib/`. CI (`.github/workflows/tests.yml`) sidesteps this the same
+way `tests/_env.py` does — by inserting `lib/` at the front of `sys.path`
+explicitly in code rather than relying on `PYTHONPATH` — but the simplest fix
+from a shell is just to run from a directory that isn't the repo root, as
+above.
 
 ### Parity testing (native vs pure-Python)
 
@@ -110,7 +142,7 @@ python tools/compare_graphics_matrix.py      # all desktop interpreters
 micropython tools/compare_framebuf_mp.py     # C framebuf vs lib/pygraphics/framebuf.py
 ```
 
-### MicroPython
+### MicroPython (unix)
 
 Clone as a sibling of `micropython/`:
 
@@ -128,6 +160,27 @@ cd ../../..
 ./micropython/ports/unix/build-standard/micropython pygraphics/tests/test_area.py
 ```
 
+### MicroPython (MCU: ESP32, RP2, …)
+
+The unix port above is Make-based, but the CMake-based MCU ports (`esp32`,
+`rp2`, …) discover user C modules differently, via `USER_C_MODULES` pointing
+at `micropython.cmake` in this repo rather than at `micropython.mk`:
+
+```bash
+idf.py build -DUSER_C_MODULES=<path to pygraphics>
+```
+
+or, alongside other user C modules, as a semicolon-separated list (no
+aggregator `micropython.cmake` required):
+
+```bash
+idf.py build -DUSER_C_MODULES="<path to pygraphics>;<path to displayif>"
+```
+
+The `rp2` port takes the same `-DUSER_C_MODULES` flag via its own CMake-based
+build. See the [cmods workspace](https://github.com/PyDevices/cmods) for an
+easier way to build several user C modules together.
+
 ### CircuitPython (unix)
 
 Adafruit’s [Extending CircuitPython](https://learn.adafruit.com/extending-circuitpython)
@@ -136,6 +189,9 @@ describe adding `shared-bindings/` + `shared-module/` **inside** the CircuitPyth
 tree. This repo keeps those sources out-of-tree under `src/circuitpython_spike/`
 and applies them with `./apply_cp_patches.sh` into a local (uncommitted)
 CircuitPython clone — Adafruit has no separate out-of-tree C-module path.
+The build glue itself lives in `circuitpython.mk` (analogous to
+`micropython.mk` for MicroPython), included by the patched variant/board
+Makefile for both the unix `coverage` variant used below and MCU boards.
 
 | Adafruit step | This repo |
 |---------------|-----------|
