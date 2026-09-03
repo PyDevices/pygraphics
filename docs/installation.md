@@ -44,7 +44,7 @@ layout via spike + `apply_cp_patches.sh` — see the
 cd ../circuitpython/ports/unix && make -j VARIANT=coverage
 ```
 
-See the [cmods workspace](https://github.com/PyDevices/cmods) for an easier way to build this repo with other user C modules (MicroPython) or extensions (CircuitPython).
+See the org's [optional aggregator workspace](https://github.com/PyDevices/cmods) for an easier way to build this repo with other user C modules (MicroPython) or extensions (CircuitPython).
 
 ## CPython — native/C extension (preferred when available)
 

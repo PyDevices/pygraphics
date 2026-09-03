@@ -421,6 +421,6 @@ if [ "$DRY_RUN" = 0 ]; then
         echo
         log "Next:"
         log "  cd $PORT_DIR && make -j VARIANT=$VARIANT"
-        log "See https://github.com/PyDevices/cmods for an easier way to build with other extensions."
+        log "For an easier way to build with other extensions, see the org's optional aggregator workspace: https://github.com/PyDevices/cmods"
     fi
 fi
