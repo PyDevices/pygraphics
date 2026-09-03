@@ -2,12 +2,6 @@
 # SPDX-License-Identifier: MIT
 """Area tests for MicroPython and CPython."""
 
-import sys
-
-for _p in list(sys.path):
-    if _p.endswith("/graphics") and "repos" in _p:
-        sys.path.remove(_p)
-
 import _env  # noqa: F401  puts lib/ on sys.path when no native build is present
 from pygraphics import Area
 

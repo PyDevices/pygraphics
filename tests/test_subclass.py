@@ -2,12 +2,6 @@
 # SPDX-License-Identifier: MIT
 """FrameBuffer subclass test for CPython tp_new/tp_init split."""
 
-import sys
-
-for _p in list(sys.path):
-    if _p.endswith("/graphics") and "repos" in _p:
-        sys.path.remove(_p)
-
 from pygraphics import RGB565, Area, FrameBuffer
 
 

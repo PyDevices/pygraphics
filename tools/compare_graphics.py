@@ -26,7 +26,11 @@ Used by ``compare_graphics_run.py`` (single interpreter) and
 import json
 import os
 import sys
-import tempfile
+
+try:
+    import tempfile
+except ImportError:  # MicroPython and CircuitPython ship no tempfile module
+    tempfile = None
 
 RESULT_PREFIX = "GRAPHICS_COMPARE_RESULT="
 
@@ -267,7 +271,10 @@ def _expanduser(path: str) -> str:
 
 
 def _temp_dir() -> str:
-    return _env_get("TEMP") or _env_get("TMPDIR") or _env_get("TMP") or tempfile.gettempdir()
+    from_env = _env_get("TEMP") or _env_get("TMPDIR") or _env_get("TMP")
+    if from_env:
+        return from_env
+    return tempfile.gettempdir() if tempfile else "/tmp"
 
 
 def _is_dir(path: str) -> bool:

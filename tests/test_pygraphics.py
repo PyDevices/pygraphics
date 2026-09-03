@@ -1,11 +1,5 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-import sys
-
-for _p in list(sys.path):
-    if _p.endswith("/graphics") and "repos" in _p:
-        sys.path.remove(_p)
-
 import array
 
 import pygraphics
