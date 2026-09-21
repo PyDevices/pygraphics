@@ -8,7 +8,7 @@ Import as `pygraphics`.
 | Product | Pip / MIP | Role |
 |---------|-----------|------|
 | **pygraphics** | TestPyPI `pydevices-pygraphics` | Native/C-extension wheel for CPython and for embedded builds that include the module (prefer on desktop/Android/Pyodide when available) |
-| **pygraphics** | MIP `pygraphics` | Pure-Python package for users who do not want to compile their own build (same public API) |
+| **pygraphics** | MIP `pygraphics` | Pure-Python package for users who do not want to compile their own build (same public API, [bar four authoring entry points](#what-the-native-build-does-not-have)) |
 
 One release tag `vX.Y.Z` publishes both products at that version.
 
@@ -42,7 +42,7 @@ print(pygraphics.implementation())  # native_cmod or pygraphics_python
 
 `pygraphics` has **zero external dependencies** on any other PyDevices libraries or hardware modules. It functions as an independent, portable 2D graphics engine that can be used in any MicroPython, CircuitPython, or CPython project needing fast drawing primitives or off-screen framebuffer manipulation, regardless of whether you are using PyDevices displays.
 
-`pygraphics` extends MicroPython's standard `framebuf` into a powerful 2D graphics engine while preserving full API compatibility:
+`pygraphics` extends MicroPython's standard `framebuf` into a powerful 2D graphics engine while preserving full compatibility with `framebuf`'s own API (proved by `tools/compare_framebuf_mp.py`):
 
 * **Zero Dependencies & Universal Use**: No required external packages; usable in any Python application.
 * **Dual Invocation & `Draw` Class**: Call methods directly on `FrameBuffer` instances (`fb.circle(...)`), invoke standalone canvas functions (`pygraphics.circle(fb, ...)`), or use the **`Draw`** styling context for maximum architectural flexibility.
@@ -51,7 +51,7 @@ print(pygraphics.implementation())  # native_cmod or pygraphics_python
 * **Dirty `Area` Returns**: Drawing operations return an `Area(x, y, w, h)` bounding box so drivers can flush only modified screen regions.
 * **Rich Primitive Library**: Standard shapes plus `round_rect`, `circle`, `arc`, `triangle`, `polygon`, and `gradient_rect`.
 * **Multi-Font Engine**: Built-in 8x8 (`text8`), 8x14 (`text14`), 8x16 (`text16`), and custom `Font` support.
-* **Image & File I/O**: Load and save images directly using `load_image`, `save_image`, `export_framebuffer`, `BMP565`, and PBM/PGM codecs.
+* **Image & File I/O**: Load and save images directly using `load_image`, `save_image`, `BMP565`, and PBM/PGM codecs. `export_framebuffer` and the `FrameBuffer.export` / `from_bitmap` / `from_module` trio are [pure-Python only](#what-the-native-build-does-not-have).
 * **Colorkey Blitting**: `blit_transparent()` for transparent sprite overlays.
 * **Native C Speed & Fallback Safety**: C acceleration compiled for MicroPython, CircuitPython, and CPython wheels (TestPyPI `pydevices-pygraphics`), with a pure-Python fallback available whenever precompiled binaries are not present in the firmware or environment.
 
@@ -62,23 +62,54 @@ print(pygraphics.implementation())  # native_cmod or pygraphics_python
 pygraphics targets MicroPython, CircuitPython, and CPython, both as a native
 C extension and as the pure-Python fallback under `lib/pygraphics/`.
 
-The native `pydevices-pygraphics` wheel is currently built for:
+The native `pydevices-pygraphics` wheel is currently built for, with each
+claim's tier in the vocabulary of the org's
+[platform support tiers](https://github.com/PyDevices/.github/blob/main/docs/platform-support-tiers.md):
 
-| Platform | Arch | Notes |
-|----------|------|-------|
-| manylinux | x86_64 | `manylinux_2_28` |
-| Windows | AMD64 (win_amd64) | |
-| Android | arm64_v8a, x86_64 | |
-| Pyodide / Emscripten | wasm32 | `pyemscripten_2026_0_wasm32` |
+| Platform | Arch | Tier | Notes |
+|----------|------|------|-------|
+| manylinux | x86_64 | CI-proven | `manylinux_2_28`; the wheel is built and the suite runs on it every release |
+| Windows | AMD64 (win_amd64) | CI-proven | same |
+| Android | arm64_v8a, x86_64 | community-verified | the wheel builds; nobody here has run it on a device |
+| Pyodide / Emscripten | wasm32 | community-verified | the wheel builds; `pyemscripten_2025_0` for cp313 and `pyemscripten_2026_0` for cp314 — micropip picks the one matching your runtime |
 
-macOS and Linux aarch64 wheels are **not built yet** — deliberately, not as
-an oversight. On those platforms, use the pure-Python package via MIP (or by
-copying `lib/pygraphics/` onto `sys.path`); the public API is identical to
-the native build.
+**No macOS or Linux aarch64 wheels.** The cause is the bench: there is no Mac
+and no aarch64 Linux runner in the release matrix, so there is nothing to
+build or prove them on (the org records the same posture in
+[platform-support-tiers.md](https://github.com/PyDevices/.github/blob/main/docs/platform-support-tiers.md)).
+On those platforms use the pure-Python package via MIP, or copy
+`lib/pygraphics/` onto `sys.path`.
 
-Native wheels are published to **TestPyPI only** (`pydevices-pygraphics`);
-this is also deliberate, not a placeholder — see [Install](#install) above
-for the exact `pip install` invocation with `--extra-index-url`.
+### What the native build does not have
+
+Four entry points are **pure-Python only**, and the native module does not
+carry them:
+
+| Name | |
+|---|---|
+| `pygraphics.export_framebuffer(fb, path)` | writes an importable `.py` bitmap module |
+| `FrameBuffer.export(path)` | the method form of the same thing |
+| `FrameBuffer.from_bitmap(buf, w, h, fmt)` | builds a framebuffer from such a module's `BITMAP` |
+| `FrameBuffer.from_module(mod)` | the same, from the module object |
+
+They emit and consume Python source, which is authoring-time work; putting a
+source generator in a C accelerator buys nothing. Callers that need them on a
+native build fall back to the pure package — pdwidgets does exactly that in
+its `_icon_load.py`. `tests/test_parity.py` enforces the exclusion in both
+directions, so implementing one in C fails the suite until this table changes.
+
+Everything else in `__all__` is present on both builds, checked against the
+pure package's own `__all__` rather than a copy of it.
+
+### Which index
+
+Current releases go to **TestPyPI** (`pydevices-pygraphics`), which is the
+command under [Install](#install) above. The name is also registered on
+production PyPI and currently carries **0.0.37**, one release behind
+TestPyPI's 0.0.38 — so a plain `pip install pydevices-pygraphics` succeeds and
+gives you the older wheel. Note that the documented install line passes
+TestPyPI with `-i` and PyPI with `--extra-index-url`, and pip resolves to
+whichever index has the higher version.
 
 ## Links
 
@@ -114,10 +145,18 @@ pygraphics/
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -e .
-.venv/bin/python tests/test_area.py
-.venv/bin/python tests/test_pygraphics.py
-.venv/bin/python tests/test_subclass.py
+PYGRAPHICS_TEST_NATIVE=1 .venv/bin/python -m unittest discover -s tests
 ```
+
+And the pure-Python side of the same suite:
+
+```bash
+.venv/bin/python -m unittest discover -s tests
+```
+
+Those are the two commands CI runs — 15 modules, not the three this section
+used to name. [`tests/README.md`](tests/README.md) explains the switch and
+what each module covers.
 
 ### Pure Python (no extension)
 
@@ -142,6 +181,13 @@ python tools/compare_graphics_matrix.py      # all desktop interpreters
 micropython tools/compare_framebuf_mp.py     # C framebuf vs lib/pygraphics/framebuf.py
 ```
 
+All three run on a unix-port MicroPython with `pygraphics` linked in as a user
+C module, and on CPython with the extension built in place; the first reports
+385 checks. The `micropython` runs need a build that actually contains the
+module — a stock interpreter imports the pure package and the comparison is
+against itself. CI runs the first and third on every push (the `micropython`
+job in [`tests.yml`](.github/workflows/tests.yml)).
+
 ### MicroPython (unix)
 
 Clone as a sibling of `micropython/`:
@@ -159,6 +205,12 @@ make USER_C_MODULES=../../..
 cd ../../..
 ./micropython/ports/unix/build-standard/micropython pygraphics/tests/test_area.py
 ```
+
+**Tested against** MicroPython v1.28.0 (what the PyDevices firmware pins) and
+current master — most recently `11094ea`, 1.30.0-preview. `USER_C_MODULES`
+points at the *parent directory*, and MicroPython builds every module it finds
+there, so that path should hold `pygraphics/` and nothing else you do not want
+linked in.
 
 ### MicroPython (MCU: ESP32, RP2, …)
 
@@ -208,6 +260,10 @@ Clone as a sibling of `circuitpython/`:
 ./apply_cp_patches.sh --apply
 cd ../circuitpython/ports/unix && make -j VARIANT=coverage
 ```
+
+**Tested against** CircuitPython 10.2.1. The patch script edits a moving tree,
+so this is the fragile recipe of the two: if `--apply` fails to find what it
+expects, check the CircuitPython revision first.
 
 See the org's [optional aggregator workspace](https://github.com/PyDevices/cmods) for an easier way to build this repo with other user C modules (MicroPython) or extensions (CircuitPython).
 

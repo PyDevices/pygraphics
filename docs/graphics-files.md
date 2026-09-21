@@ -15,9 +15,14 @@ Built into `pygraphics` — see the [graphics guide](graphics-guide.md):
 | `pygraphics.save_image(fb, path)` | Write PBM/PGM/BMP for supported formats |
 | `pygraphics.FrameBuffer.from_file(path)` | Same as `load_image` |
 | `pygraphics.FrameBuffer.save(path)` | Same as `save_image` |
-| `pygraphics.FrameBuffer.export(path)` / `export_framebuffer` | Write importable `.py` module (`BITMAP = bytearray(...)`) |
-| `pygraphics.FrameBuffer.from_bitmap(buf, w, h, fmt)` | Wrap buffer; zero-copy when `buf` is a writable `bytearray` |
-| `pygraphics.FrameBuffer.from_module(mod)` | Same using `mod.WIDTH` / `HEIGHT` / `FORMAT` / `BITMAP` |
+| `pygraphics.FrameBuffer.export(path)` / `export_framebuffer` | **Pure-Python only.** Write importable `.py` module (`BITMAP = bytearray(...)`) |
+| `pygraphics.FrameBuffer.from_bitmap(buf, w, h, fmt)` | **Pure-Python only.** Wrap buffer; zero-copy when `buf` is a writable `bytearray` |
+| `pygraphics.FrameBuffer.from_module(mod)` | **Pure-Python only.** Same using `mod.WIDTH` / `HEIGHT` / `FORMAT` / `BITMAP` |
+
+**Pure-Python only** means the native C module does not carry it: these four
+emit and consume Python source, which is authoring-time work. On a native
+build, import them from the pure package (`lib/pygraphics/`) instead — see
+[what the native build does not have](https://github.com/PyDevices/pygraphics#what-the-native-build-does-not-have).
 
 ### Memory notes
 

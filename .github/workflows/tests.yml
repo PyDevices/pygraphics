@@ -53,3 +53,56 @@ jobs:
         env:
           PYGRAPHICS_TEST_NATIVE: '1'
         run: python -m unittest discover -s tests -v
+
+  # The README ends its unix-port recipe with `micropython tests/test_area.py`,
+  # and that command was broken for months by a CPython-only os.environ in
+  # tests/_env.py -- the fix landed without a job to keep it fixed. The parity
+  # tools README.md names were in the same state: never run anywhere.
+  micropython:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: pygraphics
+      - uses: actions/checkout@v7
+        with:
+          repository: micropython/micropython
+          # The version PyDevices firmware pins. The recipe is also tested
+          # against master by hand; this job pins so CI cannot break upstream.
+          ref: v1.28.0
+          path: micropython
+
+      # USER_C_MODULES builds every module in the directory it is given, so it
+      # gets one holding pygraphics alone -- pointing it at a workspace root
+      # drags in every sibling repo.
+      - name: Stage the user C module
+        run: |
+          mkdir -p ucmods
+          ln -s "$GITHUB_WORKSPACE/pygraphics" ucmods/pygraphics
+
+      - name: Build the unix port with pygraphics linked in
+        working-directory: micropython/ports/unix
+        run: |
+          make submodules
+          make -j"$(nproc)" USER_C_MODULES="$GITHUB_WORKSPACE/ucmods"
+
+      - name: The README's own verification command
+        run: |
+          MP="$GITHUB_WORKSPACE/micropython/ports/unix/build-standard/micropython"
+          test "$($MP -c 'import pygraphics; print(pygraphics.implementation())')" = native_cmod
+          $MP pygraphics/tests/test_area.py
+          $MP pygraphics/tests/test_subclass.py
+
+      # Exports the native module must have, read from the pure package's own
+      # __all__ rather than a frozen copy of it.
+      - name: Export parity
+        working-directory: pygraphics
+        run: |
+          "$GITHUB_WORKSPACE/micropython/ports/unix/build-standard/micropython" tests/test_parity.py
+
+      - name: Parity tools (the three README.md names)
+        working-directory: pygraphics
+        run: |
+          MP="$GITHUB_WORKSPACE/micropython/ports/unix/build-standard/micropython"
+          $MP tools/compare_graphics_run.py
+          $MP tools/compare_framebuf_mp.py
