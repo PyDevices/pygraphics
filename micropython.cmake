@@ -14,6 +14,7 @@ set(PYGRAPHICS_MOD_DIR ${CMAKE_CURRENT_LIST_DIR})
 add_library(pygraphics INTERFACE)
 
 target_sources(pygraphics INTERFACE
+    ${PYGRAPHICS_MOD_DIR}/src/gfx_build.c
     ${PYGRAPHICS_MOD_DIR}/src/gfx_module_mp.c
     ${PYGRAPHICS_MOD_DIR}/src/gfx_bindings_mp.c
     ${PYGRAPHICS_MOD_DIR}/src/gfx_canvas_mp.c
@@ -35,5 +36,26 @@ target_compile_options(pygraphics INTERFACE
 )
 
 # Arc/polygon use Q15 LUT (gfx_trig.h) — no libm.
+
+# --- which pygraphics this firmware was built from --------------------------
+# See micropython.mk for why this is computed at build time and never stored.
+# Quoted so the strings survive as C string literals.
+execute_process(
+    COMMAND git -C ${PYGRAPHICS_MOD_DIR} describe --always --dirty --abbrev=7
+    OUTPUT_VARIABLE PYGRAPHICS_REVISION
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET)
+if(NOT PYGRAPHICS_REVISION)
+    set(PYGRAPHICS_REVISION "unknown")
+endif()
+if(EXISTS ${PYGRAPHICS_MOD_DIR}/VERSION)
+    file(READ ${PYGRAPHICS_MOD_DIR}/VERSION PYGRAPHICS_VERSION)
+    string(STRIP "${PYGRAPHICS_VERSION}" PYGRAPHICS_VERSION)
+else()
+    set(PYGRAPHICS_VERSION "0.0.0+unknown")
+endif()
+target_compile_definitions(pygraphics INTERFACE
+    PYGRAPHICS_VERSION=\"${PYGRAPHICS_VERSION}\"
+    PYGRAPHICS_REVISION=\"${PYGRAPHICS_REVISION}\")
 
 target_link_libraries(usermod INTERFACE pygraphics)

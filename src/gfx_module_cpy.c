@@ -3252,5 +3252,21 @@ PyMODINIT_FUNC PyInit_pygraphics(void) {
     ADD_INT("GS8", GFX_GS8);
     ADD_INT("RGB888", GFX_RGB888);
 #undef ADD_INT
+    // Which pygraphics this wheel was built from, the same two macros the
+    // firmware carries, computed the same way in setup.py -- so
+    // pygraphics.__revision__ reads alike on a board and on the desktop
+    // (pygraphics#25). "unknown" where there is no checkout and no git, which
+    // is honest; a test asserts it is not the answer inside one.
+#ifndef PYGRAPHICS_VERSION
+#define PYGRAPHICS_VERSION "0.0.0+unknown"
+#endif
+#ifndef PYGRAPHICS_REVISION
+#define PYGRAPHICS_REVISION "unknown"
+#endif
+    if (PyModule_AddStringConstant(m, "__version__", PYGRAPHICS_VERSION) < 0
+        || PyModule_AddStringConstant(m, "__revision__", PYGRAPHICS_REVISION) < 0) {
+        Py_DECREF(m);
+        return NULL;
+    }
     return m;
 }
