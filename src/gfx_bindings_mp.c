@@ -10,6 +10,7 @@
 #include "py/runtime.h"
 #include "py/binary.h"
 
+#include "gfx_build.h"
 #include "gfx_core.h"
 #include "gfx_framebuffer.h"
 #include "gfx_shapes.h"
@@ -1965,6 +1966,10 @@ MP_DEFINE_CONST_FUN_OBJ_0(mod_capabilities_obj, mod_capabilities);
 
 static const mp_rom_map_elem_t graphics_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_pygraphics) },
+    // Which pygraphics this firmware was built from (pygraphics#25). One line,
+    // two pointers into gfx_build.c; a test asserts these entries are here, so
+    // a rewrite of this table fails rather than shipping unmarked.
+    PYGRAPHICS_BUILD_GLOBALS,
     { MP_ROM_QSTR(MP_QSTR_FrameBuffer), MP_ROM_PTR(&mp_type_framebuf) },
     { MP_ROM_QSTR(MP_QSTR_Area), MP_ROM_PTR(&mp_type_area) },
     { MP_ROM_QSTR(MP_QSTR_Draw), MP_ROM_PTR(&mp_type_draw) },
