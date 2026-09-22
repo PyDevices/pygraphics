@@ -20,7 +20,6 @@ import subprocess
 import unittest
 
 import _env  # noqa: F401  puts lib/ on sys.path when no native build is present
-
 import pygraphics
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
