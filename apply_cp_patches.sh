@@ -456,6 +456,6 @@ if [ "$DRY_RUN" = 0 ]; then
         echo
         log "Next:"
         log "  cd $PORT_DIR && make -j VARIANT=$VARIANT"
-        log "For an easier way to build with other extensions, see the org's optional aggregator workspace: https://github.com/PyDevices/cmods"
+        log "To build with other extensions, run their apply_cp_patches.sh against the same checkout before make."
     fi
 fi

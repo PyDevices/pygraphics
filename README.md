@@ -230,8 +230,11 @@ idf.py build -DUSER_C_MODULES="<path to pygraphics>;<path to displayif>"
 ```
 
 The `rp2` port takes the same `-DUSER_C_MODULES` flag via its own CMake-based
-build. See the org's [optional aggregator workspace](https://github.com/PyDevices/cmods)
-for an easier way to build several user C modules together.
+build. To build several user C modules together, name them in one manifest
+(this repository's `manifest.py` carries `c_module(".")`, and a manifest that
+`include()`s several such files builds them all); the
+[micropython-pydevices](https://github.com/PyDevices/micropython-pydevices)
+repository keeps ready-made presets, variants and boards for that.
 
 ### CircuitPython (unix)
 
@@ -265,7 +268,7 @@ cd ../circuitpython/ports/unix && make -j VARIANT=coverage
 so this is the fragile recipe of the two: if `--apply` fails to find what it
 expects, check the CircuitPython revision first.
 
-See the org's [optional aggregator workspace](https://github.com/PyDevices/cmods) for an easier way to build this repo with other user C modules (MicroPython) or extensions (CircuitPython).
+To build this repo with other user C modules (MicroPython), include their manifests alongside this one; with other CircuitPython extensions, run each repository's `apply_cp_patches.sh` against the same checkout before the one `make`.
 
 ### pydevices-examples integration
 
