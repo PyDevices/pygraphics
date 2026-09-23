@@ -5,6 +5,9 @@ The C module can be built into MicroPython or CircuitPython, while the pure-Pyth
 package is available for users who prefer not to compile their own build.
 Import as `pygraphics`.
 
+New here? Read the [newcomer's guide](docs/newcomers.md) for the portable
+framebuffer model, implementation boundary, and contributor map.
+
 | Product | Pip / MIP | Role |
 |---------|-----------|------|
 | **pygraphics** | TestPyPI `pydevices-pygraphics` | Native/C-extension wheel for CPython and for embedded builds that include the module (prefer on desktop/Android/Pyodide when available) |
