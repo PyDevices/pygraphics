@@ -1,4 +1,5 @@
 * [Home](index.md)
+* [Newcomer's guide](newcomers.md)
 * [Getting started](getting-started.md)
 * [Installation](installation.md)
 * [Graphics guide](graphics-guide.md)

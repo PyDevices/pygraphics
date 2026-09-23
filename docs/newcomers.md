@@ -15,37 +15,15 @@ The same `import pygraphics` API has two implementations:
 
 ## Start by drawing off-screen
 
-For a supported desktop target, install the native distribution:
-
-```bash
-python -m pip install -i https://test.pypi.org/simple/ \
-  --extra-index-url https://pypi.org/simple/ pydevices-pygraphics
-```
-
-An off-screen framebuffer needs only a buffer, dimensions, and format:
-
-```python
-import pygraphics
-from pygraphics import FrameBuffer, RGB565
-
-fb = FrameBuffer(bytearray(160 * 128 * 2), 160, 128, RGB565)
-fb.fill(0)
-changed = fb.fill_rect(10, 10, 40, 40, 0xF800)
-print(changed, pygraphics.implementation())
-```
+The README shows [how to install](https://github.com/PyDevices/pygraphics#install)
+either implementation and a [quick start](https://github.com/PyDevices/pygraphics#quick-start)
+that draws into an off-screen framebuffer.
 
 Drawing calls return an `Area` covering the pixels they changed. A display
 driver can use that rectangle to flush only the affected part of a screen;
 off-screen callers can ignore it. The practical drawing patterns are covered
 by [the graphics guide](graphics-guide.md) and
 [the getting-started guide](getting-started.md).
-
-For the pure-Python MicroPython/CircuitPython package:
-
-```python
-import mip
-mip.install("pygraphics", index="https://PyDevices.github.io/mip")
-```
 
 ## The mental model
 
@@ -99,7 +77,7 @@ release, so prefer the documented TestPyPI command when testing current work.
 Normal users install a wheel or MIP package; building C is contributor work.
 Native changes live under `src/`; pure-Python changes live under
 `lib/pygraphics/`. Their behavior must stay aligned. The native and
-pure-Python smoke commands are in [AGENTS.md](../AGENTS.md), and the parity
+pure-Python smoke commands are in [AGENTS.md](https://github.com/PyDevices/pygraphics/blob/main/AGENTS.md), and the parity
 tools compare both implementations byte-for-byte.
 
 After a font-source change, run `python3 scripts/sync_fonts.py`; the Python
