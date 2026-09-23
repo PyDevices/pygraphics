@@ -22,7 +22,15 @@ endif
 CFLAGS += -I$(PYGRAPHICS_MOD_DIR)/src -DCIRCUITPY_PYGRAPHICS=1
 QSTR_DEFS += $(PYGRAPHICS_MOD_DIR)/src/pygraphics_qstrdefs.h
 
+# __version__ / __revision__, the same two strings micropython.mk passes;
+# gfx_build.c defines the objects the module table points at, so a build
+# that leaves it out fails at link, not at runtime.
+PYGRAPHICS_VERSION := $(shell cat $(PYGRAPHICS_MOD_DIR)/VERSION 2>/dev/null || echo 0.0.0+unknown)
+PYGRAPHICS_REVISION := $(shell git -C $(PYGRAPHICS_MOD_DIR) describe --always --dirty --abbrev=7 2>/dev/null || echo unknown)
+CFLAGS += -DPYGRAPHICS_VERSION='"$(PYGRAPHICS_VERSION)"' -DPYGRAPHICS_REVISION='"$(PYGRAPHICS_REVISION)"'
+
 GRAPHICS_SOURCES := \
+    $(PYGRAPHICS_MOD_DIR)/src/gfx_build.c \
     $(PYGRAPHICS_MOD_DIR)/src/gfx_module_mp.c \
     $(PYGRAPHICS_MOD_DIR)/src/gfx_bindings_mp.c \
     $(PYGRAPHICS_MOD_DIR)/src/gfx_canvas_mp.c \
