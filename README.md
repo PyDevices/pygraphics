@@ -191,53 +191,47 @@ module — a stock interpreter imports the pure package and the comparison is
 against itself. CI runs the first and third on every push (the `micropython`
 job in [`tests.yml`](.github/workflows/tests.yml)).
 
-### MicroPython (unix)
+### MicroPython (any port)
 
-Clone as a sibling of `micropython/`:
+You need MicroPython 1.29 or later, built the way you already build it. Clone
+this repository anywhere and add one line to the manifest your build uses:
 
+```python
+include("/path/to/pygraphics/manifest.py")
 ```
-workspace/
-  pygraphics/     ← this repo
-  micropython/
-```
+
+On unix that manifest is `ports/unix/variants/standard/manifest.py`; on esp32
+and rp2 it is usually `ports/<port>/boards/manifest.py`, unless your board
+brings its own. Then build as usual:
 
 ```bash
 cd micropython/ports/unix
-make submodules
-make USER_C_MODULES=../../..
-cd ../../..
-./micropython/ports/unix/build-standard/micropython pygraphics/tests/test_area.py
+make submodules && make
+./build-standard/micropython -c "import pygraphics; print(pygraphics.implementation())"
 ```
 
-**Tested against** MicroPython v1.28.0 (what the PyDevices firmware pins) and
-current master — most recently `11094ea`, 1.30.0-preview. `USER_C_MODULES`
-points at the *parent directory*, and MicroPython builds every module it finds
-there, so that path should hold `pygraphics/` and nothing else you do not want
-linked in.
+That prints `native_cmod`. The manifest names the C module with `c_module(".")`
+and freezes nothing, so the line adds the `pygraphics` C module and nothing
+else, on every port. Tested against MicroPython v1.29.0 on unix.
 
-### MicroPython (MCU: ESP32, RP2, …)
+If you would rather not edit the MicroPython tree, write a manifest of your own
+and pass it as `FROZEN_MANIFEST=`. That replaces the port's default manifest,
+so include the default too (`include("$(PORT_DIR)/variants/standard/manifest.py")`
+on unix, `include("$(PORT_DIR)/boards/manifest.py")` on esp32) or you lose
+`asyncio` and the port's other frozen modules.
 
-The unix port above is Make-based, but the CMake-based MCU ports (`esp32`,
-`rp2`, …) discover user C modules differently, via `USER_C_MODULES` pointing
-at `micropython.cmake` in this repo rather than at `micropython.mk`:
+**Older than 1.29?** Manifests there have no `c_module()`, so do not include
+this one; use `USER_C_MODULES` instead. On esp32 and rp2 point it at this
+repository (`make BOARD=<board> USER_C_MODULES=/path/to/pygraphics/micropython.cmake`).
+On Make ports such as unix point it at the directory that *contains* this
+repository; MicroPython builds every module it finds there, so keep that
+directory to the modules you want.
 
-```bash
-idf.py build -DUSER_C_MODULES=<path to pygraphics>
-```
-
-or, alongside other user C modules, as a semicolon-separated list (no
-aggregator `micropython.cmake` required):
-
-```bash
-idf.py build -DUSER_C_MODULES="<path to pygraphics>;<path to displayif>"
-```
-
-The `rp2` port takes the same `-DUSER_C_MODULES` flag via its own CMake-based
-build. To build several user C modules together, name them in one manifest
-(this repository's `manifest.py` carries `c_module(".")`, and a manifest that
-`include()`s several such files builds them all); the
+More about `c_module()` and `include()` is in MicroPython's
+[manifest reference](https://docs.micropython.org/en/v1.29.0/reference/manifest.html).
+For several PyDevices modules at once,
 [micropython-pydevices](https://github.com/PyDevices/micropython-pydevices)
-repository keeps ready-made presets, variants and boards for that.
+keeps ready-made manifests, variants and boards.
 
 ### CircuitPython (unix)
 
