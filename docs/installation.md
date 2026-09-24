@@ -15,9 +15,9 @@ Tiers are the org's
 | CPython — macOS | x86_64, arm64 | — | No wheel: no Mac on the bench — use MIP / pure-Python |
 | CPython — Linux aarch64 | aarch64 | — | No wheel: no aarch64 runner — use MIP / pure-Python |
 
-Current releases go to TestPyPI. The name is also registered on production
-PyPI, currently at 0.0.37 against TestPyPI's 0.0.38, so a plain
-`pip install pydevices-pygraphics` succeeds and gives the older wheel.
+Current releases go to TestPyPI; install from there. Production PyPI holds one
+older release (0.0.37, against TestPyPI's 0.0.38), parked to reserve the name,
+so a plain `pip install pydevices-pygraphics` succeeds and gives the older wheel.
 
 The public API is the same on both builds **except** for four authoring entry
 points — `export_framebuffer`, and `FrameBuffer.export` / `from_bitmap` /

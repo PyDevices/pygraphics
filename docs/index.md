@@ -5,7 +5,7 @@
   <p><strong>Cross-platform 2D drawing and graphics engine</strong> for the PyDevices stack — <code>Area</code> dirty bounding boxes, framebuf-compatible <code>FrameBuffer</code>, embedded romfonts, shapes, and image loaders.</p>
   <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.75rem;">
     <span class="badge badge-orange">📦 MIP: pygraphics</span>
-    <span class="badge badge-orange">🐍 PyPI: pydevices-pygraphics</span>
+    <span class="badge badge-orange">🐍 TestPyPI: pydevices-pygraphics</span>
     <span class="badge badge-green">⚡ Native C & Pure-Python Parity</span>
     <span class="badge">🌐 MicroPython · CircuitPython · CPython · Direct WebAssembly · Pyodide</span>
   </div>
