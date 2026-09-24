@@ -106,10 +106,10 @@ pure package's own `__all__` rather than a copy of it.
 
 ### Which index
 
-Current releases go to **TestPyPI** (`pydevices-pygraphics`), which is the
-command under [Install](#install) above. The name is also registered on
-production PyPI and currently carries **0.0.37**, one release behind
-TestPyPI's 0.0.38 — so a plain `pip install pydevices-pygraphics` succeeds and
+Current releases go to **TestPyPI** (`pydevices-pygraphics`); install from
+there with the command under [Install](#install) above. Production PyPI holds
+one older release (**0.0.37**, against TestPyPI's 0.0.38), parked there to
+reserve the name — so a plain `pip install pydevices-pygraphics` succeeds and
 gives you the older wheel. Note that the documented install line passes
 TestPyPI with `-i` and PyPI with `--extra-index-url`, and pip resolves to
 whichever index has the higher version.
