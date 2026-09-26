@@ -43,22 +43,23 @@ def key_to_bytes(key, bpp):
 def clip_blit_bounds(canvas, source, x, y):
     """Return clipped destination/source origin as ``(x0, y0, w, h, src_x, src_y)``.
 
-    Returns ``None`` when the blit is fully outside the canvas.
+    Returns ``None`` when the blit is fully outside the canvas. ``source`` may
+    be a FrameBuffer or MicroPython's tuple form ``(buffer, width, height,
+    format[, stride])``, which ``framebuf.blit`` accepts too.
     """
-    if (
-        (-x >= source.width)
-        or (-y >= source.height)
-        or (x >= canvas.width)
-        or (y >= canvas.height)
-    ):
+    if isinstance(source, tuple):
+        src_w, src_h = source[1], source[2]
+    else:
+        src_w, src_h = source.width, source.height
+    if (-x >= src_w) or (-y >= src_h) or (x >= canvas.width) or (y >= canvas.height):
         return None
 
     x0 = max(0, x)
     y0 = max(0, y)
     src_x = max(0, -x)
     src_y = max(0, -y)
-    w = min(canvas.width, x + source.width) - x0
-    h = min(canvas.height, y + source.height) - y0
+    w = min(canvas.width, x + src_w) - x0
+    h = min(canvas.height, y + src_h) - y0
     return x0, y0, w, h, src_x, src_y
 
 
