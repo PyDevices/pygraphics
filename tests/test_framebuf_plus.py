@@ -93,6 +93,13 @@ class TestMethodsReturnArea(unittest.TestCase):
         self.assertEqual(self.fb.blit(src, 2, 2), Area(2, 2, 4, 4))
         self.assertEqual(self.fb.pixel(2, 2), 0xABCD)
 
+    def test_blit_tuple_source_returns_area(self):
+        # MicroPython's framebuf.blit takes (buffer, width, height, format).
+        buf = bytearray(b"\xcd\xab" * 12)
+        self.assertEqual(self.fb.blit((buf, 4, 3, RGB565), 2, 2), Area(2, 2, 4, 3))
+        self.assertEqual(self.fb.pixel(2, 2), 0xABCD)
+        self.assertIsNone(self.fb.blit((buf, 4, 3, RGB565), -4, 0))
+
     def test_scroll_returns_area(self):
         self.fb.fill_rect(0, 0, 4, 4, 0xFFFF)
         self.assertEqual(self.fb.scroll(1, 0), Area(0, 0, 16, 16))
