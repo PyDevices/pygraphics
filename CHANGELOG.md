@@ -1,3 +1,7 @@
+## v0.0.40 (2026-09-27)
+
+- blit: accept MicroPython's tuple source in the bounding box (#34)
+
 ## v0.0.39 (2026-09-24)
 
 - README: add this module to your own MicroPython build with one include() line (#32)
