@@ -1928,6 +1928,73 @@ static mp_obj_t mod_pgm_to_framebuffer(mp_obj_t path_in) {
 }
 static MP_DEFINE_CONST_FUN_OBJ_1(mod_pgm_to_framebuffer_obj, mod_pgm_to_framebuffer);
 
+#include "gfx_png.h"
+
+static mp_obj_t mod_encode_png(size_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
+    enum { ARG_fb, ARG_width, ARG_height, ARG_format };
+    static const mp_arg_t allowed_args[] = {
+        { MP_QSTR_fb, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
+        { MP_QSTR_width, MP_ARG_OBJ, {.u_obj = mp_const_none} },
+        { MP_QSTR_height, MP_ARG_OBJ, {.u_obj = mp_const_none} },
+        { MP_QSTR_format, MP_ARG_OBJ, {.u_obj = mp_const_none} },
+    };
+    mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
+    mp_arg_parse_all(n_args, pos_args, kw_args, MP_ARRAY_SIZE(allowed_args), allowed_args, args);
+    
+    mp_obj_framebuf_t fb;
+    bool is_fb = mp_get_framebuf(args[ARG_fb].u_obj, &fb);
+    
+    int width = is_fb ? fb.fb.width : 0;
+    int height = is_fb ? fb.fb.height : 0;
+    int format = is_fb ? fb.fb.format : GFX_RGB565;
+    
+    if (args[ARG_width].u_obj != mp_const_none) width = mp_obj_get_int(args[ARG_width].u_obj);
+    if (args[ARG_height].u_obj != mp_const_none) height = mp_obj_get_int(args[ARG_height].u_obj);
+    if (args[ARG_format].u_obj != mp_const_none) format = mp_obj_get_int(args[ARG_format].u_obj);
+    
+    if (width <= 0 || height <= 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("Invalid dimensions"));
+    }
+    
+    mp_buffer_info_t bufinfo;
+    if (is_fb) {
+        mp_get_buffer_raise(fb.buf_obj, &bufinfo, MP_BUFFER_READ);
+    } else {
+        mp_get_buffer_raise(args[ARG_fb].u_obj, &bufinfo, MP_BUFFER_READ);
+    }
+    
+    int dummy_stride = is_fb ? fb.fb.stride : width;
+    if (gfx_fb_validate_buffer(bufinfo.len, width, height, format, &dummy_stride) < 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("Buffer too small"));
+    }
+    
+    gfx_fb_t raw_fb = {
+        .buf = bufinfo.buf,
+        .width = width,
+        .height = height,
+        .format = format,
+        .stride = dummy_stride
+    };
+    
+    size_t png_size;
+    if (gfx_png_encoded_size(&raw_fb, &png_size) < 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("Unsupported format"));
+    }
+    
+    vstr_t vstr;
+    vstr_init_len(&vstr, png_size);
+    size_t out_len;
+    if (gfx_png_encode(&raw_fb, (uint8_t *)vstr.buf, png_size, &out_len) < 0) {
+        vstr_clear(&vstr);
+        mp_raise_ValueError(MP_ERROR_TEXT("Encode failed"));
+    }
+    
+    mp_obj_t res = mp_obj_new_bytes((const byte *)vstr.buf, out_len);
+    vstr_clear(&vstr);
+    return res;
+}
+static MP_DEFINE_CONST_FUN_OBJ_KW(mod_encode_png_obj, 1, mod_encode_png);
+
 static mp_obj_t mod_save_image(size_t n_args, const mp_obj_t *args) {
     mp_obj_framebuf_t fb;
     if (!mp_get_framebuf(args[0], &fb)) {
@@ -2011,6 +2078,7 @@ static const mp_rom_map_elem_t graphics_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR_text16), MP_ROM_PTR(&mod_text16_obj) },
     { MP_ROM_QSTR(MP_QSTR_load_image), MP_ROM_PTR(&mod_load_image_obj) },
     { MP_ROM_QSTR(MP_QSTR_save_image), MP_ROM_PTR(&mod_save_image_obj) },
+    { MP_ROM_QSTR(MP_QSTR_encode_png), MP_ROM_PTR(&mod_encode_png_obj) },
     { MP_ROM_QSTR(MP_QSTR_bmp_to_framebuffer), MP_ROM_PTR(&mod_bmp_to_framebuffer_obj) },
     { MP_ROM_QSTR(MP_QSTR_pbm_to_framebuffer), MP_ROM_PTR(&mod_pbm_to_framebuffer_obj) },
     { MP_ROM_QSTR(MP_QSTR_pgm_to_framebuffer), MP_ROM_PTR(&mod_pgm_to_framebuffer_obj) },

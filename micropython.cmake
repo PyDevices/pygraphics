@@ -24,6 +24,7 @@ target_sources(pygraphics INTERFACE
     ${PYGRAPHICS_MOD_DIR}/src/gfx_font.c
     ${PYGRAPHICS_MOD_DIR}/src/gfx_bmp565.c
     ${PYGRAPHICS_MOD_DIR}/src/gfx_files.c
+    ${PYGRAPHICS_MOD_DIR}/src/gfx_png.c
     ${PYGRAPHICS_MOD_DIR}/src/gfx_capabilities.c
     ${PYGRAPHICS_MOD_DIR}/src/gfx_area_mp.c
 )

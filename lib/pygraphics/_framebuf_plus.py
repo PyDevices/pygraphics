@@ -617,6 +617,16 @@ class FrameBuffer(_FrameBuffer):
 
         return _files.save_image(self, filename)
 
+    def to_png(self):
+        """Encode this framebuffer as standard PNG bytes in memory.
+
+        Returns:
+            bytes: Complete PNG file contents.
+        """
+        from . import _png
+
+        return _png.encode_png(self)
+
     def export(self, filename):
         """Export this framebuffer as an importable ``.py`` bitmap module.
 

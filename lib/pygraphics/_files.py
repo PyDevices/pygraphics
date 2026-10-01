@@ -1,7 +1,8 @@
 """Load and save ``FrameBuffer`` images (PBM, PGM, RGB565 BMP) and export modules."""
 
 from ._bmp565 import load_bmp565_buffer, read_bmp565_header, write_bmp565_file
-from ._framebuf_plus import GS2_HMSB, GS4_HMSB, GS8, MONO_HLSB, RGB565, FrameBuffer
+from ._framebuf_plus import GS2_HMSB, GS4_HMSB, GS8, MONO_HLSB, RGB565, RGB888, FrameBuffer
+from ._png import encode_png, write_png_file
 
 # Framebuffer formats that ``save_image`` can write, keyed by file extension.
 _SAVE_FORMATS = {
@@ -10,6 +11,7 @@ _SAVE_FORMATS = {
     GS4_HMSB: "pgm",
     GS8: "pgm",
     RGB565: "bmp",
+    RGB888: "png",
 }
 
 
@@ -64,17 +66,23 @@ def load_image(filename):
 
 
 def save_image(fb, filename=None):
-    """Save a ``FrameBuffer`` to PBM, PGM, or BMP based on its format.
+    """Save a ``FrameBuffer`` to PBM, PGM, BMP, or PNG based on format or filename.
 
-    MONO_HLSB → PBM, GS2/GS4/GS8 → PGM, RGB565 → BMP. Other formats raise
-    ``ValueError``.
+    MONO_HLSB → PBM, GS2/GS4/GS8 → PGM, RGB565 → BMP (or PNG if filename ends in .png),
+    RGB888 → PNG. Other formats raise ``ValueError``.
     """
     if filename is None:
         filename = "screenshot"
+
+    file_ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else None
+    if file_ext == "png":
+        with open(filename, "wb") as f:
+            write_png_file(f, fb)
+        return filename
+
     ext = _SAVE_FORMATS.get(fb.format)
     if ext is None:
         raise ValueError(f"Save not supported for format {fb.format}")
-    file_ext = filename.rsplit(".", 1)[-1]
     if file_ext != ext:
         filename += f".{ext}"
     if fb.format == MONO_HLSB:
