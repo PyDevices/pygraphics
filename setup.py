@@ -53,6 +53,7 @@ GFX_SOURCES = [
     os.path.join("src", "gfx_font.c"),
     os.path.join("src", "gfx_bmp565.c"),
     os.path.join("src", "gfx_files.c"),
+    os.path.join("src", "gfx_png.c"),
     os.path.join("src", "gfx_capabilities.c"),
 ]
 

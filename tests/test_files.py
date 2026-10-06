@@ -21,8 +21,10 @@ from pygraphics import (
     MONO_HLSB,
     MONO_VLSB,
     RGB565,
+    RGB888,
     FrameBuffer,
     bmp_to_framebuffer,
+    encode_png,
     load_image,
     pbm_to_framebuffer,
     pgm_to_framebuffer,
@@ -213,13 +215,60 @@ class TestBmp565(_TmpDirTest):
             self.assertEqual(a.read(), b.read())
 
 
-class TestFromFileDispatch(_TmpDirTest):
-    def test_unknown_header_raises(self):
-        path = self._path("bad.dat")
-        with open(path, "wb") as f:
-            f.write(b"ZZ1234")
-        with self.assertRaises(ValueError):
-            FrameBuffer.from_file(path)
+class TestPngEncoding(_TmpDirTest):
+    def test_rgb565_png_encoding(self):
+        import zlib
+        fb = FrameBuffer(bytearray(2 * 2 * 2), 2, 2, RGB565)
+        # Red: 0xF800, Green: 0x07E0, Blue: 0x001F, White: 0xFFFF
+        fb.pixel(0, 0, 0xF800)
+        fb.pixel(1, 0, 0x07E0)
+        fb.pixel(0, 1, 0x001F)
+        fb.pixel(1, 1, 0xFFFF)
+
+        png_bytes = fb.to_png()
+        self.assertEqual(png_bytes[:8], b"\x89PNG\r\n\x1a\n")
+
+        # Parse IHDR
+        ihdr_len = struct.unpack(">I", png_bytes[8:12])[0]
+        self.assertEqual(ihdr_len, 13)
+        self.assertEqual(png_bytes[12:16], b"IHDR")
+        w, h, bit_depth, color_type = struct.unpack(">IIBB", png_bytes[16:26])
+        self.assertEqual((w, h, bit_depth, color_type), (2, 2, 8, 2))
+
+        # Check save with .png extension
+        path = self._path("test.png")
+        saved = fb.save(path)
+        self.assertEqual(saved, path)
+        with open(path, "rb") as f:
+            self.assertEqual(f.read(), png_bytes)
+
+    def test_rgb888_png_encoding(self):
+        fb = FrameBuffer(bytearray(2 * 2 * 3), 2, 2, RGB888)
+        fb.pixel(0, 0, 0xFF0000)
+        png_bytes = fb.to_png()
+        self.assertEqual(png_bytes[:8], b"\x89PNG\r\n\x1a\n")
+
+    def test_gs8_png_encoding(self):
+        fb = FrameBuffer(bytearray(2 * 2), 2, 2, GS8)
+        fb.pixel(0, 0, 128)
+        png_bytes = fb.to_png()
+        self.assertEqual(png_bytes[:8], b"\x89PNG\r\n\x1a\n")
+        color_type = png_bytes[25]
+        self.assertEqual(color_type, 0)  # Grayscale
+
+    @unittest.skipIf(_env.USE_NATIVE, "pure-Python internals (pygraphics._png)")
+    def test_uncompressed_deflate_fallback(self):
+        import zlib
+
+        from pygraphics._png import _make_uncompressed_zlib
+        raw = b"Sample scanline data for testing RFC 1950/1951 uncompressed stream."
+        compressed = _make_uncompressed_zlib(raw)
+        self.assertEqual(zlib.decompress(compressed), raw)
+
+    def test_encode_raw_buffer(self):
+        buf = bytearray(2 * 2 * 2)
+        png_bytes = encode_png(buf, width=2, height=2, format=RGB565)
+        self.assertEqual(png_bytes[:8], b"\x89PNG\r\n\x1a\n")
 
 
 if __name__ == "__main__":

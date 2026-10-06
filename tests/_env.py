@@ -48,5 +48,7 @@ def _abs_dir(path):
 
 _TESTS = _abs_dir(__file__)
 _LIB = _TESTS[: _TESTS.rfind("/")] + "/lib"
-if not USE_NATIVE and _LIB not in sys.path:
+if not USE_NATIVE:
+    if _LIB in sys.path:
+        sys.path.remove(_LIB)
     sys.path.insert(0, _LIB)
