@@ -1,3 +1,7 @@
+## v0.0.41 (2026-10-06)
+
+- encode_png: RGB565 framebuffer to PNG (#36)
+
 ## v0.0.40 (2026-09-27)
 
 - blit: accept MicroPython's tuple source in the bounding box (#34)
