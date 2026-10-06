@@ -209,3 +209,13 @@ int gfx_png_encode(const gfx_fb_t *fb, uint8_t *dst, size_t dst_len, size_t *out
     *out_len = o;
     return 0;
 }
+
+int gfx_png_named(const char *path) {
+    size_t n = strlen(path);
+    return n >= 4 && path[n - 4] == '.' && (path[n - 3] | 0x20) == 'p'
+        && (path[n - 2] | 0x20) == 'n' && (path[n - 1] | 0x20) == 'g';
+}
+
+int gfx_png_wanted(const gfx_fb_t *fb, const char *path) {
+    return fb->format == GFX_RGB888 || gfx_png_named(path);
+}

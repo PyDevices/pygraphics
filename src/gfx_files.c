@@ -15,6 +15,7 @@
 #include "gfx_bmp565.h"
 #include "gfx_core.h"
 #include "gfx_framebuffer.h"
+#include "gfx_png.h"
 
 /* --- little-endian scalar reads --------------------------------------- */
 
@@ -478,7 +479,47 @@ int gfx_files_pgm_to_framebuffer(const char *path, gfx_image_fb_t *out) {
     return load_image_magic(path, out, 'P', '5');
 }
 
+static int gfx_files_write(const char *out_path, const uint8_t *data, size_t len) {
+    FILE *f = fopen(out_path, "wb");
+    if (!f) {
+        return -1;
+    }
+    size_t ok = fwrite(data, 1, len, f);
+    fclose(f);
+    return ok == len ? 0 : -1;
+}
+
 int gfx_files_save_image(const gfx_fb_t *fb, const char *path, char *out_path, size_t out_path_len) {
+    /* PNG for a ".png" name or an RGB888 framebuffer, as the pure-Python
+     * save_image (lib/pygraphics/_files.py) does; ".png" is appended to an
+     * RGB888 path that lacks it. */
+    size_t plen0 = strlen(path);
+    if (gfx_png_wanted(fb, path)) {
+        int named_png = gfx_png_named(path);
+        size_t png_len;
+        if (gfx_png_encoded_size(fb, &png_len) < 0) {
+            return -1;
+        }
+        size_t need = named_png ? plen0 : plen0 + 4;
+        if (need + 1 > out_path_len) {
+            return -1;
+        }
+        memcpy(out_path, path, plen0);
+        if (named_png) {
+            out_path[plen0] = '\0';
+        } else {
+            memcpy(out_path + plen0, ".png", 5);
+        }
+        uint8_t *png = (uint8_t *)malloc(png_len ? png_len : 1);
+        if (!png) {
+            return -1;
+        }
+        size_t written = 0;
+        int rc = gfx_png_encode(fb, png, png_len, &written) < 0 ? -1 : gfx_files_write(out_path, png, written);
+        free(png);
+        return rc;
+    }
+
     size_t enc_len;
     const char *ext;
     if (gfx_image_encoded_size(fb, &enc_len, &ext) < 0) {

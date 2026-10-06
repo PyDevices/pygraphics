@@ -256,6 +256,7 @@ class TestPngEncoding(_TmpDirTest):
         color_type = png_bytes[25]
         self.assertEqual(color_type, 0)  # Grayscale
 
+    @unittest.skipIf(_env.USE_NATIVE, "pure-Python internals (pygraphics._png)")
     def test_uncompressed_deflate_fallback(self):
         import zlib
 

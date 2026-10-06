@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+#include "gfx_png.h"
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
@@ -150,6 +151,35 @@ mp_obj_t gfxmp_load_framebuffer(const char *path, int expect_kind) {
 /* Append the codec's file extension to `path` (into out_path) unless already
  * present, then encode `fb` and write it. Raises on unsupported format. */
 void gfxmp_save_framebuffer(const gfx_fb_t *fb, const char *path, char *out_path, size_t out_path_len) {
+    /* PNG for a ".png" name or an RGB888 framebuffer: the rule every saver
+     * shares (gfx_png_wanted), as the pure-Python save_image does. */
+    if (gfx_png_wanted(fb, path)) {
+        size_t plen = strlen(path);
+        int named_png = gfx_png_named(path);
+        size_t need = named_png ? plen : plen + 4;
+        if (need + 1 > out_path_len) {
+            mp_raise_ValueError(MP_ERROR_TEXT("Path too long"));
+        }
+        memcpy(out_path, path, plen);
+        if (named_png) {
+            out_path[plen] = '\0';
+        } else {
+            memcpy(out_path + plen, ".png", 5);
+        }
+        size_t png_len;
+        if (gfx_png_encoded_size(fb, &png_len) < 0) {
+            mp_raise_ValueError(MP_ERROR_TEXT("Cannot encode this framebuffer format"));
+        }
+        uint8_t *png = m_new(uint8_t, png_len);
+        size_t written = 0;
+        if (gfx_png_encode(fb, png, png_len, &written) < 0) {
+            m_del(uint8_t, png, png_len);
+            mp_raise_ValueError(MP_ERROR_TEXT("Image encode failed"));
+        }
+        gfxmp_spew(out_path, mp_obj_new_bytearray_by_ref(written, png));
+        return;
+    }
+
     size_t enc_len;
     const char *ext;
     if (gfx_image_encoded_size(fb, &enc_len, &ext) < 0) {
@@ -737,8 +767,33 @@ static void framebuf_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
     }
 }
 
+/* FrameBuffer.to_png() -> bytes, as the pure-Python FrameBuffer does: the
+ * same encoder as pygraphics.encode_png (gfx_png.c). */
+static mp_obj_t framebuf_to_png(mp_obj_t self_in) {
+    mp_obj_framebuf_t *self = MP_OBJ_TO_PTR(mp_obj_cast_to_native_base(self_in, MP_OBJ_FROM_PTR(&mp_type_framebuf)));
+    mp_buffer_info_t bufinfo;
+    mp_get_buffer_raise(self->buf_obj, &bufinfo, MP_BUFFER_READ);
+    gfx_fb_t raw_fb = self->fb;
+    raw_fb.buf = bufinfo.buf;
+    size_t png_size;
+    if (gfx_png_encoded_size(&raw_fb, &png_size) < 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("Unsupported format"));
+    }
+    vstr_t vstr;
+    vstr_init_len(&vstr, png_size);
+    size_t out_len;
+    if (gfx_png_encode(&raw_fb, (uint8_t *)vstr.buf, png_size, &out_len) < 0) {
+        vstr_clear(&vstr);
+        mp_raise_ValueError(MP_ERROR_TEXT("Encode failed"));
+    }
+    vstr.len = out_len;
+    return mp_obj_new_bytes_from_vstr(&vstr);
+}
+static MP_DEFINE_CONST_FUN_OBJ_1(framebuf_to_png_obj, framebuf_to_png);
+
 static const mp_rom_map_elem_t framebuf_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_from_file), MP_ROM_PTR(&framebuf_from_file_obj) },
+    { MP_ROM_QSTR(MP_QSTR_to_png), MP_ROM_PTR(&framebuf_to_png_obj) },
     { MP_ROM_QSTR(MP_QSTR_fill), MP_ROM_PTR(&framebuf_fill_obj) },
     { MP_ROM_QSTR(MP_QSTR_fill_rect), MP_ROM_PTR(&framebuf_fill_rect_obj) },
     { MP_ROM_QSTR(MP_QSTR_pixel), MP_ROM_PTR(&framebuf_pixel_obj) },
