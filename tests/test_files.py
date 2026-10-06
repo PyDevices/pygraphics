@@ -258,6 +258,7 @@ class TestPngEncoding(_TmpDirTest):
 
     def test_uncompressed_deflate_fallback(self):
         import zlib
+
         from pygraphics._png import _make_uncompressed_zlib
         raw = b"Sample scanline data for testing RFC 1950/1951 uncompressed stream."
         compressed = _make_uncompressed_zlib(raw)

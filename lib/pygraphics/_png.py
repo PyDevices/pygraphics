@@ -77,8 +77,9 @@ def _compress_scanlines(data):
 
     # Try MicroPython deflate module if available
     try:
-        import deflate
         import io
+
+        import deflate
 
         buf = io.BytesIO()
         with deflate.DeflateIO(buf, deflate.ZLIB) as df:

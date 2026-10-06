@@ -1,7 +1,15 @@
 """Load and save ``FrameBuffer`` images (PBM, PGM, RGB565 BMP) and export modules."""
 
 from ._bmp565 import load_bmp565_buffer, read_bmp565_header, write_bmp565_file
-from ._framebuf_plus import GS2_HMSB, GS4_HMSB, GS8, MONO_HLSB, RGB565, RGB888, FrameBuffer
+from ._framebuf_plus import (
+    GS2_HMSB,
+    GS4_HMSB,
+    GS8,
+    MONO_HLSB,
+    RGB565,
+    RGB888,
+    FrameBuffer,
+)
 from ._png import encode_png, write_png_file
 
 # Framebuffer formats that ``save_image`` can write, keyed by file extension.
