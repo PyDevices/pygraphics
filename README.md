@@ -114,6 +114,8 @@ gives you the older wheel. Note that the documented install line passes
 TestPyPI with `-i` and PyPI with `--extra-index-url`, and pip resolves to
 whichever index has the higher version.
 
+What's planned next is in [ROADMAP.md](ROADMAP.md).
+
 ## Links
 
 - [Documentation](https://pygraphics.readthedocs.io)
