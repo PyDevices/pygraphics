@@ -49,7 +49,6 @@ _GRAPHICS_PY_FILES = (
     "_draw.py",
     "_bmp565.py",
     "_files.py",
-    "_png.py",
     "framebuf.py",
 )
 
