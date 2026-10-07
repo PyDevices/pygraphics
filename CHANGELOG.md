@@ -1,3 +1,7 @@
+## v0.0.42rc1 (2026-10-07)
+
+- PNG saves go through pngio; remove pygraphics' own encoder (#38)
+
 ## v0.0.41 (2026-10-06)
 
 - encode_png: RGB565 framebuffer to PNG (#36)
