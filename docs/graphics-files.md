@@ -12,7 +12,7 @@ Built into `pygraphics` — see the [graphics guide](graphics-guide.md):
 | `pygraphics.pbm_to_framebuffer(path)` | PBM (1-bit) |
 | `pygraphics.pgm_to_framebuffer(path)` | PGM (grayscale) |
 | `pygraphics.load_image(path)` | Auto-detect PBM/PGM/BMP from header |
-| `pygraphics.save_image(fb, path)` | Write PBM/PGM/BMP for supported formats |
+| `pygraphics.save_image(fb, path)` | Write PBM/PGM/BMP for supported formats, or PNG for a `.png` name |
 | `pygraphics.FrameBuffer.from_file(path)` | Same as `load_image` |
 | `pygraphics.FrameBuffer.save(path)` | Same as `save_image` |
 | `pygraphics.FrameBuffer.export(path)` / `export_framebuffer` | **Pure-Python only.** Write importable `.py` module (`BITMAP = bytearray(...)`) |
@@ -38,6 +38,8 @@ build, import them from the pure package (`lib/pygraphics/`) instead — see
 | `GS4_HMSB` | PGM (P5, max 15) | 4-bit grayscale |
 | `GS8` | PGM (P5, max 255) | 8-bit grayscale |
 | `RGB565` | BMP | 16-bit RGB565 Windows BMP |
+| `RGB888` | PNG | Always PNG |
+| `RGB565`, `GS8`, `MONO_HLSB` | PNG | When the name ends in `.png` |
 
 `MONO_VLSB`, `MONO_HMSB`, and other display-native formats are not saved directly — convert or blit to a supported buffer first.
 
@@ -71,4 +73,9 @@ From @russhughes st7789py_mpy:
 
 ## PNG
 
-Experimental support in utils — probe with [`tools/png_test.py`](https://github.com/PyDevices/pdwidgets/blob/main/tools/png_test.py) in the pdwidgets repo (CPython only; requires sibling pydevices-examples, `pypng`, and a local checkout of [material-design-icons](https://github.com/google/material-design-icons) with its `png/` tree, or `PDWIDGETS_PNG_DIR`).
+`save_image(fb, "shot.png")` writes PNG through
+[pngio](https://github.com/PyDevices/micropython-pydevices/tree/main/modules/pngio),
+not an encoder of pygraphics' own. PyDevices MicroPython firmware has pngio
+built in. On CPython it comes with `pydevices-desktop` and needs Pillow
+(`pip install pillow`). Without it, saving a PNG raises an `ImportError` that
+says what to install. Every other format works without it.

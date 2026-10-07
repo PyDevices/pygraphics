@@ -148,6 +148,41 @@ mp_obj_t gfxmp_load_framebuffer(const char *path, int expect_kind) {
     return framebuf_make_new_helper(4, tuple, MP_BUFFER_WRITE, NULL);
 }
 
+/* PNG bytes for fb through pngio, which PyDevices firmware has built in;
+ * pygraphics has no PNG encoder of its own. */
+static mp_obj_t gfxmp_png_bytes(const gfx_fb_t *fb) {
+    int fmt;
+    const uint8_t *buf;
+    size_t len;
+    uint8_t *owned;
+    if (gfx_png_source(fb, &fmt, &buf, &len, &owned) < 0) {
+        mp_raise_ValueError(MP_ERROR_TEXT("PNG save not supported for this framebuffer format"));
+    }
+    mp_obj_t png = mp_const_none;
+    nlr_buf_t nlr;
+    if (nlr_push(&nlr) == 0) {
+        mp_obj_t mod = mp_import_name(MP_QSTR_pngio, mp_const_none, MP_OBJ_NEW_SMALL_INT(0));
+        mp_obj_t enc = mp_call_function_0(mp_load_attr(mod, MP_QSTR_PngEncoder));
+        mp_obj_t args[7];
+        mp_load_method(enc, MP_QSTR_encode, args);
+        args[2] = mp_obj_new_bytearray_by_ref(len, (void *)buf);
+        args[3] = MP_OBJ_NEW_SMALL_INT(fb->width);
+        args[4] = MP_OBJ_NEW_SMALL_INT(fb->height);
+        args[5] = MP_OBJ_NEW_QSTR(MP_QSTR_format);
+        args[6] = MP_OBJ_NEW_SMALL_INT(fmt);
+        png = mp_call_method_n_kw(3, 1, args);
+        nlr_pop();
+    } else {
+        free(owned);
+        if (mp_obj_exception_match(MP_OBJ_FROM_PTR(nlr.ret_val), MP_OBJ_FROM_PTR(&mp_type_ImportError))) {
+            mp_raise_msg(&mp_type_ImportError, MP_ERROR_TEXT("saving PNG needs pngio (micropython-pydevices modules/pngio)"));
+        }
+        nlr_jump(nlr.ret_val);
+    }
+    free(owned);
+    return png;
+}
+
 /* Append the codec's file extension to `path` (into out_path) unless already
  * present, then encode `fb` and write it. Raises on unsupported format. */
 void gfxmp_save_framebuffer(const gfx_fb_t *fb, const char *path, char *out_path, size_t out_path_len) {
@@ -166,17 +201,7 @@ void gfxmp_save_framebuffer(const gfx_fb_t *fb, const char *path, char *out_path
         } else {
             memcpy(out_path + plen, ".png", 5);
         }
-        size_t png_len;
-        if (gfx_png_encoded_size(fb, &png_len) < 0) {
-            mp_raise_ValueError(MP_ERROR_TEXT("Cannot encode this framebuffer format"));
-        }
-        uint8_t *png = m_new(uint8_t, png_len);
-        size_t written = 0;
-        if (gfx_png_encode(fb, png, png_len, &written) < 0) {
-            m_del(uint8_t, png, png_len);
-            mp_raise_ValueError(MP_ERROR_TEXT("Image encode failed"));
-        }
-        gfxmp_spew(out_path, mp_obj_new_bytearray_by_ref(written, png));
+        gfxmp_spew(out_path, gfxmp_png_bytes(fb));
         return;
     }
 
@@ -767,33 +792,8 @@ static void framebuf_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
     }
 }
 
-/* FrameBuffer.to_png() -> bytes, as the pure-Python FrameBuffer does: the
- * same encoder as pygraphics.encode_png (gfx_png.c). */
-static mp_obj_t framebuf_to_png(mp_obj_t self_in) {
-    mp_obj_framebuf_t *self = MP_OBJ_TO_PTR(mp_obj_cast_to_native_base(self_in, MP_OBJ_FROM_PTR(&mp_type_framebuf)));
-    mp_buffer_info_t bufinfo;
-    mp_get_buffer_raise(self->buf_obj, &bufinfo, MP_BUFFER_READ);
-    gfx_fb_t raw_fb = self->fb;
-    raw_fb.buf = bufinfo.buf;
-    size_t png_size;
-    if (gfx_png_encoded_size(&raw_fb, &png_size) < 0) {
-        mp_raise_ValueError(MP_ERROR_TEXT("Unsupported format"));
-    }
-    vstr_t vstr;
-    vstr_init_len(&vstr, png_size);
-    size_t out_len;
-    if (gfx_png_encode(&raw_fb, (uint8_t *)vstr.buf, png_size, &out_len) < 0) {
-        vstr_clear(&vstr);
-        mp_raise_ValueError(MP_ERROR_TEXT("Encode failed"));
-    }
-    vstr.len = out_len;
-    return mp_obj_new_bytes_from_vstr(&vstr);
-}
-static MP_DEFINE_CONST_FUN_OBJ_1(framebuf_to_png_obj, framebuf_to_png);
-
 static const mp_rom_map_elem_t framebuf_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_from_file), MP_ROM_PTR(&framebuf_from_file_obj) },
-    { MP_ROM_QSTR(MP_QSTR_to_png), MP_ROM_PTR(&framebuf_to_png_obj) },
     { MP_ROM_QSTR(MP_QSTR_fill), MP_ROM_PTR(&framebuf_fill_obj) },
     { MP_ROM_QSTR(MP_QSTR_fill_rect), MP_ROM_PTR(&framebuf_fill_rect_obj) },
     { MP_ROM_QSTR(MP_QSTR_pixel), MP_ROM_PTR(&framebuf_pixel_obj) },

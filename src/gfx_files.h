@@ -63,6 +63,9 @@ int gfx_image_encode(const gfx_fb_t *fb, uint8_t *dst, size_t dst_len, size_t *o
 #if GFX_ENABLE_HOST_STDIO
 void gfx_image_fb_free(gfx_image_fb_t *img);
 int gfx_files_load_image(const char *path, gfx_image_fb_t *out);
+/* Write len bytes to out_path; 0, or -1 when the file can't be written. */
+int gfx_files_write(const char *out_path, const uint8_t *data, size_t len);
+
 int gfx_files_save_image(const gfx_fb_t *fb, const char *path, char *out_path, size_t out_path_len);
 int gfx_files_pbm_to_framebuffer(const char *path, gfx_image_fb_t *out);
 int gfx_files_pgm_to_framebuffer(const char *path, gfx_image_fb_t *out);

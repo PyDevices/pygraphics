@@ -10,7 +10,6 @@ from ._framebuf_plus import (
     RGB888,
     FrameBuffer,
 )
-from ._png import encode_png, write_png_file
 
 # Framebuffer formats that ``save_image`` can write, keyed by file extension.
 _SAVE_FORMATS = {
@@ -73,6 +72,38 @@ def load_image(filename):
     raise ValueError(f"Unsupported image file {filename!r} (header {header!r})")
 
 
+def _save_png(fb, filename):
+    """PNG through pngio: MicroPython's built-in module, or on CPython
+    pydevices-desktop's, over Pillow. pygraphics has no PNG encoder of its own."""
+    try:
+        import pngio
+    except ImportError:
+        raise ImportError(
+            "saving PNG needs pngio: PyDevices MicroPython firmware has it built in; "
+            "on CPython install pydevices-desktop and Pillow (pip install pillow)"
+        ) from None
+    w, h = fb.width, fb.height
+    if fb.format == RGB565:
+        fmt, buf = pngio.RGB565, fb.buffer
+    elif fb.format == RGB888:
+        fmt, buf = pngio.RGB888, fb.buffer
+    elif fb.format == GS8:
+        fmt, buf = pngio.GS8, fb.buffer
+    elif fb.format == MONO_HLSB:
+        # one bit a pixel, widened to grey
+        fmt, buf, row = pngio.GS8, bytearray(w * h), (w + 7) // 8
+        src = fb.buffer
+        for y in range(h):
+            for x in range(w):
+                if (src[y * row + (x >> 3)] >> (7 - (x & 7))) & 1:
+                    buf[y * w + x] = 255
+    else:
+        raise ValueError(f"PNG save not supported for format {fb.format}")
+    data = pngio.PngEncoder().encode(buf, w, h, format=fmt)
+    with open(filename, "wb") as f:
+        f.write(data)
+
+
 def save_image(fb, filename=None):
     """Save a ``FrameBuffer`` to PBM, PGM, BMP, or PNG based on format or filename.
 
@@ -83,9 +114,10 @@ def save_image(fb, filename=None):
         filename = "screenshot"
 
     file_ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else None
-    if file_ext == "png":
-        with open(filename, "wb") as f:
-            write_png_file(f, fb)
+    if file_ext == "png" or fb.format == RGB888:
+        if file_ext != "png":
+            filename += ".png"
+        _save_png(fb, filename)
         return filename
 
     ext = _SAVE_FORMATS.get(fb.format)
