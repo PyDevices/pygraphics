@@ -1165,17 +1165,89 @@ static PyObject *framebuffer_scroll(GfxFrameBufferObject *self, PyObject *args) 
     return area_from_gfx(&area);
 }
 
+/* Save fb to path: PNG through pngio (pydevices-desktop's, over Pillow) for a
+ * ".png" name or an RGB888 framebuffer, the rest through gfx_files.c. NULL on
+ * failure, with the error set. */
+static PyObject *cpy_save(const gfx_fb_t *fb, const char *path) {
+    char out_path[512];
+    if (!gfx_png_wanted(fb, path)) {
+        if (gfx_files_save_image(fb, path, out_path, sizeof(out_path)) < 0) {
+            PyErr_SetString(PyExc_ValueError, "save failed");
+            return NULL;
+        }
+        return PyUnicode_FromString(out_path);
+    }
+    size_t plen = strlen(path);
+    int named = gfx_png_named(path);
+    if ((named ? plen : plen + 4) + 1 > sizeof(out_path)) {
+        PyErr_SetString(PyExc_ValueError, "Path too long");
+        return NULL;
+    }
+    memcpy(out_path, path, plen);
+    if (named) {
+        out_path[plen] = '\0';
+    } else {
+        memcpy(out_path + plen, ".png", 5);
+    }
+    int fmt;
+    const uint8_t *buf;
+    size_t len;
+    uint8_t *owned;
+    if (gfx_png_source(fb, &fmt, &buf, &len, &owned) < 0) {
+        PyErr_SetString(PyExc_ValueError, "PNG save not supported for this framebuffer format");
+        return NULL;
+    }
+    PyObject *mod = PyImport_ImportModule("pngio");
+    if (mod == NULL) {
+        free(owned);
+        if (PyErr_ExceptionMatches(PyExc_ImportError)) {
+            PyErr_SetString(PyExc_ImportError,
+                "saving PNG needs pngio: install pydevices-desktop and Pillow (pip install pillow)");
+        }
+        return NULL;
+    }
+    PyObject *png = NULL, *enc = NULL, *src = NULL, *pos = NULL, *kw = NULL, *meth = NULL;
+    enc = PyObject_CallMethod(mod, "PngEncoder", NULL);
+    src = PyByteArray_FromStringAndSize((const char *)buf, (Py_ssize_t)len);
+    free(owned);
+    if (enc && src) {
+        meth = PyObject_GetAttrString(enc, "encode");
+        pos = Py_BuildValue("(Oii)", src, (int)fb->width, (int)fb->height);
+        kw = Py_BuildValue("{s:i}", "format", fmt);
+        if (meth && pos && kw) {
+            png = PyObject_Call(meth, pos, kw);
+        }
+    }
+    Py_XDECREF(mod);
+    Py_XDECREF(enc);
+    Py_XDECREF(src);
+    Py_XDECREF(meth);
+    Py_XDECREF(pos);
+    Py_XDECREF(kw);
+    if (png == NULL) {
+        return NULL;
+    }
+    char *data;
+    Py_ssize_t dlen;
+    if (PyBytes_AsStringAndSize(png, &data, &dlen) < 0) {
+        Py_DECREF(png);
+        return NULL;
+    }
+    int rc = gfx_files_write(out_path, (const uint8_t *)data, (size_t)dlen);
+    Py_DECREF(png);
+    if (rc < 0) {
+        PyErr_SetString(PyExc_OSError, "can't write the PNG");
+        return NULL;
+    }
+    return PyUnicode_FromString(out_path);
+}
+
 static PyObject *framebuffer_save(GfxFrameBufferObject *self, PyObject *args) {
     const char *path = "screenshot";
     if (!PyArg_ParseTuple(args, "|s", &path)) {
         return NULL;
     }
-    char out_path[512];
-    if (gfx_files_save_image(&self->fb, path, out_path, sizeof(out_path)) < 0) {
-        PyErr_SetString(PyExc_ValueError, "save failed");
-        return NULL;
-    }
-    return PyUnicode_FromString(out_path);
+    return cpy_save(&self->fb, path);
 }
 
 static PyObject *framebuffer_from_file(PyObject *cls, PyObject *args) {
@@ -1214,19 +1286,6 @@ static PyObject *framebuffer_get_color_depth(GfxFrameBufferObject *self, void *c
     return PyLong_FromLong(gfx_fb_color_depth(self->fb.format));
 }
 
-static PyObject *mod_encode_png(PyObject *self, PyObject *args, PyObject *kwds);
-
-/* FrameBuffer.to_png() -> bytes: encode_png(self), as the pure-Python FrameBuffer does. */
-static PyObject *framebuffer_to_png(GfxFrameBufferObject *self, PyObject *Py_UNUSED(ignored)) {
-    PyObject *args = PyTuple_Pack(1, (PyObject *)self);
-    if (args == NULL) {
-        return NULL;
-    }
-    PyObject *png = mod_encode_png(NULL, args, NULL);
-    Py_DECREF(args);
-    return png;
-}
-
 static PyGetSetDef framebuffer_getset[] = {
     {"width", (getter)framebuffer_get_width, NULL, NULL},
     {"height", (getter)framebuffer_get_height, NULL, NULL},
@@ -1238,7 +1297,6 @@ static PyGetSetDef framebuffer_getset[] = {
 
 static PyMethodDef framebuffer_methods[] = {
     {"from_file", (PyCFunction)framebuffer_from_file, METH_VARARGS | METH_STATIC, NULL},
-    {"to_png", (PyCFunction)framebuffer_to_png, METH_NOARGS, NULL},
     {"fill", (PyCFunction)framebuffer_fill, METH_VARARGS, NULL},
     {"fill_rect", (PyCFunction)framebuffer_fill_rect, METH_VARARGS, NULL},
     {"pixel", (PyCFunction)framebuffer_pixel, METH_VARARGS, NULL},
@@ -1776,84 +1834,7 @@ static PyObject *mod_save_image(PyObject *self, PyObject *args) {
         return NULL;
     }
     GfxFrameBufferObject *fb = (GfxFrameBufferObject *)target;
-    char out_path[512];
-    if (gfx_files_save_image(&fb->fb, path, out_path, sizeof(out_path)) < 0) {
-        PyErr_SetString(PyExc_ValueError, "save_image failed");
-        return NULL;
-    }
-    return PyUnicode_FromString(out_path);
-}
-
-/* encode_png(fb, width=None, height=None, format=None) -> bytes. The same
- * arguments and errors as the MicroPython binding (gfx_bindings_mp.c): a
- * pygraphics FrameBuffer carries its own size and format; any other buffer
- * needs width and height, and is taken as RGB565 unless format says. */
-static PyObject *mod_encode_png(PyObject *self, PyObject *args, PyObject *kwds) {
-    (void)self;
-    static char *kwlist[] = {"fb", "width", "height", "format", NULL};
-    PyObject *target;
-    PyObject *w_obj = Py_None, *h_obj = Py_None, *f_obj = Py_None;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &target, &w_obj, &h_obj, &f_obj)) {
-        return NULL;
-    }
-    int is_fb = PyObject_TypeCheck(target, &GfxFrameBufferType);
-    GfxFrameBufferObject *fbo = is_fb ? (GfxFrameBufferObject *)target : NULL;
-    int width = is_fb ? fbo->fb.width : 0;
-    int height = is_fb ? fbo->fb.height : 0;
-    int format = is_fb ? fbo->fb.format : GFX_RGB565;
-    if (w_obj != Py_None && (width = (int)PyLong_AsLong(w_obj)) == -1 && PyErr_Occurred()) {
-        return NULL;
-    }
-    if (h_obj != Py_None && (height = (int)PyLong_AsLong(h_obj)) == -1 && PyErr_Occurred()) {
-        return NULL;
-    }
-    if (f_obj != Py_None && (format = (int)PyLong_AsLong(f_obj)) == -1 && PyErr_Occurred()) {
-        return NULL;
-    }
-    if (width <= 0 || height <= 0) {
-        PyErr_SetString(PyExc_ValueError, "Invalid dimensions");
-        return NULL;
-    }
-    Py_buffer view;
-    if (PyObject_GetBuffer(is_fb ? fbo->buf_obj : target, &view, PyBUF_SIMPLE) < 0) {
-        return NULL;
-    }
-    int stride = is_fb ? fbo->fb.stride : width;
-    if (gfx_fb_validate_buffer((size_t)view.len, width, height, format, &stride) < 0) {
-        PyBuffer_Release(&view);
-        PyErr_SetString(PyExc_ValueError, "Buffer too small");
-        return NULL;
-    }
-    gfx_fb_t raw_fb = {
-        .buf = view.buf,
-        .width = width,
-        .height = height,
-        .format = format,
-        .stride = stride,
-    };
-    size_t png_size;
-    if (gfx_png_encoded_size(&raw_fb, &png_size) < 0) {
-        PyBuffer_Release(&view);
-        PyErr_SetString(PyExc_ValueError, "Unsupported format");
-        return NULL;
-    }
-    PyObject *out = PyBytes_FromStringAndSize(NULL, (Py_ssize_t)png_size);
-    if (out == NULL) {
-        PyBuffer_Release(&view);
-        return NULL;
-    }
-    size_t out_len;
-    int rc = gfx_png_encode(&raw_fb, (uint8_t *)PyBytes_AS_STRING(out), png_size, &out_len);
-    PyBuffer_Release(&view);
-    if (rc < 0) {
-        Py_DECREF(out);
-        PyErr_SetString(PyExc_ValueError, "Encode failed");
-        return NULL;
-    }
-    if (_PyBytes_Resize(&out, (Py_ssize_t)out_len) < 0) {
-        return NULL;
-    }
-    return out;
+    return cpy_save(&fb->fb, path);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -3276,7 +3257,6 @@ static PyMethodDef module_methods[] = {
     {"polygon", (PyCFunction)mod_polygon, METH_VARARGS | METH_KEYWORDS, NULL},
     {"load_image", mod_load_image, METH_VARARGS, NULL},
     {"save_image", mod_save_image, METH_VARARGS, NULL},
-    {"encode_png", (PyCFunction)mod_encode_png, METH_VARARGS | METH_KEYWORDS, NULL},
     {"bmp_to_framebuffer", mod_bmp_to_framebuffer, METH_VARARGS, NULL},
     {"pbm_to_framebuffer", mod_pbm_to_framebuffer, METH_VARARGS, NULL},
     {"pgm_to_framebuffer", mod_pgm_to_framebuffer, METH_VARARGS, NULL},

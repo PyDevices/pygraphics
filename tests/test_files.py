@@ -24,7 +24,6 @@ from pygraphics import (
     RGB888,
     FrameBuffer,
     bmp_to_framebuffer,
-    encode_png,
     load_image,
     pbm_to_framebuffer,
     pgm_to_framebuffer,
@@ -215,60 +214,56 @@ class TestBmp565(_TmpDirTest):
             self.assertEqual(a.read(), b.read())
 
 
-class TestPngEncoding(_TmpDirTest):
-    def test_rgb565_png_encoding(self):
-        import zlib
+def _pngio():
+    try:
+        import pngio  # noqa: F401  (MicroPython's built-in, or pydevices-desktop's over Pillow)
+
+        return True
+    except ImportError:
+        return False
+
+
+class TestPngSave(_TmpDirTest):
+    """PNG is pngio's: pygraphics saves it through pngio and has no encoder."""
+
+    def test_no_encoder_of_its_own(self):
+        import pygraphics
+
+        self.assertFalse(hasattr(pygraphics, "encode_png"))
+        self.assertFalse(hasattr(pygraphics, "write_png_file"))
+        self.assertFalse(hasattr(FrameBuffer(bytearray(8), 2, 2, RGB565), "to_png"))
+
+    @unittest.skipUnless(_pngio(), "pngio isn't installed")
+    def test_png_saves_through_pngio(self):
+        from PIL import Image
+
         fb = FrameBuffer(bytearray(2 * 2 * 2), 2, 2, RGB565)
-        # Red: 0xF800, Green: 0x07E0, Blue: 0x001F, White: 0xFFFF
         fb.pixel(0, 0, 0xF800)
         fb.pixel(1, 0, 0x07E0)
         fb.pixel(0, 1, 0x001F)
         fb.pixel(1, 1, 0xFFFF)
-
-        png_bytes = fb.to_png()
-        self.assertEqual(png_bytes[:8], b"\x89PNG\r\n\x1a\n")
-
-        # Parse IHDR
-        ihdr_len = struct.unpack(">I", png_bytes[8:12])[0]
-        self.assertEqual(ihdr_len, 13)
-        self.assertEqual(png_bytes[12:16], b"IHDR")
-        w, h, bit_depth, color_type = struct.unpack(">IIBB", png_bytes[16:26])
-        self.assertEqual((w, h, bit_depth, color_type), (2, 2, 8, 2))
-
-        # Check save with .png extension
         path = self._path("test.png")
-        saved = fb.save(path)
-        self.assertEqual(saved, path)
-        with open(path, "rb") as f:
-            self.assertEqual(f.read(), png_bytes)
+        self.assertEqual(fb.save(path), path)
+        im = Image.open(path).convert("RGB")
+        self.assertEqual([im.getpixel(p) for p in ((0, 0), (1, 0), (0, 1), (1, 1))],
+                         [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 255)])
 
-    def test_rgb888_png_encoding(self):
-        fb = FrameBuffer(bytearray(2 * 2 * 3), 2, 2, RGB888)
-        fb.pixel(0, 0, 0xFF0000)
-        png_bytes = fb.to_png()
-        self.assertEqual(png_bytes[:8], b"\x89PNG\r\n\x1a\n")
+    @unittest.skipUnless(_pngio(), "pngio isn't installed")
+    def test_rgb888_and_gs8_and_mono(self):
+        from PIL import Image
 
-    def test_gs8_png_encoding(self):
-        fb = FrameBuffer(bytearray(2 * 2), 2, 2, GS8)
-        fb.pixel(0, 0, 128)
-        png_bytes = fb.to_png()
-        self.assertEqual(png_bytes[:8], b"\x89PNG\r\n\x1a\n")
-        color_type = png_bytes[25]
-        self.assertEqual(color_type, 0)  # Grayscale
-
-    @unittest.skipIf(_env.USE_NATIVE, "pure-Python internals (pygraphics._png)")
-    def test_uncompressed_deflate_fallback(self):
-        import zlib
-
-        from pygraphics._png import _make_uncompressed_zlib
-        raw = b"Sample scanline data for testing RFC 1950/1951 uncompressed stream."
-        compressed = _make_uncompressed_zlib(raw)
-        self.assertEqual(zlib.decompress(compressed), raw)
-
-    def test_encode_raw_buffer(self):
-        buf = bytearray(2 * 2 * 2)
-        png_bytes = encode_png(buf, width=2, height=2, format=RGB565)
-        self.assertEqual(png_bytes[:8], b"\x89PNG\r\n\x1a\n")
+        rgb = FrameBuffer(bytearray(2 * 2 * 3), 2, 2, RGB888)
+        rgb.pixel(0, 0, 0xFF0000)
+        saved = save_image(rgb, self._path("rgb"))          # RGB888 is PNG whatever the name
+        self.assertTrue(saved.endswith(".png"))
+        self.assertEqual(Image.open(saved).convert("RGB").getpixel((0, 0)), (255, 0, 0))
+        g = FrameBuffer(bytearray(2 * 2), 2, 2, GS8)
+        g.pixel(1, 1, 128)
+        self.assertEqual(Image.open(save_image(g, self._path("g.png"))).getpixel((1, 1)), 128)
+        m = FrameBuffer(bytearray(2), 8, 2, MONO_HLSB)
+        m.pixel(3, 1, 1)
+        im = Image.open(save_image(m, self._path("m.png")))
+        self.assertEqual((im.getpixel((3, 1)), im.getpixel((2, 1))), (255, 0))
 
 
 if __name__ == "__main__":

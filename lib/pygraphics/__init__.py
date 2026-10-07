@@ -68,8 +68,6 @@ _LAZY = {
     "pbm_to_framebuffer": ("_files", "pbm_to_framebuffer"),
     "pgm_to_framebuffer": ("_files", "pgm_to_framebuffer"),
     "save_image": ("_files", "save_image"),
-    "encode_png": ("_png", "encode_png"),
-    "write_png_file": ("_png", "write_png_file"),
 }
 
 
@@ -128,7 +126,6 @@ __all__ = [
     "rect",
     "round_rect",
     "save_image",
-    "encode_png",
     "text",
     "text8",
     "text14",
