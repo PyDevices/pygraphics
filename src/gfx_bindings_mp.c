@@ -2027,15 +2027,4 @@ const mp_obj_module_t mp_module_pygraphics = {
     .globals = (mp_obj_dict_t *)&graphics_module_globals,
 };
 
-/* CIRCUITPY alone means the shared-bindings build (apply_cp_patches.sh), which
- * registers the module itself. A CircuitPython build through USER_C_MODULES
- * registers it here, as MicroPython does. */
-#if CIRCUITPY && !defined(PYGRAPHICS_USER_C_MODULE)
-/* Alias for any leftover shared-bindings that still reference mp_module_graphics. */
-const mp_obj_module_t mp_module_graphics = {
-    .base = { &mp_type_module },
-    .globals = (mp_obj_dict_t *)&graphics_module_globals,
-};
-#else
 MP_REGISTER_MODULE(MP_QSTR_pygraphics, mp_module_pygraphics);
-#endif

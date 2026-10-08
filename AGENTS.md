@@ -6,7 +6,7 @@ available; otherwise use the pure-Python `pygraphics` package from MIP.
 
 ## Layout
 
-- Root: `micropython.mk`, `micropython.cmake`, `circuitpython.mk`, `setup.py`,
+- Root: `micropython.mk` (MicroPython and CircuitPython), `micropython.cmake`, `setup.py`,
   patch scripts — build glue stays here for `USER_C_MODULES` discovery
 - `src/` — `.c` sources and shared headers (`gfx_*.h`, `font_8x*.h`,
   `pygraphics_qstrdefs.h`)

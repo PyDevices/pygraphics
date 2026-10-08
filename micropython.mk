@@ -5,9 +5,9 @@
 
 PYGRAPHICS_MOD_DIR := $(USERMOD_DIR)
 
-# PYGRAPHICS_USER_C_MODULE tells the C that it was built through USER_C_MODULES,
-# which CircuitPython builds also honour. Its unix port sets CIRCUITPY=1, and
-# without this the module would skip MP_REGISTER_MODULE and never be importable.
+# PYGRAPHICS_USER_C_MODULE tells the C it was built through USER_C_MODULES
+# (MicroPython's make ports, or CircuitPython): gfx_png.c allocates from the GC
+# heap then, because some CircuitPython ports have no C heap.
 CFLAGS_USERMOD += -DPYGRAPHICS_USER_C_MODULE=1 -I$(PYGRAPHICS_MOD_DIR)/src -Wno-unused-function -Wno-sign-compare -Wno-unused-const-variable
 # Arc/polygon use Q15 LUT in gfx_trig.h — no libm required.
 

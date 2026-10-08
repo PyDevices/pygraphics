@@ -52,7 +52,7 @@ polygons, rounded rectangles, arcs, gradients, text, and transparent blits.
 |---|---|
 | `src/` | Native C framebuffer, shape, font, file, and CPython-extension implementation. |
 | `lib/pygraphics/` | Pure-Python implementation and the source of truth for generated Python API pages. |
-| `micropython.mk`, `micropython.cmake`, `circuitpython.mk` | Build glue for native firmware targets. |
+| `micropython.mk`, `micropython.cmake` | Build glue for native firmware targets (`micropython.mk` serves CircuitPython too). |
 | `setup.py`, `pyproject.toml` | CPython native wheel build metadata. |
 | `docs/` | Installation, usage, image-file, benchmark, and API documentation. |
 | `tests/` | Native smoke tests and native/pure-Python parity coverage. |
