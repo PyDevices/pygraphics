@@ -173,13 +173,13 @@ static mp_obj_t gfxmp_png_bytes(const gfx_fb_t *fb) {
         png = mp_call_method_n_kw(3, 1, args);
         nlr_pop();
     } else {
-        free(owned);
+        gfx_png_release(owned);
         if (mp_obj_exception_match(MP_OBJ_FROM_PTR(nlr.ret_val), MP_OBJ_FROM_PTR(&mp_type_ImportError))) {
             mp_raise_msg(&mp_type_ImportError, MP_ERROR_TEXT("saving PNG needs pngio (micropython-pydevices modules/pngio)"));
         }
         nlr_jump(nlr.ret_val);
     }
-    free(owned);
+    gfx_png_release(owned);
     return png;
 }
 

@@ -5,7 +5,10 @@
 
 PYGRAPHICS_MOD_DIR := $(USERMOD_DIR)
 
-CFLAGS_USERMOD += -I$(PYGRAPHICS_MOD_DIR)/src -Wno-unused-function -Wno-sign-compare -Wno-unused-const-variable
+# PYGRAPHICS_USER_C_MODULE tells the C that it was built through USER_C_MODULES,
+# which CircuitPython builds also honour. Its unix port sets CIRCUITPY=1, and
+# without this the module would skip MP_REGISTER_MODULE and never be importable.
+CFLAGS_USERMOD += -DPYGRAPHICS_USER_C_MODULE=1 -I$(PYGRAPHICS_MOD_DIR)/src -Wno-unused-function -Wno-sign-compare -Wno-unused-const-variable
 # Arc/polygon use Q15 LUT in gfx_trig.h — no libm required.
 
 # --- which pygraphics this firmware was built from --------------------------
@@ -39,3 +42,14 @@ SRC_USERMOD_C += \
     $(PYGRAPHICS_MOD_DIR)/src/gfx_png.c \
     $(PYGRAPHICS_MOD_DIR)/src/gfx_capabilities.c \
     $(PYGRAPHICS_MOD_DIR)/src/gfx_area_mp.c
+
+# Warnings the drawing code trips on purpose: comparing an angle against an
+# exact 0.0f to skip rotation, mixed-sign loop bounds, tables only some builds
+# use. CFLAGS_USERMOD above carries them for MicroPython. They are given again
+# per object because CircuitPython's MCU ports append -Wsign-compare and
+# -Wfloat-equal (under -Werror) after the user module flags, and the later
+# flag wins; a target-specific flag lands last. The object path is the one py/py.mk gives a user module's source since
+# MicroPython 1.29: $(BUILD)/<module directory name>/<path inside it>.o.
+PYGRAPHICS_OBJ_CFLAGS := -Wno-unused-function -Wno-sign-compare -Wno-unused-const-variable -Wno-float-equal
+$(foreach _src,$(filter $(PYGRAPHICS_MOD_DIR)/%,$(SRC_USERMOD_C)),\
+    $(eval $(BUILD)/$(notdir $(PYGRAPHICS_MOD_DIR))/$(patsubst $(PYGRAPHICS_MOD_DIR)/%.c,%.o,$(_src)): CFLAGS += $(PYGRAPHICS_OBJ_CFLAGS)))

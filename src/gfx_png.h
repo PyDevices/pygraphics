@@ -24,8 +24,11 @@ int gfx_png_wanted(const gfx_fb_t *fb, const char *path);
 int gfx_png_named(const char *path);
 
 /* The pixels for pngio: its format code, and the bytes -- the framebuffer's
- * own, or for MONO_HLSB a GS8 copy returned in *owned (malloc'd; the caller
- * frees it). -1 for a format PNG can't take. */
+ * own, or for MONO_HLSB a GS8 copy returned in *owned (the caller hands it to
+ * gfx_png_release). -1 for a format PNG can't take. */
 int gfx_png_source(const gfx_fb_t *fb, int *fmt, const uint8_t **buf, size_t *len, uint8_t **owned);
+
+/* Release what gfx_png_source returned in *owned; NULL is fine. */
+void gfx_png_release(uint8_t *owned);
 
 #endif /* GFX_PNG_H */
