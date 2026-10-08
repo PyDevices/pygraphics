@@ -5,6 +5,23 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Built as a user C module (micropython.mk), the copy comes from the GC heap
+ * and is left to the collector: some CircuitPython ports, atmel-samd among
+ * them, have no C heap, so malloc() doesn't link there. Everywhere else
+ * (CPython, MicroPython's CMake ports) it is malloc() and free(). */
+#if defined(PYGRAPHICS_USER_C_MODULE)
+#include "py/misc.h"
+#define GFX_PNG_ALLOC(n) m_malloc(n)
+#define GFX_PNG_FREE(p) ((void)(p))
+#else
+#define GFX_PNG_ALLOC(n) malloc(n)
+#define GFX_PNG_FREE(p) free(p)
+#endif
+
+void gfx_png_release(uint8_t *owned) {
+    GFX_PNG_FREE(owned);
+}
+
 int gfx_png_named(const char *path) {
     size_t n = strlen(path);
     return n >= 4 && path[n - 4] == '.' && (path[n - 3] | 0x20) == 'p'
@@ -30,7 +47,7 @@ int gfx_png_source(const gfx_fb_t *fb, int *fmt, const uint8_t **buf, size_t *le
             return 0;
         case GFX_MHLSB: {
             /* one bit a pixel, widened to grey */
-            uint8_t *g = (uint8_t *)malloc(px ? px : 1);
+            uint8_t *g = (uint8_t *)GFX_PNG_ALLOC(px ? px : 1);
             if (g == NULL) {
                 return -1;
             }

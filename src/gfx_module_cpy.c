@@ -1199,7 +1199,7 @@ static PyObject *cpy_save(const gfx_fb_t *fb, const char *path) {
     }
     PyObject *mod = PyImport_ImportModule("pngio");
     if (mod == NULL) {
-        free(owned);
+        gfx_png_release(owned);
         if (PyErr_ExceptionMatches(PyExc_ImportError)) {
             PyErr_SetString(PyExc_ImportError,
                 "saving PNG needs pngio: install pydevices-desktop and Pillow (pip install pillow)");
@@ -1209,7 +1209,7 @@ static PyObject *cpy_save(const gfx_fb_t *fb, const char *path) {
     PyObject *png = NULL, *enc = NULL, *src = NULL, *pos = NULL, *kw = NULL, *meth = NULL;
     enc = PyObject_CallMethod(mod, "PngEncoder", NULL);
     src = PyByteArray_FromStringAndSize((const char *)buf, (Py_ssize_t)len);
-    free(owned);
+    gfx_png_release(owned);
     if (enc && src) {
         meth = PyObject_GetAttrString(enc, "encode");
         pos = Py_BuildValue("(Oii)", src, (int)fb->width, (int)fb->height);

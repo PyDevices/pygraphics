@@ -253,6 +253,9 @@ int gfx_shapes_poly_int_from_buffer(const void *buf, size_t len, size_t itemsize
         return -1;
     }
     const char *ptr = (const char *)buf + offset;
+    /* memcpy, not a cast: a memoryview slice can start at any byte, and a
+     * Cortex-M0+ (RP2040) faults on an unaligned halfword or word load. */
+    #define GFX_READ(type) do { type v_; memcpy(&v_, ptr, sizeof(v_)); *out = (int)v_; } while (0)
     switch (fmt[0]) {
         case 'b':
             *out = *(const signed char *)ptr;
@@ -261,26 +264,27 @@ int gfx_shapes_poly_int_from_buffer(const void *buf, size_t len, size_t itemsize
             *out = *(const unsigned char *)ptr;
             return 0;
         case 'h':
-            *out = *(const short *)ptr;
+            GFX_READ(short);
             return 0;
         case 'H':
-            *out = *(const unsigned short *)ptr;
+            GFX_READ(unsigned short);
             return 0;
         case 'i':
-            *out = *(const int *)ptr;
+            GFX_READ(int);
             return 0;
         case 'I':
-            *out = (int)*(const unsigned int *)ptr;
+            GFX_READ(unsigned int);
             return 0;
         case 'l':
-            *out = (int)*(const long *)ptr;
+            GFX_READ(long);
             return 0;
         case 'L':
-            *out = (int)*(const unsigned long *)ptr;
+            GFX_READ(unsigned long);
             return 0;
         default:
             return -1;
     }
+    #undef GFX_READ
 }
 
 gfx_area_t gfx_shapes_poly(const gfx_canvas_t *canvas, int x, int y, const void *coords, size_t coords_len, size_t itemsize, const char *fmt, int col, int fill) {
