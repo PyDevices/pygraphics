@@ -1,3 +1,9 @@
+## v0.1.0 (2026-10-08)
+
+- Build as a user C module in CircuitPython too (#41)
+- Add ROADMAP.md for planned work (#40)
+- Release PRs from publishing-v13: the description says what the PR changes and what merging does
+
 ## v0.0.42rc1 (2026-10-07)
 
 - PNG saves go through pngio; remove pygraphics' own encoder (#38)
@@ -44,4 +50,3 @@
 - Grant publishing-v5's permission ceiling (assets + OIDC)
 - Adopt publishing-v5 and release-PR automation (Phase 1 batch 1)
 - Use direct WebAssembly host for documentation demos
-
