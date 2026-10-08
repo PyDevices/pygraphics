@@ -1,9 +1,0 @@
-// CircuitPython shared-bindings header for pygraphics.
-#ifndef SHARED_BINDINGS_PYGRAPHICS___INIT___H
-#define SHARED_BINDINGS_PYGRAPHICS___INIT___H
-
-#include "py/obj.h"
-
-extern const mp_obj_module_t mp_module_pygraphics;
-
-#endif

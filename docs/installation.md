@@ -40,21 +40,17 @@ under the new name — the cutover publish already went out.
 Copy the `pygraphics/` package folder onto `sys.path` (from
 `lib/pygraphics/` in this repo, or from mip).
 
-To link the **native** cmod into a CircuitPython unix build (out-of-tree
-[Extending CircuitPython](https://learn.adafruit.com/extending-circuitpython)
-layout via spike + `apply_cp_patches.sh` — see the
-[repository README](https://github.com/PyDevices/pygraphics#circuitpython-unix)):
+To build the **native** module into CircuitPython, hand this repository to the
+port's `make` as a user C module:
 
 ```bash
-# siblings: circuitpython/ and pygraphics/
-./apply_cp_patches.sh --apply
-cd ../circuitpython/ports/unix && make -j VARIANT=coverage
+make -C ports/unix -j VARIANT=coverage USER_C_MODULES=/path/to/pygraphics
 ```
 
-Tested against CircuitPython 10.2.1; the MicroPython recipe is tested against
+That works on CircuitPython 11 and on boards as well as unix; the
+[repository README](https://github.com/PyDevices/pygraphics#circuitpython) has
+the board command and what was tested. The MicroPython recipe is tested against
 v1.28.0 and current master.
-
-See the org's [optional aggregator workspace](https://github.com/PyDevices/cmods) for an easier way to build this repo with other user C modules (MicroPython) or extensions (CircuitPython).
 
 ## CPython — native/C extension (preferred when available)
 

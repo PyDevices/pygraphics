@@ -1,4 +1,0 @@
-shared-bindings/pygraphics	__init__.c
-shared-bindings/pygraphics	__init__.h
-shared-module/pygraphics	__init__.c
-shared-module/pygraphics	__init__.h

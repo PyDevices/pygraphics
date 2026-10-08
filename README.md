@@ -137,7 +137,7 @@ MIT (framebuf algorithms derived from MicroPython `extmod/modframebuf.c`, Damien
 
 ```
 pygraphics/
-  micropython.mk / micropython.cmake / circuitpython.mk / setup.py
+  micropython.mk / micropython.cmake / setup.py
   src/                     # C sources + headers (gfx_*.h, font_8x*.h, qstrs)
   lib/pygraphics/            # pure-Python package (import pygraphics)
   tests/                   # native smoke / parity tests
@@ -235,39 +235,31 @@ For several PyDevices modules at once,
 [micropython-pydevices](https://github.com/PyDevices/micropython-pydevices)
 keeps ready-made manifests, variants and boards.
 
-### CircuitPython (unix)
+### CircuitPython
 
-Adafruit’s [Extending CircuitPython](https://learn.adafruit.com/extending-circuitpython)
-guide (and the [design guide — native modules](https://docs.circuitpython.org/en/latest/docs/design_guide.html))
-describe adding `shared-bindings/` + `shared-module/` **inside** the CircuitPython
-tree. This repo keeps those sources out-of-tree under `src/circuitpython_spike/`
-and applies them with `./apply_cp_patches.sh` into a local (uncommitted)
-CircuitPython clone — Adafruit has no separate out-of-tree C-module path.
-The build glue itself lives in `circuitpython.mk` (analogous to
-`micropython.mk` for MicroPython), included by the patched variant/board
-Makefile for both the unix `coverage` variant used below and MCU boards.
-
-| Adafruit step | This repo |
-|---------------|-----------|
-| `shared-bindings/<mod>/` | `src/circuitpython_spike/shared-bindings/pygraphics/` |
-| `shared-module/<mod>/` | `src/circuitpython_spike/shared-module/pygraphics/` |
-| Enable `CIRCUITPY_*` | Patches set `CIRCUITPY_PYGRAPHICS` |
-| List sources in port Makefile | Variant `.mk` + `SRC_PATTERNS` |
-| Build | `make` after `--apply` |
-
-Clone as a sibling of `circuitpython/`:
+CircuitPython builds user C modules the way MicroPython does, through
+`USER_C_MODULES`, so `micropython.mk` is the build glue there too. Hand this
+directory to a port's `make`:
 
 ```bash
-# siblings: circuitpython/ and pygraphics/
-./apply_cp_patches.sh --apply
-cd ../circuitpython/ports/unix && make -j VARIANT=coverage
+# unix, from a CircuitPython 11 checkout
+make -C ports/unix -j VARIANT=coverage USER_C_MODULES=/path/to/pygraphics
+# a board
+make -C ports/raspberrypi -j BOARD=adafruit_feather_rp2040 USER_C_MODULES=/path/to/pygraphics
 ```
 
-**Tested against** CircuitPython 10.2.1. The patch script edits a moving tree,
-so this is the fragile recipe of the two: if `--apply` fails to find what it
-expects, check the CircuitPython revision first.
+[micropython-pydevices](https://github.com/PyDevices/micropython-pydevices)'
+`build_mp.py --interpreter circuitpython --modules pygraphics` does the same
+with the CircuitPython checkout, submodules and board list handled for you.
 
-To build this repo with other user C modules (MicroPython), include their manifests alongside this one; with other CircuitPython extensions, run each repository's `apply_cp_patches.sh` against the same checkout before the one `make`.
+**Tested against** CircuitPython 11.0.0-alpha.1, on unix, raspberrypi
+(Feather RP2040) and atmel-samd (Feather M4 Express, built with
+`CIRCUITPY_ULAB=0` to fit 512 KB). The atmel-samd and raspberrypi ports turn
+some warnings into errors after a module's own flags; `micropython.mk` turns
+them off again per object, for this module's files only.
+
+To build this repo with other user C modules, list them all in the one
+`USER_C_MODULES`.
 
 ### pydevices-examples integration
 
