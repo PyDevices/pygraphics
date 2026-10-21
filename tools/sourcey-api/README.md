@@ -2,7 +2,7 @@
 
 Generates a source-linked reference for pygraphics' **native C bindings** from
 the public binding tables and headers in `src/`. This covers ground the RTD site
-cannot: mkdocstrings reads Python docstrings, so the C symbols are invisible to it.
+cannot: Sphinx autodoc reads Python docstrings, so the C symbols are invisible to it.
 
 ```bash
 python3 scripts/generate_reference.py
@@ -27,5 +27,5 @@ artifacts that are committed drift silently; regenerating takes one command.
 ReadTheDocs site rather than a second Pages surface — org policy is that Pages
 carries marketing and ReadTheDocs carries library documentation. The generated
 pages already use YAML front matter with `title` and `description`, so they
-should drop into the MkDocs nav with little work; the generator would need to run
+should drop into the Sphinx toctree with little work; the generator would need to run
 as part of the docs build, which it can, since it parses `src/` from this repo.

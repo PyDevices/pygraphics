@@ -2,12 +2,14 @@
 
 Cross-platform 2D drawing: framebuf-compatible buffers, shape primitives that return **Area** bounds, fonts, and image loaders. One import works on MicroPython, CircuitPython, and CPython.
 
-!!! note "Where the pieces live"
-    `pygraphics` is maintained here. Install it from the
-    [PyDevices MIP index](installation.md) (`mip.install("pygraphics", index=…)`)
-    or from TestPyPI as `pydevices-pygraphics`. The `utils` modules referenced
-    below (`displaybuf`, `tft_text`, …) ship with
-    [pydevices-examples](https://github.com/PyDevices/pydevices-examples).
+:::{admonition} Where the pieces live
+:class: note
+`pygraphics` is maintained here. Install it from the
+[PyDevices MIP index](installation.md) (`mip.install("pygraphics", index=…)`)
+or from TestPyPI as `pydevices-pygraphics`. The `utils` modules referenced
+below (`displaybuf`, `tft_text`, …) ship with
+[pydevices-examples](https://github.com/PyDevices/pydevices-examples).
+:::
 
 ## Quick start
 
@@ -29,7 +31,7 @@ inspect or branch on.
 
 ## Drawing Pipeline Architecture
 
-```mermaid
+```{mermaid}
 flowchart TD
     subgraph Primitives ["Drawing Operations"]
         P1["fill_rect(x, y, w, h)"]

@@ -59,9 +59,9 @@ Font C headers: `python3 scripts/sync_fonts.py` (source of truth is
 
 ## Documentation
 
-- MkDocs under `docs/` → https://pygraphics.readthedocs.io (`.readthedocs.yaml`)
+- Sphinx under `docs/` (MyST Markdown, `docs/conf.py`) → https://pygraphics.readthedocs.io (`.readthedocs.yaml`)
 - Sourcey native-C API generator under `tools/sourcey-api/`; output is gitignored and unpublished (regenerate with `scripts/generate_reference.py`)
-- Local: `python3 -m venv .venv-docs && .venv-docs/bin/pip install -r docs/requirements.txt && .venv-docs/bin/mkdocs serve`
+- Local: `python3 -m venv .venv-docs && .venv-docs/bin/pip install -r docs/requirements.txt && .venv-docs/bin/sphinx-build -W --keep-going -b html docs docs/_build/html`
 - Use practical examples from `pydevices-examples` and emphasize off-screen
   rendering, dirty-rectangle updates, hit testing, sprite blits, gradients, and
   text drawing.
