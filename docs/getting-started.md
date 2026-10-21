@@ -2,38 +2,46 @@
 
 ## Setup
 
-=== "MicroPython (MIP)"
+::::{tab-set}
 
-    ```python
-    import mip
-    mip.install("pygraphics", index="https://PyDevices.github.io/mip")
-    ```
+:::{tab-item} MicroPython (MIP)
 
-=== "CPython (TestPyPI)"
+```python
+import mip
+mip.install("pygraphics", index="https://PyDevices.github.io/mip")
+```
+:::
 
-    ```bash
-    pip install -i https://test.pypi.org/simple/ \
-      --extra-index-url https://pypi.org/simple/ pydevices-pygraphics
-    ```
+:::{tab-item} CPython (TestPyPI)
 
-=== "CircuitPython"
+```bash
+pip install -i https://test.pypi.org/simple/ \
+  --extra-index-url https://pypi.org/simple/ pydevices-pygraphics
+```
+:::
 
-    Copy `lib/pygraphics/` to your board's `CIRCUITPY/lib/` directory.
+:::{tab-item} CircuitPython
 
-=== "PyScript / Pyodide"
+Copy `lib/pygraphics/` to your board's `CIRCUITPY/lib/` directory.
+:::
 
-    ```python
-    import micropip
-    await micropip.install(
-        "pydevices-pygraphics", index_urls="https://test.pypi.org/simple/"
-    )
+:::{tab-item} PyScript / Pyodide
 
-    import pygraphics
-    ```
+```python
+import micropip
+await micropip.install(
+    "pydevices-pygraphics", index_urls="https://test.pypi.org/simple/"
+)
 
-    The wheel is named `pydevices-pygraphics`; the module you import is
-    `pygraphics`. On MicroPython the MIP package name is `pygraphics`
-    (`mip.install("pygraphics", index="https://PyDevices.github.io/mip")`).
+import pygraphics
+```
+
+The wheel is named `pydevices-pygraphics`; the module you import is
+`pygraphics`. On MicroPython the MIP package name is `pygraphics`
+(`mip.install("pygraphics", index="https://PyDevices.github.io/mip")`).
+:::
+
+::::
 
 ---
 
@@ -41,6 +49,7 @@
 
 Experiment with 2D shapes, colors, and font rendering live in your browser:
 
+````{raw} html
 <div class="pydevices-live-demo">
   <div class="demo-editor-pane">
     <textarea class="code-editor">
@@ -75,6 +84,7 @@ print(f"Shapes drawn! Dirty bounds: {area1 + area2}")
     <canvas id="canvas_pygraphics_getting_started" width="240" height="200" tabindex="0"></canvas>
   </div>
 </div>
+````
 
 ---
 

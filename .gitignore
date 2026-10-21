@@ -27,5 +27,6 @@ tools/sourcey-api/node_modules/
 tools/sourcey-api/dist/
 # Generated API reference: regenerate with tools/sourcey-api/scripts/generate_reference.py
 tools/sourcey-api/generated/
-site/
+docs/_build/
+docs/reference/
 .venv-docs/

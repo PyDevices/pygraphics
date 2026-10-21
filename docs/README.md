@@ -1,15 +1,15 @@
 # Documentation
 
-Hand-authored MkDocs pages live in this directory and publish to
+Hand-authored Markdown pages (built by Sphinx; `conf.py` is here) live in this directory and publish to
 [pygraphics.readthedocs.io](https://pygraphics.readthedocs.io).
 
 ```bash
 python3 -m venv .venv-docs
 .venv-docs/bin/pip install -r docs/requirements.txt
-.venv-docs/bin/mkdocs serve   # or: mkdocs build
+.venv-docs/bin/sphinx-build -W --keep-going -b html docs docs/_build/html
 ```
 
-A source-linked reference for the **native C bindings** — which mkdocstrings
+A source-linked reference for the **native C bindings** — which autodoc
 cannot reach, since it reads Python docstrings — can be generated on demand with
 Sourcey under [`tools/sourcey-api/`](../tools/sourcey-api/):
 

@@ -1,3 +1,5 @@
+# API overview
+
 `pygraphics` extends `framebuf` with extra drawing helpers (rounded rectangles, gradients, polygons) and returns **Area** bounding boxes for partial updates.
 
 See the [installation guide](installation.md) for MIP and TestPyPI options.
