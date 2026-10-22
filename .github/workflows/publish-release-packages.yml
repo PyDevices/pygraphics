@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   publish:
-    uses: PyDevices/.github/.github/workflows/reusable-publish-release-packages.yml@publishing-v15
+    uses: PyDevices/.github/.github/workflows/reusable-publish-release-packages.yml@publishing-v16
     with:
       build-kind: native-and-wasm
       distribution-name: pydevices-pygraphics
