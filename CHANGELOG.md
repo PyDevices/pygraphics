@@ -1,3 +1,8 @@
+## v0.1.1 (2026-10-22)
+
+- Adopt publishing-v15: a release also asks the library index to rebuild (#44)
+- CircuitPython builds pygraphics as a user C module only (#43)
+
 ## v0.1.0 (2026-10-08)
 
 - Build as a user C module in CircuitPython too (#41)
