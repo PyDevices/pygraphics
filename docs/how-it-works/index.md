@@ -27,7 +27,7 @@ The compiled package is C. It's what the `pydevices-pygraphics` wheels
 contain, and it can be built into MicroPython or CircuitPython firmware.
 `pygraphics.implementation()` returns `native_cmod`.
 
-The pure-Python package is the [`lib/pygraphics/`](../../lib/pygraphics/) folder, the one mip
+The pure-Python package is the [`lib/pygraphics/`](https://github.com/PyDevices/pygraphics/tree/main/lib/pygraphics) folder, the one mip
 installs. It runs on any Python with no compiler, and returns
 `pygraphics_python`. It carries `pygraphics.framebuf`, a Python copy of
 MicroPython's `framebuf`, so it runs the same on CPython and CircuitPython,
