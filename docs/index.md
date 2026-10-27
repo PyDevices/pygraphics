@@ -1,34 +1,41 @@
 # pygraphics
 
+```{raw} html
 <div class="hero-banner">
-  <h1>🖌️ pygraphics</h1>
   <p><strong>Cross-platform 2D drawing and graphics engine</strong> for the PyDevices stack — <code>Area</code> dirty bounding boxes, framebuf-compatible <code>FrameBuffer</code>, embedded romfonts, shapes, and image loaders.</p>
-  <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.75rem;">
-    <span class="badge badge-orange">📦 MIP: pygraphics</span>
-    <span class="badge badge-orange">🐍 TestPyPI: pydevices-pygraphics</span>
-    <span class="badge badge-green">⚡ Native C & Pure-Python Parity</span>
-    <span class="badge">🌐 MicroPython · CircuitPython · CPython · Direct WebAssembly · Pyodide</span>
+  <div class="badge-row">
+    <span class="badge badge-brand">MIP: pygraphics</span>
+    <span class="badge badge-brand">TestPyPI: pydevices-pygraphics</span>
+    <span class="badge badge-green">Native C & Pure-Python Parity</span>
+    <span class="badge">MicroPython · CircuitPython · CPython · Direct WebAssembly · Pyodide</span>
   </div>
 </div>
+```
 
-<div class="grid cards">
-  <div>
-    <h3>📐 Area Bounding Boxes</h3>
-    <p>Every shape and text primitive returns an <code>Area(x, y, w, h)</code> bounding box for partial screen refresh and dirty-rect updates.</p>
-  </div>
-  <div>
-    <h3>🔤 Embedded Romfonts</h3>
-    <p>Zero-dependency built-in 8x8, 8x14, and 8x16 romfonts with arbitrary scaling, transparency, and external <code>.bin</code> file support.</p>
-  </div>
-  <div>
-    <h3>🖼️ Streaming BMP565</h3>
-    <p>Stream and slice massive 16-bit RGB565 bitmaps without loading full images into microcontroller RAM.</p>
-  </div>
-  <div>
-    <h3>⚡ Hardware Blit Fast-Paths</h3>
-    <p>Direct SPI/SDL bulk blit dispatch with clipping context managers (<code>with draw.clip(...)</code>).</p>
-  </div>
-</div>
+::::{grid} 1 1 2 2
+:gutter: 2
+
+:::{grid-item-card} Area Bounding Boxes
+
+Every shape and text primitive returns an `Area(x, y, w, h)` bounding box for partial screen refresh and dirty-rect updates.
+:::
+
+:::{grid-item-card} Embedded Romfonts
+
+Zero-dependency built-in 8x8, 8x14, and 8x16 romfonts with arbitrary scaling, transparency, and external `.bin` file support.
+:::
+
+:::{grid-item-card} Streaming BMP565
+
+Stream and slice massive 16-bit RGB565 bitmaps without loading full images into microcontroller RAM.
+:::
+
+:::{grid-item-card} Hardware Blit Fast-Paths
+
+Direct SPI/SDL bulk blit dispatch with clipping context managers (`with draw.clip(...)`).
+:::
+
+::::
 
 ---
 
@@ -36,6 +43,7 @@
 
 Try editing the drawing primitives below and click **▶ Run** to execute them with direct MicroPython WebAssembly:
 
+````{raw} html
 <div class="pydevices-live-demo">
   <div class="demo-editor-pane">
     <textarea class="code-editor">
@@ -74,6 +82,7 @@ print(f"Drawn shapes in {pygraphics.implementation()} backend!")
     <canvas id="canvas_pygraphics_index" width="320" height="240" tabindex="0"></canvas>
   </div>
 </div>
+````
 
 ---
 
@@ -101,28 +110,46 @@ mip.install("pygraphics", index="https://PyDevices.github.io/mip")
 
 Explore complete applications and arcade games built with `pygraphics`:
 
-<div class="grid cards">
-  <div>
-    <h3>🔴 Bouncing Balls</h3>
-    <p>High-framerate physics simulation with vector circles and bounding-box collision detection.</p>
-    <p><a href="https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=bouncing_balls&deps=pydevices-pygraphics" target="_blank" rel="noopener"><strong>▶ Launch Live Demo</strong></a></p>
-  </div>
-  <div>
-    <h3>👾 Alien Arcade</h3>
-    <p>Retro Space Invaders-style sprite engine with transparency and animated framebuffers.</p>
-    <p><a href="https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?manifests=alien&deps=pydevices-palettes,pydevices-pygraphics" target="_blank" rel="noopener"><strong>▶ Launch Live Demo</strong></a></p>
-  </div>
-  <div>
-    <h3>🦖 Dino Runner</h3>
-    <p>Classic obstacle jumping arcade running with dirty scanline refresh and physics.</p>
-    <p><a href="https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=dino&deps=pydevices-pygraphics" target="_blank" rel="noopener"><strong>▶ Launch Live Demo</strong></a></p>
-  </div>
-  <div>
-    <h3>🕹️ Testris Arcade</h3>
-    <p>Full-featured falling-blocks game with matrix rotation, score tracking, and ghost pieces.</p>
-    <p><a href="https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=testris&deps=pydevices-pygraphics" target="_blank" rel="noopener"><strong>▶ Launch Live Demo</strong></a></p>
-  </div>
-</div>
+::::{grid} 1 1 2 2
+:gutter: 2
+
+:::{grid-item-card} Bouncing Balls
+:link: https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=bouncing_balls&deps=pydevices-pygraphics
+:link-type: url
+
+High-framerate physics simulation with vector circles and bounding-box collision detection.
+
+**Launch Live Demo**
+:::
+
+:::{grid-item-card} Alien Arcade
+:link: https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?manifests=alien&deps=pydevices-palettes,pydevices-pygraphics
+:link-type: url
+
+Retro Space Invaders-style sprite engine with transparency and animated framebuffers.
+
+**Launch Live Demo**
+:::
+
+:::{grid-item-card} Dino Runner
+:link: https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=dino&deps=pydevices-pygraphics
+:link-type: url
+
+Classic obstacle jumping arcade running with dirty scanline refresh and physics.
+
+**Launch Live Demo**
+:::
+
+:::{grid-item-card} Testris Arcade
+:link: https://pydevices.github.io/pydevices-examples/pyscript/pyodide.html?modules=testris&deps=pydevices-pygraphics
+:link-type: url
+
+Full-featured falling-blocks game with matrix rotation, score tracking, and ghost pieces.
+
+**Launch Live Demo**
+:::
+
+::::
 
 ---
 
@@ -133,4 +160,18 @@ Explore complete applications and arcade games built with `pygraphics`:
 * 🎨 [**Graphics guide**](graphics-guide.md) — FrameBuffer vs Draw, clipping stacks, fonts, and blit fast-paths.
 * 🖼️ [**Graphics files**](graphics-files.md) — BMP565, PBM, PGM image loaders and streaming.
 * ⚡ [**Benchmarks**](benchmarks.md) — Native C extension vs Pure-Python performance metrics.
-* 📚 [**API Reference**](reference/pygraphics/index.md) — Full autogenerated API documentation.
+* 📚 [**API Reference**](reference/index.rst) — Full autogenerated API documentation.
+
+```{toctree}
+:hidden:
+
+newcomers
+getting-started
+installation
+graphics-guide
+graphics-files
+api-overview
+benchmarks
+building-wheels
+reference/index
+```

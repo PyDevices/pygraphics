@@ -543,7 +543,7 @@ class FrameBuffer(_FrameBuffer):
     def text8(self, s, x, y, c=1, scale=1, inverted=False, font_data=None):
         """
         Place text on the canvas with an 8 pixel high font.
-        Breaks on \n to next line.  Does not break on line going off canvas.
+        Breaks on ``\\n`` to next line.  Does not break on line going off canvas.
 
         Args:
             s (str): The text to draw.
@@ -562,7 +562,7 @@ class FrameBuffer(_FrameBuffer):
     def text14(self, s, x, y, c=1, scale=1, inverted=False, font_data=None):
         """
         Place text on the canvas with a 14 pixel high font.
-        Breaks on \n to next line.  Does not break on line going off canvas.
+        Breaks on ``\\n`` to next line.  Does not break on line going off canvas.
 
         Args:
             s (str): The text to draw.
@@ -581,7 +581,7 @@ class FrameBuffer(_FrameBuffer):
     def text16(self, s, x, y, c=1, scale=1, inverted=False, font_data=None):
         """
         Place text on the canvas with a 16 pixel high font.
-        Breaks on \n to next line.  Does not break on line going off canvas.
+        Breaks on ``\\n`` to next line.  Does not break on line going off canvas.
 
         Args:
             s (str): The text to draw.

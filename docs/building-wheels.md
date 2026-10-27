@@ -47,7 +47,7 @@ pydevices_pygraphics-<version>-cp314-cp314-pyemscripten_2026_0_wasm32.whl
 ## Documentation
 
 - **Read the Docs** (guides + pure-Python API): https://pygraphics.readthedocs.io  
-  Config: `.readthedocs.yaml` + `mkdocs.yml`. Connected via the org
+  Config: `.readthedocs.yaml` + `docs/conf.py`. Connected via the org
   [Read the Docs Community GitHub App](https://github.com/organizations/PyDevices/settings/installations)
   (no per-repo webhook). See pydevices-examples
   [Building docs](https://github.com/PyDevices/.github/blob/main/docs/building-docs.md) for

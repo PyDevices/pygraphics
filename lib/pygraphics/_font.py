@@ -103,7 +103,7 @@ def text8(canvas, s, x, y, c=1, scale=1, inverted=False, font_data=None):
 def text14(canvas, s, x, y, c=1, scale=1, inverted=False, font_data=None):
     """
     Place text on the canvas with a 14 pixel high font.
-    Breaks on \n to next line.  Does not break on line going off canvas.
+    Breaks on ``\\n`` to next line.  Does not break on line going off canvas.
 
     Args:
         canvas (Canvas): The DisplayDriver, FrameBuffer, or other canvas-like object to draw on.
@@ -133,7 +133,7 @@ def text14(canvas, s, x, y, c=1, scale=1, inverted=False, font_data=None):
 def text16(canvas, s, x, y, c=1, scale=1, inverted=False, font_data=None):
     """
     Place text on the canvas with a 16 pixel high font.
-    Breaks on \n to next line.  Does not break on line going off canvas.
+    Breaks on ``\\n`` to next line.  Does not break on line going off canvas.
 
     Args:
         canvas (Canvas): The DisplayDriver, FrameBuffer, or other canvas-like object to draw on.

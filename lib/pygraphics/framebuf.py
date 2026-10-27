@@ -646,10 +646,11 @@ class FrameBuffer:
         width (int): The width of the frame buffer in pixels.
         height (int): The height of the frame buffer in pixels.
         format (int): The format of the frame buffer. One of:
+
             - ``MONO_VLSB``: Single bit displays (like SSD1306 OLED)
             - ``MONO_HLSB``: Single bit files like PBM (Portable BitMap)
-            - ``MONO_HMSB``: Single bit displays where the bits in a byte are horizontally mapped
-                Each byte occupies 8 horizontal pixels with bit 0 being the leftmost.
+            - ``MONO_HMSB``: Single bit displays where the bits in a byte are horizontally mapped.
+              Each byte occupies 8 horizontal pixels with bit 0 being the leftmost.
             - ``RGB565``: 16-bit color displays
             - ``GS2_HMSB``: 2-bit color displays like the HT16K33 8x8 Matrix
             - ``GS4_HMSB``: 4-bit grayscale displays

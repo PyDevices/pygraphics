@@ -1,5 +1,5 @@
 """
-pygraphics — cross-platform 2D drawing for *Python.
+pygraphics — cross-platform 2D drawing for MicroPython, CircuitPython and CPython.
 
 Extends MicroPython's ``framebuf`` with shape helpers, fonts, image loaders, and
 ``Area`` bounding boxes for partial updates.  On CPython and CircuitPython the
