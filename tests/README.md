@@ -22,6 +22,4 @@ probes skipped); the native build runs 85 (2 skipped — `test_clip` and
 `test_blit_hooks` import pure-Python-only submodules, and a native build is one
 extension module, not a package).
 
-CI runs both, so a divergence between them fails the build. Eleven such
-divergences existed as of August 2026 and were invisible because the suite could
-not run; see the Phase 10 notes in the consolidation plan.
+CI runs both, so a divergence between them fails the build.
