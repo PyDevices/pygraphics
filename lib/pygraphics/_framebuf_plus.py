@@ -613,9 +613,9 @@ class FrameBuffer(_FrameBuffer):
         Args:
             filename (str): Filename to save to
         """
-        from . import _files
+        from ._files import save_image
 
-        return _files.save_image(self, filename)
+        return save_image(self, filename)
 
     def export(self, filename):
         """Export this framebuffer as an importable ``.py`` bitmap module.
@@ -623,9 +623,9 @@ class FrameBuffer(_FrameBuffer):
         See :func:`pygraphics._files.export_framebuffer`. Ships ``BITMAP`` as a
         ``bytearray`` for zero-copy :meth:`from_bitmap` on MicroPython.
         """
-        from . import _files
+        from ._files import export_framebuffer
 
-        return _files.export_framebuffer(self, filename)
+        return export_framebuffer(self, filename)
 
     @staticmethod
     def from_file(filename):
@@ -638,9 +638,9 @@ class FrameBuffer(_FrameBuffer):
         Returns:
             FrameBuffer: Image loaded as a framebuffer.
         """
-        from . import _files
+        from ._files import load_image
 
-        return _files.load_image(filename)
+        return load_image(filename)
 
     @staticmethod
     def from_bitmap(buffer, width, height, format):
