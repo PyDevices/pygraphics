@@ -24,7 +24,7 @@ The pure package fills `RGB565` rectangles with numpy when it can import it
 
 ## Run it yourself
 
-`tools/benchmark.py` is the script behind the table. It prints which package
+[`tools/benchmark.py`](../../tools/benchmark.py) is the script behind the table. It prints which package
 it imported, then one line per call.
 
 ```bash
