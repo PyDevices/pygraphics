@@ -27,7 +27,7 @@ The compiled package is C. It's what the `pydevices-pygraphics` wheels
 contain, and it can be built into MicroPython or CircuitPython firmware.
 `pygraphics.implementation()` returns `native_cmod`.
 
-The pure-Python package is the `lib/pygraphics/` folder, the one mip
+The pure-Python package is the [`lib/pygraphics/`](../../lib/pygraphics/) folder, the one mip
 installs. It runs on any Python with no compiler, and returns
 `pygraphics_python`. It carries `pygraphics.framebuf`, a Python copy of
 MicroPython's `framebuf`, so it runs the same on CPython and CircuitPython,
@@ -43,7 +43,7 @@ that only the pure package has are listed under
 
 A `pygraphics.FrameBuffer` takes the same arguments as `framebuf.FrameBuffer`,
 uses the same format numbers, and draws the same pixels for the same calls.
-A tool in the repository, `tools/compare_framebuf_mp.py`, checks this against
+A tool in the repository, [`tools/compare_framebuf_mp.py`](../../tools/compare_framebuf_mp.py), checks this against
 MicroPython's own `framebuf`. Two things differ on purpose: drawing methods
 return an `Area` instead of `None`, and [text](../guides/draw-text.md#framebufs-text-looks-different)
 uses the romfont faces.

@@ -26,7 +26,7 @@ mip.install("pygraphics", index="https://PyDevices.github.io/mip")
 
 ## On a CircuitPython-compatible board
 
-Copy the `lib/pygraphics/` folder from this repository to the board's
+Copy the [`lib/pygraphics/`](../../lib/pygraphics/) folder from this repository to the board's
 `CIRCUITPY/lib/` folder.
 
 ## In the browser (Pyodide)

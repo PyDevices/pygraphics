@@ -1,7 +1,7 @@
 # Contributing to pygraphics
 
 pygraphics is two implementations of one API: C under `src/` and pure Python
-under `lib/pygraphics/`. A change to one needs the same change in the other,
+under [`lib/pygraphics/`](lib/pygraphics/). A change to one needs the same change in the other,
 and the tests run against both. A focused test, or a docs example that shows
 an existing call, is a good first contribution.
 
@@ -15,7 +15,7 @@ an existing call, is a good first contribution.
 | `setup.py`, `pyproject.toml` | the CPython wheel |
 | `tests/` | one suite for both implementations; [tests/README.md](tests/README.md) explains the switch |
 | `tools/` | comparison tools and `benchmark.py` |
-| `scripts/sync_fonts.py` | writes the C font headers from the Python font files |
+| [`scripts/sync_fonts.py`](scripts/sync_fonts.py) | writes the C font headers from the Python font files |
 | `docs/` | the documentation site |
 
 ## Run the tests
@@ -37,7 +37,7 @@ PYGRAPHICS_TEST_NATIVE=1 .venv/bin/python -m unittest discover -s tests
 These are the two runs CI makes on every change. `PYTHONPATH=lib` alone does
 not select the pure package once you've built in place, because the
 repository root comes before `PYTHONPATH` on `sys.path` and the compiled
-module there wins. `tests/_env.py` handles that for the suite; from a shell,
+module there wins. [`tests/_env.py`](tests/_env.py) handles that for the suite; from a shell,
 run from another directory.
 
 ## Compare the two implementations
@@ -140,7 +140,7 @@ python3 -m venv .venv-docs
 
 The API reference under `docs/reference/` is generated during the build and
 isn't tracked. Sphinx reads Python docstrings, so it can't see the C module;
-`tools/sourcey-api/` generates a reference for the C bindings on demand, and
+[`tools/sourcey-api/`](tools/sourcey-api/) generates a reference for the C bindings on demand, and
 its README says how.
 
 ## Releases
