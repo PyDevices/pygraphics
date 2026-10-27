@@ -50,7 +50,7 @@ pydevices-examples's `tools/example_interpreters.toml`.
 ## Publishing
 
 Org-wide procedure: [.github/docs/publishing-automation.md](https://github.com/PyDevices/.github/blob/main/docs/publishing-automation.md).
-Local wheel builds: [docs/building-wheels.md](docs/building-wheels.md).
+Local wheel builds: [CONTRIBUTING.md](CONTRIBUTING.md#build-the-wheels).
 
 ## After C changes
 
