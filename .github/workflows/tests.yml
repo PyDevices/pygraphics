@@ -106,3 +106,18 @@ jobs:
           MP="$GITHUB_WORKSPACE/micropython/ports/unix/build-standard/micropython"
           $MP tools/compare_graphics_run.py
           $MP tools/compare_framebuf_mp.py
+
+      # The build above links pygraphics in, and a builtin wins over sys.path,
+      # so it never runs the pure package that mip installs on a board. This
+      # second build has no pygraphics in it.
+      - name: Build the unix port without pygraphics
+        working-directory: micropython/ports/unix
+        run: make -j"$(nproc)" BUILD=build-plain
+
+      - name: The pure package on MicroPython
+        working-directory: pygraphics
+        run: |
+          MP="$GITHUB_WORKSPACE/micropython/ports/unix/build-plain/micropython"
+          test "$($MP -c 'import sys; sys.path.insert(0, "lib"); import pygraphics; print(pygraphics.implementation())')" = pygraphics_python
+          $MP tests/test_area.py
+          $MP tests/test_files_mp.py
