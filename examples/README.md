@@ -20,4 +20,4 @@ repository's root, so the ones that load a picture or a font find it in
 | [bmp565_scroll_sprite.py](bmp565_scroll_sprite.py) | A runner on a scrolling street, played by touch |
 
 Full apps that use pygraphics are in
-[pydevices-examples](https://github.com/PyDevices/pydevices-examples).
+[gallery](https://github.com/PyDevices/gallery).
