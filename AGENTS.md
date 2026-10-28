@@ -1,71 +1,9 @@
-# AGENTS.md — pygraphics
+# AGENTS.md
 
-Native and pure-Python **pygraphics** (`import pygraphics`) for MicroPython,
-CircuitPython, and CPython. Prefer the native `pygraphics` wheel on desktop/Android when
-available; otherwise use the pure-Python `pygraphics` package from MIP.
-
-## Layout
-
-- Root: `micropython.mk` (MicroPython and CircuitPython), `micropython.cmake`, `setup.py`,
-  patch scripts — build glue stays here for `USER_C_MODULES` discovery
-- `src/` — `.c` sources and shared headers (`gfx_*.h`, `font_8x*.h`,
-  `pygraphics_qstrdefs.h`)
-- `lib/pygraphics/` — pure-Python package (same public API as the cmod)
-- `tests/` — native smoke and parity scripts
-- `tools/` — developer benchmarks / helpers (not maintainer publish scripts)
-- No `.c` / `.h` at repo root
-
-## Smoke
-
-```bash
-# native
-python3 -m venv .venv
-echo 0.0.0 > VERSION
-.venv/bin/pip install -e .
-.venv/bin/python tests/test_area.py
-.venv/bin/python tests/test_pygraphics.py
-
-# pure Python
-PYTHONPATH=lib .venv/bin/python -c "import pygraphics; assert pygraphics.implementation() == 'pygraphics_python'"
-```
-
-## Parity testing (native vs pure-Python)
-
-`tools/compare_graphics*.py` and `tools/compare_framebuf_mp.py` byte-compare
-native `pygraphics` against the pure-Python `lib/pygraphics` package (and, for
-`framebuf`, MicroPython's built-in C `framebuf` against `lib/pygraphics/framebuf.py`).
-Run from the repo root:
-
-```bash
-micropython tools/compare_graphics_run.py    # single interpreter, native + staged lib/pygraphics
-python tools/compare_graphics_matrix.py      # all desktop interpreters (installs pygraphics
-                                              # from TestPyPI for cpython-venv/python.exe)
-micropython tools/compare_framebuf_mp.py     # MicroPython C framebuf vs lib/pygraphics/framebuf.py
-```
-
-`compare_graphics_matrix.py` resolves interpreters itself (PATH, `~/bin/<name>`,
-and `.venv/bin/python` for `cpython-venv`) — it has no dependency on
-pydevices-examples's `tools/example_interpreters.toml`.
-
-## Publishing
-
-Org-wide procedure: [.github/docs/publishing-automation.md](https://github.com/PyDevices/.github/blob/main/docs/publishing-automation.md).
-Local wheel builds: [CONTRIBUTING.md](CONTRIBUTING.md#build-the-wheels).
-
-## After C changes
-
-Font C headers: `python3 scripts/sync_fonts.py` (source of truth is
-`lib/pygraphics/_font_8x*.py`).
-
-## Documentation
-
-- Sphinx under `docs/` (MyST Markdown, `docs/conf.py`) → https://pygraphics.readthedocs.io (`.readthedocs.yaml`)
-- Sourcey native-C API generator under `tools/sourcey-api/`; output is gitignored and unpublished (regenerate with `scripts/generate_reference.py`)
-- Local: `python3 -m venv .venv-docs && .venv-docs/bin/pip install -r docs/requirements.txt && .venv-docs/bin/sphinx-build -W --keep-going -b html docs docs/_build/html`
-- Use practical examples from `pydevices-examples` and emphasize off-screen
-  rendering, dirty-rectangle updates, hit testing, sprite blits, gradients, and
-  text drawing.
-- Treat `lib/pygraphics` as the source of truth for generated Python API pages,
-  while keeping all behavioral guidance compatible with the native C module.
-- Do not replace usage guidance with placeholder method lists or document an API
-  shape that differs between the native and pure-Python implementations.
+- Pure-Python tests need nothing built: `python3 -m unittest discover -s tests`. The compiled module needs `.venv/bin/pip install -e .` first, then `PYGRAPHICS_TEST_NATIVE=1 .venv/bin/python -m unittest discover -s tests` ([CONTRIBUTING.md](CONTRIBUTING.md#run-the-tests)).
+- Once you've built in place, the compiled `pygraphics.*.so` at the repo root wins over `PYTHONPATH=lib`. Run pure-Python checks from another directory, or let `tests/_env.py` handle it.
+- `lib/pygraphics` and the C module share one public API. A change to one needs the other, and `tools/compare_graphics_run.py` byte-compares them ([CONTRIBUTING.md](CONTRIBUTING.md#compare-the-two-implementations)).
+- Fonts live in `lib/pygraphics/_font_8x*.py`; after editing one, run `python3 scripts/sync_fonts.py` to rewrite the C headers. Don't edit `src/font_8x*.h` by hand.
+- On a board, a frozen `pygraphics` wins over `/lib` on MicroPython and CircuitPython, so a copied or mip-installed copy never runs until you rebuild or put `/lib` first. On a source checkout, set `PYTHONPATH` (CPython) or `MICROPYPATH` (MicroPython) to `lib`.
+- CircuitPython has no MicroPython-style `framebuf`; `lib/pygraphics/framebuf.py` is the shim.
+- Docs build and release steps: [CONTRIBUTING.md](CONTRIBUTING.md#build-the-docs).

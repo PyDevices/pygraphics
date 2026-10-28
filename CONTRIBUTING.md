@@ -143,6 +143,12 @@ isn't tracked. Sphinx reads Python docstrings, so it can't see the C module;
 [`tools/sourcey-api/`](tools/sourcey-api/) generates a reference for the C bindings on demand, and
 its README says how.
 
+`lib/pygraphics` is the source of truth for the generated Python API pages.
+Keep guidance true for both the compiled module and the pure-Python package:
+don't document an API shape that differs between them, and prefer worked
+examples (off-screen rendering, dirty rectangles, hit testing, sprite blits,
+gradients, text) over bare method lists.
+
 ## Releases
 
 Each release tag `vX.Y.Z` publishes the compiled wheels to TestPyPI as
