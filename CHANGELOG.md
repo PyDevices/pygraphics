@@ -1,3 +1,6 @@
+## v0.1.2 (2026-10-29)
+
+
 ## v0.1.2rc1 (2026-10-29)
 
 - Point at PyDevices/gallery (#56)
