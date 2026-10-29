@@ -1,3 +1,17 @@
+## v0.1.2rc1 (2026-10-29)
+
+- Point at PyDevices/gallery (#56)
+- Examples: graphics, framebuffer, font, PBM and BMP examples (#55)
+- Shorten AGENTS.md to tips; move the docs guidance into CONTRIBUTING (#54)
+- Docs: link the repo paths the prose names (#53)
+- Ignore site/, the mkdocs build output (#52)
+- Docs: restructure to Get started, Guides, Reference, How it works (#51)
+- Docs: Sphinx on the shared pydevices-docs package, in place of MkDocs (#45)
+- Pure package: save, export and from_file work on MicroPython (#50)
+- README: TestPyPI's current release is 0.1.1 (#49)
+- Adopt publishing-v17: the empty macOS wheel cell uploads nothing instead of failing (#48)
+- Adopt publishing-v16: the macOS wheel cell builds nothing instead of failing (#47)
+
 ## v0.1.1 (2026-10-22)
 
 - Adopt publishing-v15: a release also asks the library index to rebuild (#44)
