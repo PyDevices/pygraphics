@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Brad Barnett
+#
+# SPDX-License-Identifier: MIT
+
 """Extended ``FrameBuffer`` with shape helpers, text, and image I/O.
 
 Format constants match MicroPython ``framebuf`` where applicable:

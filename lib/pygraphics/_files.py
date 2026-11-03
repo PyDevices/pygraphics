@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Brad Barnett
+#
+# SPDX-License-Identifier: MIT
+
 """Load and save ``FrameBuffer`` images (PBM, PGM, RGB565 BMP) and export modules."""
 
 from ._bmp565 import load_bmp565_buffer, read_bmp565_header, write_bmp565_file
