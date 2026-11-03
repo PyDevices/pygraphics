@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Brad Barnett
+#
+# SPDX-License-Identifier: MIT
+
 """
 pygraphics — cross-platform 2D drawing for MicroPython, CircuitPython and CPython.
 

@@ -37,7 +37,7 @@ class Draw:
 
         Args:
             canvas: Object with framebuf-compatible drawing methods (e.g.
-                :class:`~pygraphics.FrameBuffer` or a display driver).
+                `FrameBuffer <pygraphics.FrameBuffer>` or a display driver).
         """
         self.canvas = canvas
         self._clip_stack = []

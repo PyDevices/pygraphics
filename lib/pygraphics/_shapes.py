@@ -46,7 +46,7 @@ def _mp_native(f):
 
 @_mp_native
 def _set_pixel(canvas, x, y, c):
-    """Set a pixel without allocating an :class:`Area` (hot-path helper)."""
+    """Set a pixel without allocating an `Area` (hot-path helper)."""
     put = getattr(canvas, "pixel", None)
     if put is not None:
         put(x, y, c)
@@ -56,7 +56,7 @@ def _set_pixel(canvas, x, y, c):
 
 
 def _do_fill_rect(canvas, x, y, w, h, c):
-    """Fill a rectangle without allocating an :class:`Area`."""
+    """Fill a rectangle without allocating an `Area`."""
     fill_m = getattr(canvas, "fill_rect", None)
     if fill_m is not None:
         fill_m(x, y, w, h, c)
@@ -539,7 +539,7 @@ def gradient_rect(canvas, x, y, w, h, c1, c2=None, vertical=True):
         h (int): Height of the rectangle.
         c1 (int): Color for the top or left edge (format-native).
         c2 (int): Color for the bottom or right edge. If omitted or equal to
-            ``c1``, the helper falls back to :func:`fill_rect`.
+            ``c1``, the helper falls back to `fill_rect`.
         vertical (bool): If ``True``, draw a vertical gradient; otherwise a horizontal one.
 
     Returns:

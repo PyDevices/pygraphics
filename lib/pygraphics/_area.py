@@ -14,7 +14,7 @@ class Area:
     and clipping.
 
     `Area` values are commonly returned by drawing helpers such as
-    :func:`fill_rect` and :func:`circle` and can be used to refresh only the
+    `fill_rect` and `circle` and can be used to refresh only the
     pixels that changed. They are also useful for widget hit testing, button
     bounds, and trimming a draw operation to a sub-region of the screen.
 

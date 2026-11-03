@@ -4,7 +4,7 @@
 """Tests for ``pygraphics.FrameBuffer`` (the ``_framebuf_plus`` wrapper).
 
 This is the ``FrameBuffer`` exported from the package. Unlike the bare
-``framebuf`` base class, every drawing method returns an :class:`pygraphics.Area`
+``framebuf`` base class, every drawing method returns an `pygraphics.Area`
 bounding box and the buffer/format/color_depth are exposed as properties.
 """
 

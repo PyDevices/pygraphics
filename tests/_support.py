@@ -36,7 +36,7 @@ def _bits_for(fmt):
 
 
 def make_fb(fmt=RGB565, w=8, h=8):
-    """Build a zeroed :class:`pygraphics.FrameBuffer` of ``w`` x ``h``.
+    """Build a zeroed `pygraphics.FrameBuffer` of ``w`` x ``h``.
 
     Args:
         fmt (int): A pygraphics format constant. Defaults to ``RGB565``.

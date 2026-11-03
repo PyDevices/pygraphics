@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2026 Brad Barnett
+#
+# SPDX-License-Identifier: MIT
+
 """A firmware and a wheel must both say which pygraphics they were built from.
 
 pygraphics#25. `os.uname().version` answers for MicroPython and says nothing
