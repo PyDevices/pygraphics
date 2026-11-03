@@ -193,7 +193,7 @@ class ClippedCanvas:
     def text(self, s, x, y, c=1, scale=1, inverted=False, font_data=None, height=8):
         """Draw romfont text clipped to this region.
 
-        Glyphs are rendered via :meth:`fill_rect` on ``self``, so pixels
+        Glyphs are rendered via `fill_rect` on ``self``, so pixels
         outside the clip are discarded (unlike falling through to the
         underlying canvas ``text``, which draws unclipped).
 
@@ -250,7 +250,7 @@ class ClippedCanvas:
 
 
 class ClipContext:
-    """Context manager that pushes a clip rectangle onto a :class:`Draw` stack.
+    """Context manager that pushes a clip rectangle onto a `Draw` stack.
 
     Entering returns the effective (intersected) clip ``Area``. Nested
     ``with draw.clip(...)`` blocks intersect.

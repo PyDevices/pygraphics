@@ -252,8 +252,8 @@ def export_framebuffer(fb, filename):
         )
 
     ``BITMAP`` is a writable ``bytearray`` so MicroPython can wrap it in a
-    ``FrameBuffer`` without copying. Prefer :meth:`FrameBuffer.from_bitmap` to
-    load. Differs from :meth:`Font.export`, which keeps a read-only
+    ``FrameBuffer`` without copying. Prefer `FrameBuffer.from_bitmap` to
+    load. Differs from `Font.export`, which keeps a read-only
     ``memoryview`` for glyph indexing.
     """
     if not filename.endswith(".py"):

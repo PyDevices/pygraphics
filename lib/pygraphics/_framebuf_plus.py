@@ -83,14 +83,14 @@ class FrameBuffer(_FrameBuffer):
     off-screen buffer.
 
     This class preserves the standard ``framebuf`` API while adding helpers for
-    shapes, text, and image I/O. Each draw operation returns an :class:`Area`
+    shapes, text, and image I/O. Each draw operation returns an `Area`
     describing the pixels that changed, which is ideal for dirty-rectangle
     updates and for compositing a pre-rendered scene before pushing it to the
     display.
 
     Typical usage is to create a ``bytearray`` large enough for the target size,
-    draw a frame with :meth:`fill`, :meth:`fill_rect`, :meth:`circle`, or
-    :func:`text8`, then copy that buffer to a display driver or use the returned
+    draw a frame with `fill`, `fill_rect`, `circle`, or
+    `text8`, then copy that buffer to a display driver or use the returned
     ``Area`` to refresh only the changed region.
 
     Args:
@@ -620,8 +620,8 @@ class FrameBuffer(_FrameBuffer):
     def export(self, filename):
         """Export this framebuffer as an importable ``.py`` bitmap module.
 
-        See :func:`pygraphics._files.export_framebuffer`. Ships ``BITMAP`` as a
-        ``bytearray`` for zero-copy :meth:`from_bitmap` on MicroPython.
+        See `pygraphics._files.export_framebuffer`. Ships ``BITMAP`` as a
+        ``bytearray`` for zero-copy `from_bitmap` on MicroPython.
         """
         from ._files import export_framebuffer
 

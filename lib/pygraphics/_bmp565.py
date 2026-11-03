@@ -267,7 +267,7 @@ class BMP565:
             self._file = None
 
     def __exit__(self, exception_type, exception_value, traceback):
-        """Context-manager exit: call :meth:`deinit`."""
+        """Context-manager exit: call `deinit`."""
         self.deinit()
 
     def __del__(self):

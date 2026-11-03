@@ -137,7 +137,7 @@ def blit_rect_dispatch(canvas, buf, x, y, w, h):
 def try_fast_framebuffer_blit(canvas, source, x, y, key=-1, palette=None):
     """Use framebuffer or display fast paths when available.
 
-    Returns an :class:`Area` on success, or ``None`` to use the pixel loop.
+    Returns an `Area` on success, or ``None`` to use the pixel loop.
     """
     clipped = clip_blit_bounds(canvas, source, x, y)
     if clipped is None:

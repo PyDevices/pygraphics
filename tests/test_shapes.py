@@ -5,7 +5,7 @@
 
 These are the functions re-exported from the package top level (``hline``,
 ``rect``, ``circle`` ...). They take the canvas as the first argument and
-return an :class:`pygraphics.Area` bounding box.
+return an `pygraphics.Area` bounding box.
 """
 
 import unittest
