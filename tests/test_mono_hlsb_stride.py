@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Brad Barnett
+#
 # SPDX-License-Identifier: MIT
 """MONO_HLSB stride must match MicroPython (row byte-aligned)."""
 
