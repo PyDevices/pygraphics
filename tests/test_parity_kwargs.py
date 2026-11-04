@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2026 Brad Barnett
+#
 # SPDX-License-Identifier: MIT
 """Parity probe: kwargs + missing methods vs the pure-Python lib/pygraphics contract."""
 

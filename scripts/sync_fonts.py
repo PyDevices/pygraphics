@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Brad Barnett
+#
 # SPDX-License-Identifier: MIT
 """Generate C font headers from ``lib/pygraphics/_font_8x*.py`` romfont data.
 

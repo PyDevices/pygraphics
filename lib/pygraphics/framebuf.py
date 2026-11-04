@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: 2016 Damien P. George
-# Copyright 2024-2026 Brad Barnett
+# SPDX-FileCopyrightText: 2024-2026 Brad Barnett
+#
 # SPDX-License-Identifier: MIT
 
 """
