@@ -1,3 +1,12 @@
+## v0.1.3.dev0 (2026-11-07)
+
+- Wheels for Linux on ARM64, such as 64-bit Raspberry Pi OS (#64)
+- Style check: fail a pull request on the mechanical style rules (#63)
+- LICENSE: copyright Brad Barnett, as the file headers say (#62)
+- Docstrings: Google sections and cross-references; licence headers on every file (#61)
+- Roadmap: the native-module kit's remaining pieces (#60)
+- AGENTS.md: say how examples are written (#59)
+
 ## v0.1.2 (2026-10-29)
 
 
