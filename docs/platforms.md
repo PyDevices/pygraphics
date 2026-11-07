@@ -13,6 +13,11 @@
 | CircuitPython | pure-Python, copied to `CIRCUITPY/lib/` | not tested automatically |
 | macOS, and 32-bit Linux on ARM | pure-Python | no compiled wheel: copy [`lib/pygraphics/`](https://github.com/PyDevices/pygraphics/tree/main/lib/pygraphics) onto your path |
 
+On a Raspberry Pi, the aarch64 wheel has run on a Pi 4 and a Pi 3 B+. A Pi 5
+runs the same 64-bit Raspberry Pi OS and should take the same wheel, but
+nobody has tried it yet. If you do, [open an issue](https://github.com/PyDevices/pygraphics/issues)
+and say what worked.
+
 The compiled module can also be built into MicroPython or CircuitPython
 firmware; [CONTRIBUTING.md](https://github.com/PyDevices/pygraphics/blob/main/CONTRIBUTING.md#build-it-into-micropython)
 has the steps. `pygraphics.implementation()` tells you which one you have:
