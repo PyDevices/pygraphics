@@ -182,7 +182,7 @@ class Area:
             (Area): A new Area object inset by the specified amount(s).
         """
 
-    def __eq__(self, other: Area) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Checks if the current Area object is equal to another Area object.
 
         Args:
@@ -192,7 +192,7 @@ class Area:
             (bool): True if the two Area objects are equal, False otherwise.
         """
 
-    def __ne__(self, other: Area) -> bool:
+    def __ne__(self, other: object) -> bool:
         """Checks if the current Area object is not equal to another Area object.
 
         Args:

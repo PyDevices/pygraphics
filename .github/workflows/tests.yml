@@ -13,6 +13,7 @@ on:
       - 'tests/**'
       - 'scripts/**'
       - 'pyproject.toml'
+      - 'pygraphics.pyi'
       - '.github/workflows/tests.yml'
   pull_request:
     paths:
@@ -21,6 +22,8 @@ on:
       - 'tests/**'
       - 'scripts/**'
       - 'pyproject.toml'
+      - 'pygraphics.pyi'
+      - '.github/workflows/tests.yml'
   workflow_dispatch:
 
 jobs:
@@ -31,10 +34,12 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
-      - name: Install ruff
-        run: pip install ruff
+      - name: Install ruff and mypy
+        run: pip install ruff mypy
       - name: Ruff
         run: ruff check lib tests
+      - name: The type stub passes mypy
+        run: mypy --no-incremental pygraphics.pyi
       # tests/_env.py is the implementation switch. Note PYTHONPATH alone does
       # NOT select pure Python -- the cwd precedes PYTHONPATH on sys.path, so an
       # in-place native build would win.
