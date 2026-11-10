@@ -48,7 +48,7 @@ print("Drawn with", pygraphics.implementation())
 [Install it](get-started/install.md), then draw
 [your first picture](get-started/first-program.md). The
 [guides](guides/draw-shapes.md) take one task each, the
-[reference](https://pygraphics.readthedocs.io/en/latest/reference/index.html)
+[reference](reference/index.md)
 lists every name, and
 [How it works](how-it-works/index.md) explains the design.
 
@@ -75,8 +75,6 @@ guides/load-and-save-images
 :caption: Reference
 
 reference/index
-platforms
-formats
 ```
 
 ```{toctree}

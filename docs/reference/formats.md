@@ -31,7 +31,7 @@ own; its bytes are stored red, green, blue.
 
 `MONO_VLSB` and `MONO_HMSB` can't be saved directly and raise `ValueError`;
 blit them into a `MONO_HLSB` framebuffer first. PNG needs the `pngio` module,
-as [Load and save images](guides/load-and-save-images.md#save-a-picture)
+as [Load and save images](../guides/load-and-save-images.md#save-a-picture)
 explains.
 
 `load_image()` reads PBM (P4), PGM (P5) and 16-bit RGB565 BMP files.

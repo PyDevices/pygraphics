@@ -48,7 +48,7 @@ By default the whole file is read into memory. `cached=False` keeps the file
 open and reads each letter when it's drawn, which saves memory and costs
 speed. A missing file raises `OSError` (`FileNotFoundError` on CPython). The
 file layout is under
-[Formats](../formats.md#romfont-files).
+[Formats](../reference/formats.md#romfont-files).
 
 ## Text on a real screen
 

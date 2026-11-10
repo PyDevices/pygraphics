@@ -20,7 +20,7 @@ print(grey.save("ramp"))         # ramp.pgm
 ```
 
 `pygraphics.save_image(fb, name)` does the same thing as a function. The full
-list of formats and file types is under [Formats](../formats.md#which-file-each-format-saves-as).
+list of formats and file types is under [Formats](../reference/formats.md#which-file-each-format-saves-as).
 
 A name ending in `.png` saves an `RGB565`, `GS8` or `MONO_HLSB` picture as
 PNG. PNG needs the `pngio` module: PyDevices firmware has it built in, and on
@@ -77,5 +77,5 @@ again = FrameBuffer.from_module(icon)
 pure-Python package only; the compiled package leaves them out because they
 write and read Python source, which is preparation work rather than drawing.
 On CPython with the compiled package, run that step with the pure package on
-your path. [Platforms](../platforms.md#names-only-the-pure-python-package-has)
+your path. [Platforms](../reference/platforms.md#names-only-the-pure-python-package-has)
 lists them.

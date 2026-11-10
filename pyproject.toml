@@ -52,6 +52,12 @@ build-frontend = "build"
 lint.select = ["E", "F", "I", "W", "B", "SIM", "PLC0415"]
 lint.ignore = ["E501", "F401", "F403", "F405", "ISC003", "PLC0415"]
 
+[tool.ruff.lint.isort]
+# pygraphics.pyi at the repo root would make ruff count `pygraphics` as
+# first-party and split every test's `import _env` block; it is the installed
+# package the tests import.
+known-third-party = ["pygraphics"]
+
 [tool.ruff.lint.per-file-ignores]
 # E402: every test imports `_env` first, which puts lib/ on sys.path; the
 #       pygraphics imports must therefore come after it, not at the top.

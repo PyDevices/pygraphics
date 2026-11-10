@@ -13,7 +13,7 @@ pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/
 The package is called `pydevices-pygraphics` and you import `pygraphics`.
 Releases are on TestPyPI for now, which is why the command names it. There
 are compiled wheels for Linux on x86_64 and ARM64, Windows, Android and Pyodide;
-[Platforms](../platforms.md) has the list and what to do on a Mac.
+[Platforms](../reference/platforms.md) has the list and what to do on a Mac.
 
 ## On a MicroPython-compatible board
 

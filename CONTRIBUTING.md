@@ -10,7 +10,8 @@ an existing call, is a good first contribution.
 | Path | What's there |
 |---|---|
 | `src/` | the C module, and its bindings for MicroPython, CircuitPython and CPython |
-| `lib/pygraphics/` | the pure-Python package; the API reference is generated from its docstrings |
+| `lib/pygraphics/` | the pure-Python package |
+| `pygraphics.pyi` | the type stub; the API reference is generated from it |
 | `micropython.mk`, `micropython.cmake`, `manifest.py` | build glue for MicroPython and CircuitPython firmware |
 | `setup.py`, `pyproject.toml` | the CPython wheel |
 | `tests/` | one suite for both implementations; [tests/README.md](tests/README.md) explains the switch |
@@ -138,12 +139,16 @@ python3 -m venv .venv-docs
 .venv-docs/bin/sphinx-build -W --keep-going -b html docs docs/_build/html
 ```
 
-The API reference under `docs/reference/` is generated during the build and
-isn't tracked. Sphinx reads Python docstrings, so it can't see the C module;
-[`tools/sourcey-api/`](tools/sourcey-api/) generates a reference for the C bindings on demand, and
-its README says how.
+The API reference is generated from [`pygraphics.pyi`](pygraphics.pyi) during
+the build, so it describes the compiled module and the pure-Python package
+together; `docs/reference/pygraphics.rst` is written for you and isn't tracked.
+When you add or change a public name, change `lib/pygraphics`, the C module
+and the stub, with the docstring in the stub. `tests/test_stub.py` fails when
+the stub and `__all__` disagree. A name only one package has says so in its
+docstring.
+[`tools/sourcey-api/`](tools/sourcey-api/) generates a separate reference for
+the C bindings on demand, and its README says how.
 
-`lib/pygraphics` is the source of truth for the generated Python API pages.
 Keep guidance true for both the compiled module and the pure-Python package:
 don't document an API shape that differs between them, and prefer worked
 examples (off-screen rendering, dirty rectangles, hit testing, sprite blits,

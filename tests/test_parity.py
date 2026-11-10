@@ -19,7 +19,7 @@ MicroPython, which has no ``ast`` and no ``importlib``.
 
 ``PURE_ONLY`` below is the recorded exclusion: names that are pure-Python by
 design. Both directions are enforced, so implementing one in C fails this test
-until docs/platforms.md and docs/guides/load-and-save-images.md stop calling
+until docs/reference/platforms.md and docs/guides/load-and-save-images.md stop calling
 it pure-only.
 """
 
@@ -81,7 +81,7 @@ if missing:
         "native module is missing public names: "
         + ", ".join(missing)
         + " -- implement them, or add them to PURE_ONLY_MODULE and record the "
-        "exclusion in docs/platforms.md"
+        "exclusion in docs/reference/platforms.md"
     )
 
 # The other direction: an exclusion that stops being true has to be noticed.
@@ -94,7 +94,7 @@ if unexpected:
         "these are implemented in C now: "
         + ", ".join(unexpected)
         + " -- drop them from PURE_ONLY_* here and from the 'pure-Python only' "
-        "notes in docs/platforms.md and docs/guides/load-and-save-images.md"
+        "notes in docs/reference/platforms.md and docs/guides/load-and-save-images.md"
     )
 
 # Named in __all__ but absent from the pure package would mean __all__ itself lies.
