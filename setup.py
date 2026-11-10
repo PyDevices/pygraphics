@@ -4,10 +4,12 @@
 """Build native pygraphics C extension."""
 
 import os
+import shutil
 import subprocess
 import sys
 
 from setuptools import Extension, setup
+from setuptools.command.build_ext import build_ext
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -59,9 +61,25 @@ GFX_SOURCES = [
     os.path.join("src", "gfx_capabilities.c"),
 ]
 
+class build_ext_with_stub(build_ext):
+    """Install the type stub beside the compiled module (PEP 561).
+
+    pygraphics installs as a top-level extension module, so its stub goes in a
+    ``pygraphics-stubs`` folder, which type checkers search for. The folder's
+    ``__init__.pyi`` is the repository's one ``pygraphics.pyi``, copied at build.
+    """
+
+    def run(self):
+        super().run()
+        target = os.path.join(self.build_lib, "pygraphics-stubs")
+        os.makedirs(target, exist_ok=True)
+        shutil.copyfile(os.path.join(ROOT, "pygraphics.pyi"), os.path.join(target, "__init__.pyi"))
+
+
 setup(
     name="pydevices-pygraphics",
     packages=[],
+    cmdclass={"build_ext": build_ext_with_stub},
     py_modules=[],
     ext_modules=[
         Extension(
