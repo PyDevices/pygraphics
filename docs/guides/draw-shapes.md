@@ -57,7 +57,7 @@ another object that has the basic `framebuf` methods (`pixel`, `hline`,
 
 `RGB565` is the usual choice for a colour screen. The other formats are for
 monochrome and greyscale screens, LED strips and smaller buffers; they're
-listed with their sizes under [Formats](../formats.md#pixel-formats). The
+listed with their sizes under [Formats](../reference/formats.md#pixel-formats). The
 buffer must hold `width * height` pixels at the format's size, so a
 `MONO_HLSB` buffer 128 by 64 is `128 * 64 // 8` bytes.
 

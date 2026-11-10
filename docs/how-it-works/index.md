@@ -37,7 +37,7 @@ Both pass the same tests, and each change is checked by drawing the same
 pictures with both and comparing them byte for byte. The compiled package is
 faster, by a lot: [Benchmarks](benchmarks.md) has the numbers. The four names
 that only the pure package has are listed under
-[Platforms](../platforms.md#names-only-the-pure-python-package-has).
+[Platforms](../reference/platforms.md#names-only-the-pure-python-package-has).
 
 ## Compatible with framebuf
 

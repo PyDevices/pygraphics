@@ -29,5 +29,5 @@ tools/sourcey-api/dist/
 tools/sourcey-api/generated/
 docs/_build/
 site/
-docs/reference/
+docs/reference/pygraphics.rst
 .venv-docs/
