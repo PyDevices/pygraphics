@@ -72,9 +72,9 @@ jobs:
       - uses: actions/checkout@v7
         with:
           repository: micropython/micropython
-          # The version PyDevices firmware pins. The recipe is also tested
+          # The release the other PyDevices repos build in CI. The recipe is also tested
           # against master by hand; this job pins so CI cannot break upstream.
-          ref: v1.28.0
+          ref: v1.29.0
           path: micropython
 
       # USER_C_MODULES builds every module in the directory it is given, so it
