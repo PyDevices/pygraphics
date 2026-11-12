@@ -61,6 +61,43 @@ display_drv.blit_rect(tile, 0, 0, 16, 16)
 A slice is raw RGB565 bytes, ready for a display driver's `blit_rect`.
 `bg(x, y, w, h)` is the same as `bg[x:x + w, y:y + h]`.
 
+## Draw an icon in any colour
+
+An icon stored as an 8-bit alpha mask, one byte per pixel, says how much of a
+colour to lay down at each pixel: 0 leaves the screen as it is, 255 covers it
+completely, and the values between give smooth edges. `fb.blit_alpha(mask, x,
+y, w, h, color)` draws the mask tinted with `color`, so one mask serves every
+colour:
+
+```python
+from pygraphics import FrameBuffer, RGB565
+
+# A 4 x 4 mask: a soft-edged square.
+mask = memoryview(b"\x00\x80\x80\x00\x80\xff\xff\x80\x80\xff\xff\x80\x00\x80\x80\x00")
+
+fb = FrameBuffer(bytearray(16 * 8 * 2), 16, 8, RGB565)
+fb.fill(0x0000)
+fb.blit_alpha(mask, 1, 2, 4, 4, 0xF800)    # red
+fb.blit_alpha(mask, 7, 2, 4, 4, 0x07E0)    # green
+print(hex(fb.pixel(2, 3)))                 # 0xf800
+```
+
+`color` is a pixel value in the framebuffer's own format, the number `pixel`
+takes: `0xF800` is red in `RGB565`, `0xFF0000` is red in `RGB888`. Each colour
+channel is blended as `(color * a + old * (255 - a) + 127) // 255`, on the
+channels as stored (5, 6 and 5 bits in `RGB565`), the same way in every
+package. `blit_alpha` works on `RGB565`, `RGB888` and `GS8` and raises a
+`ValueError` on any other format, or when the mask is shorter than `w * h`.
+Parts of the mask outside the framebuffer are clipped.
+
+Keep icon data that you freeze into firmware as `memoryview(b"...")`, not
+`bytearray(...)`. A `bytes` literal in frozen code stays in flash, and
+`blit_alpha` reads a memoryview over it in place. A `bytearray` is writable,
+so importing the module copies its data into RAM, even when the module is
+frozen. `blit_alpha` never copies the mask, so a frozen icon costs no RAM at
+all. [blit_alpha_icons.py](https://github.com/PyDevices/pygraphics/blob/main/examples/blit_alpha_icons.py)
+draws shapes from masks it builds in code.
+
 ## Turn a picture into Python source
 
 The pure-Python package can write a framebuffer out as a `.py` module, so an

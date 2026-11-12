@@ -14,6 +14,7 @@ repository's root, so the ones that load a picture or a font find it in
 | [font_list.py](font_list.py) | Every bitmap font in a folder |
 | [pbm_simpletest.py](pbm_simpletest.py) | A one-bit PBM picture shown in colour |
 | [pbm_create_new.py](pbm_create_new.py) | A one-bit logo drawn, then shown in colour |
+| [blit_alpha_icons.py](blit_alpha_icons.py) | Smooth-edged shapes drawn in several colours from one alpha mask |
 | [bmp565_simpletest.py](bmp565_simpletest.py) | A whole BMP picture loaded and shown |
 | [bmp565_sprite.py](bmp565_sprite.py) | A sprite walking, read from a sprite sheet |
 | [bmp565_scroll.py](bmp565_scroll.py) | A tall picture scrolled a line at a time |
