@@ -561,6 +561,34 @@ def _check_framebuffer_ops(rep: _Reporter, native, py) -> None:
                 w * h * bpp,
             )
 
+    if _skip_unless_framebuffer(rep, native, py, "blit_alpha"):
+        # Every alpha value, then masks that hang off each side, in each format.
+        ramp = bytes(range(256))
+        for fmt_name, bpp, bg, tint in (
+            ("RGB565", 2, 0x1234, 0xF81F),
+            ("RGB888", 3, 0x336699, 0xFF8000),
+            ("GS8", 1, 0x40, 0xE0),
+        ):
+            for label, mw, mh, mx, my, mask in (
+                ("ramp", 256, 1, 0, 0, ramp),
+                ("clipped", 12, 10, -5, -4, bytes((i * 37) & 0xFF for i in range(120))),
+                ("overhang", 12, 10, w - 7, h - 6, bytes((i * 91) & 0xFF for i in range(120))),
+            ):
+                fw = 256 if label == "ramp" else w
+                fh = 1 if label == "ramp" else h
+                fb_n, fb_p, nbuf, pbuf = _paired_format(native, py, fw, fh, fmt_name, bpp)
+                fb_n.fill(bg)
+                fb_p.fill(bg)
+                fb_n.blit_alpha(mask, mx, my, mw, mh, tint)
+                fb_p.blit_alpha(mask, mx, my, mw, mh, tint)
+                _compare_buffers(
+                    rep,
+                    "FrameBuffer blit_alpha {} {}".format(fmt_name, label),
+                    nbuf,
+                    pbuf,
+                    fw * fh * bpp,
+                )
+
     fb_n, fb_p, nbuf, pbuf = _paired_rgb565(native, py, w, h)
     fb_n.fill(0x1234)
     fb_p.fill(0x1234)

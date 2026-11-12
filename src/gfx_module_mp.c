@@ -554,6 +554,29 @@ static mp_obj_t framebuf_blit_transparent(size_t n_args, const mp_obj_t *args_in
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_blit_transparent_obj, 7, 7, framebuf_blit_transparent);
 
+static mp_obj_t framebuf_blit_alpha(size_t n_args, const mp_obj_t *args_in) {
+    (void)n_args;
+    mp_obj_framebuf_t *self = framebuf_from_obj(args_in[0]);
+    mp_buffer_info_t bufinfo;
+    mp_get_buffer_raise(args_in[1], &bufinfo, MP_BUFFER_READ);
+    int x = mp_obj_get_int(args_in[2]);
+    int y = mp_obj_get_int(args_in[3]);
+    int w = mp_obj_get_int(args_in[4]);
+    int h = mp_obj_get_int(args_in[5]);
+    int rc = gfx_fb_blit_alpha(&self->fb, bufinfo.buf, bufinfo.len, x, y, w, h, mp_obj_get_int(args_in[6]));
+    if (rc == GFX_ALPHA_BAD_FORMAT) {
+        mp_raise_msg_varg(&mp_type_ValueError, MP_ERROR_TEXT("blit_alpha: unsupported format %s"),
+            gfx_format_name(self->fb.format));
+    } else if (rc == GFX_ALPHA_BAD_SIZE) {
+        mp_raise_ValueError(MP_ERROR_TEXT("blit_alpha: negative width or height"));
+    } else if (rc == GFX_ALPHA_SHORT_BUFFER) {
+        mp_raise_ValueError(MP_ERROR_TEXT("blit_alpha: buffer shorter than w*h"));
+    }
+    gfx_area_t area = gfx_area_from_rect(x, y, w, h);
+    return gfx_area_mp_from_gfx(&area);
+}
+static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_blit_alpha_obj, 7, 7, framebuf_blit_alpha);
+
 static mp_obj_t framebuf_arc(size_t n_args, const mp_obj_t *args_in) {
     (void)n_args;
     mp_obj_framebuf_t *self = framebuf_from_obj(args_in[0]);
@@ -814,6 +837,7 @@ static const mp_rom_map_elem_t framebuf_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_blit), MP_ROM_PTR(&framebuf_blit_obj) },
     { MP_ROM_QSTR(MP_QSTR_blit_rect), MP_ROM_PTR(&framebuf_blit_rect_obj) },
     { MP_ROM_QSTR(MP_QSTR_blit_transparent), MP_ROM_PTR(&framebuf_blit_transparent_obj) },
+    { MP_ROM_QSTR(MP_QSTR_blit_alpha), MP_ROM_PTR(&framebuf_blit_alpha_obj) },
     { MP_ROM_QSTR(MP_QSTR_text), MP_ROM_PTR(&framebuf_text_obj) },
     { MP_ROM_QSTR(MP_QSTR_text8), MP_ROM_PTR(&framebuf_text8_obj) },
     { MP_ROM_QSTR(MP_QSTR_text14), MP_ROM_PTR(&framebuf_text14_obj) },

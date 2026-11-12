@@ -483,6 +483,35 @@ class FrameBuffer:
             (Area): The bounding box of the blitted area.
         """
 
+    def blit_alpha(self, buf, x: int, y: int, w: int, h: int, color: int) -> Area:
+        """Tint ``color`` onto the framebuffer through an 8-bit alpha mask.
+
+        ``buf`` holds ``w * h`` alpha values, one byte each, row by row. Each
+        pixel becomes ``(color * a + old * (255 - a) + 127) // 255``, worked out
+        per channel (5, 6 and 5 bits for ``RGB565``, 8 each for ``RGB888``, one
+        for ``GS8``), so alpha 0 leaves the pixel alone and 255 writes ``color``.
+        ``color`` is a pixel value in the framebuffer's own format, the same
+        number ``pixel`` takes. The mask is read where it lives and never
+        copied, so a ``memoryview`` over a frozen ``bytes`` literal stays in
+        flash. Parts of the mask outside the framebuffer are clipped.
+
+        Args:
+            buf (bytes): Alpha mask: ``bytes``, ``bytearray`` or ``memoryview``.
+            x (int): X-coordinate of the mask's top-left corner.
+            y (int): Y-coordinate of the mask's top-left corner.
+            w (int): Mask width in pixels.
+            h (int): Mask height in pixels.
+            color (int): Tint, in the framebuffer's pixel format.
+
+        Returns:
+            (Area): The bounding box of the mask.
+
+        Raises:
+            ValueError: If the format is not ``RGB565``, ``RGB888`` or ``GS8``,
+                if ``w`` or ``h`` is negative, or if ``buf`` is shorter than
+                ``w * h``.
+        """
+
     def circle(self, x0: int, y0: int, r: int, c: int, f: bool = False) -> Area:
         """Circle drawing function.  Will draw a single pixel wide circle
         centered at x0, y0 and the specified r.

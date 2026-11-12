@@ -1121,6 +1121,33 @@ static PyObject *framebuffer_blit_transparent(GfxFrameBufferObject *self, PyObje
     return area_from_gfx(&area);
 }
 
+static PyObject *framebuffer_blit_alpha(GfxFrameBufferObject *self, PyObject *args) {
+    PyObject *buf;
+    int x, y, w, h, color;
+    if (!PyArg_ParseTuple(args, "Oiiiii", &buf, &x, &y, &w, &h, &color)) {
+        return NULL;
+    }
+    Py_buffer view;
+    if (PyObject_GetBuffer(buf, &view, PyBUF_SIMPLE) < 0) {
+        return NULL;
+    }
+    int rc = gfx_fb_blit_alpha(&self->fb, (const uint8_t *)view.buf, (size_t)view.len, x, y, w, h, color);
+    PyBuffer_Release(&view);
+    if (rc == GFX_ALPHA_BAD_FORMAT) {
+        return PyErr_Format(PyExc_ValueError, "blit_alpha: unsupported format %s", gfx_format_name(self->fb.format));
+    }
+    if (rc == GFX_ALPHA_BAD_SIZE) {
+        PyErr_SetString(PyExc_ValueError, "blit_alpha: negative width or height");
+        return NULL;
+    }
+    if (rc == GFX_ALPHA_SHORT_BUFFER) {
+        PyErr_SetString(PyExc_ValueError, "blit_alpha: buffer shorter than w*h");
+        return NULL;
+    }
+    gfx_area_t area = gfx_area_from_rect(x, y, w, h);
+    return area_from_gfx(&area);
+}
+
 static PyObject *framebuffer_text_common(GfxFrameBufferObject *self, PyObject *args, PyObject *kwds, int fixed_height) {
     static char *kwlist_h[] = {"s", "x", "y", "c", "scale", "inverted", "font_data", "height", NULL};
     static char *kwlist[] = {"s", "x", "y", "c", "scale", "inverted", "font_data", NULL};
@@ -1315,6 +1342,7 @@ static PyMethodDef framebuffer_methods[] = {
     {"blit", (PyCFunction)framebuffer_blit, METH_VARARGS | METH_KEYWORDS, NULL},
     {"blit_rect", (PyCFunction)framebuffer_blit_rect, METH_VARARGS, NULL},
     {"blit_transparent", (PyCFunction)framebuffer_blit_transparent, METH_VARARGS, NULL},
+    {"blit_alpha", (PyCFunction)framebuffer_blit_alpha, METH_VARARGS, NULL},
     {"text", (PyCFunction)framebuffer_text, METH_VARARGS | METH_KEYWORDS, NULL},
     {"text8", (PyCFunction)framebuffer_text8, METH_VARARGS | METH_KEYWORDS, NULL},
     {"text14", (PyCFunction)framebuffer_text14, METH_VARARGS | METH_KEYWORDS, NULL},

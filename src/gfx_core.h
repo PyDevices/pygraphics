@@ -163,6 +163,30 @@ static inline int gfx_format_bytes_per_pixel(int format) {
     }
 }
 
+/* Format name for error messages. */
+static inline const char *gfx_format_name(int format) {
+    switch (format) {
+        case GFX_MVLSB:
+            return "MONO_VLSB";
+        case GFX_RGB565:
+            return "RGB565";
+        case GFX_GS4_HMSB:
+            return "GS4_HMSB";
+        case GFX_MHLSB:
+            return "MONO_HLSB";
+        case GFX_MHMSB:
+            return "MONO_HMSB";
+        case GFX_GS2_HMSB:
+            return "GS2_HMSB";
+        case GFX_GS8:
+            return "GS8";
+        case GFX_RGB888:
+            return "RGB888";
+        default:
+            return "unknown";
+    }
+}
+
 /* Max channel value for greyscale / mono formats (-1 if RGB). */
 static inline int gfx_format_grey_max(int format) {
     switch (format) {
