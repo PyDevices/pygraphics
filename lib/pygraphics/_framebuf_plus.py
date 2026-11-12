@@ -48,6 +48,20 @@ except ImportError:
 RGB888 = 7
 
 
+def _format_name(fmt):
+    """Name a format constant for an error message."""
+    for name, value in (
+        ("MONO_VLSB", MONO_VLSB),
+        ("MONO_HLSB", MONO_HLSB),
+        ("MONO_HMSB", MONO_HMSB),
+        ("GS2_HMSB", GS2_HMSB),
+        ("GS4_HMSB", GS4_HMSB),
+    ):
+        if fmt == value:
+            return name
+    return "format %d" % fmt
+
+
 class _RGB888Format:
     depth = 24
 
@@ -447,6 +461,74 @@ class FrameBuffer(_FrameBuffer):
             (Area): The bounding box of the blitted area.
         """
         return _shapes.blit_transparent(self, buf, x, y, w, h, key)
+
+    def blit_alpha(self, buf, x, y, w, h, color):
+        """
+        Blend a color over the framebuffer through an 8-bit alpha mask.
+
+        ``buf`` holds ``w * h`` alpha values, one byte each, row by row. Each
+        pixel becomes ``(color * a + old * (255 - a) + 127) // 255`` per channel
+        (5, 6 and 5 bits for ``RGB565``, 8 each for ``RGB888``, one for ``GS8``),
+        so 0 leaves the pixel alone and 255 writes ``color``. The mask is read in
+        place and never copied, so a ``memoryview`` over a frozen ``bytes``
+        literal stays in flash. Parts outside the framebuffer are clipped.
+
+        Args:
+            buf (bytes): Alpha mask: ``bytes``, ``bytearray`` or ``memoryview``.
+            x (int): X-coordinate of the mask's top-left corner.
+            y (int): Y-coordinate of the mask's top-left corner.
+            w (int): Mask width in pixels.
+            h (int): Mask height in pixels.
+            color (int): Tint, as ``pixel`` takes it for this format.
+
+        Returns:
+            (Area): The bounding box of the mask.
+
+        Raises:
+            ValueError: If the format is not ``RGB565``, ``RGB888`` or ``GS8``,
+                if ``w`` or ``h`` is negative, or if ``buf`` is shorter than
+                ``w * h``.
+        """
+        fmt = self._fb_format
+        if fmt not in (RGB565, RGB888, GS8):
+            raise ValueError("blit_alpha: unsupported format %s" % _format_name(fmt))
+        if w < 0 or h < 0:
+            raise ValueError("blit_alpha: negative width or height")
+        if len(buf) < w * h:
+            raise ValueError("blit_alpha: buffer shorter than w*h")
+        x0 = max(0, x)
+        y0 = max(0, y)
+        x1 = min(self._width, x + w)
+        y1 = min(self._height, y + h)
+        if fmt == RGB565:
+            cc = ((color >> 11) & 0x1F, (color >> 5) & 0x3F, color & 0x1F)
+        elif fmt == RGB888:
+            cc = ((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF)
+        else:
+            cc = (color & 0xFF,)
+        for j in range(y0, y1):
+            row = (j - y) * w - x
+            for i in range(x0, x1):
+                a = buf[row + i]
+                if a == 0:
+                    continue
+                d = self.pixel(i, j)
+                if fmt == RGB565:
+                    out = (
+                        (((cc[0] * a + ((d >> 11) & 0x1F) * (255 - a) + 127) // 255) << 11)
+                        | (((cc[1] * a + ((d >> 5) & 0x3F) * (255 - a) + 127) // 255) << 5)
+                        | ((cc[2] * a + (d & 0x1F) * (255 - a) + 127) // 255)
+                    )
+                elif fmt == RGB888:
+                    out = (
+                        (((cc[0] * a + ((d >> 16) & 0xFF) * (255 - a) + 127) // 255) << 16)
+                        | (((cc[1] * a + ((d >> 8) & 0xFF) * (255 - a) + 127) // 255) << 8)
+                        | ((cc[2] * a + (d & 0xFF) * (255 - a) + 127) // 255)
+                    )
+                else:
+                    out = (cc[0] * a + (d & 0xFF) * (255 - a) + 127) // 255
+                self.pixel(i, j, out)
+        return Area(x, y, w, h)
 
     def circle(self, x0, y0, r, c, f=False):
         """

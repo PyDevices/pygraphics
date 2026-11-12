@@ -392,6 +392,67 @@ int gfx_canvas_try_fb_blit_rect(const gfx_canvas_t *canvas, const void *buf, int
     return 0;
 }
 
+/* One exact formula for every channel and every implementation. */
+#define ALPHA_MIX(c, d, a) ((((c) * (a)) + ((d) * (255 - (a))) + 127) / 255)
+
+int gfx_fb_blit_alpha(const gfx_fb_t *fb, const uint8_t *alpha, size_t alpha_len, int x, int y, int w, int h, int color) {
+    int format = fb->format;
+    if (format != GFX_RGB565 && format != GFX_RGB888 && format != GFX_GS8) {
+        return GFX_ALPHA_BAD_FORMAT;
+    }
+    if (w < 0 || h < 0) {
+        return GFX_ALPHA_BAD_SIZE;
+    }
+    if (alpha_len < (size_t)w * (size_t)h) {
+        return GFX_ALPHA_SHORT_BUFFER;
+    }
+    int x0 = x < 0 ? 0 : x;
+    int y0 = y < 0 ? 0 : y;
+    int x1 = (x + w < fb->width) ? x + w : fb->width;
+    int y1 = (y + h < fb->height) ? y + h : fb->height;
+    if (x0 >= x1 || y0 >= y1) {
+        return GFX_ALPHA_OK;
+    }
+    int cr = 0, cg = 0, cb = 0;
+    if (format == GFX_RGB565) {
+        cr = (color >> 11) & 0x1F;
+        cg = (color >> 5) & 0x3F;
+        cb = color & 0x1F;
+    } else if (format == GFX_RGB888) {
+        cr = (color >> 16) & 0xFF;
+        cg = (color >> 8) & 0xFF;
+        cb = color & 0xFF;
+    } else {
+        cg = color & 0xFF;
+    }
+    for (int j = y0; j < y1; j++) {
+        const uint8_t *row = alpha + (size_t)(j - y) * (size_t)w;
+        for (int i = x0; i < x1; i++) {
+            int a = row[i - x];
+            if (a == 0) {
+                continue;
+            }
+            uint32_t d = gfx_fb_getpixel(fb, (unsigned)i, (unsigned)j);
+            uint32_t out;
+            if (format == GFX_RGB565) {
+                int r = ALPHA_MIX(cr, (int)((d >> 11) & 0x1F), a);
+                int g = ALPHA_MIX(cg, (int)((d >> 5) & 0x3F), a);
+                int b = ALPHA_MIX(cb, (int)(d & 0x1F), a);
+                out = (uint32_t)((r << 11) | (g << 5) | b);
+            } else if (format == GFX_RGB888) {
+                int r = ALPHA_MIX(cr, (int)((d >> 16) & 0xFF), a);
+                int g = ALPHA_MIX(cg, (int)((d >> 8) & 0xFF), a);
+                int b = ALPHA_MIX(cb, (int)(d & 0xFF), a);
+                out = (uint32_t)((r << 16) | (g << 8) | b);
+            } else {
+                out = (uint32_t)ALPHA_MIX(cg, (int)(d & 0xFF), a);
+            }
+            gfx_fb_setpixel(fb, (unsigned)i, (unsigned)j, out);
+        }
+    }
+    return GFX_ALPHA_OK;
+}
+
 void gfx_fb_scroll(gfx_fb_t *fb, int xstep, int ystep) {
     unsigned int sx, y, xend, yend;
     int dx, dy;

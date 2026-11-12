@@ -97,6 +97,7 @@ def t_missing_fb_methods():
         "polygon",
         "blit_rect",
         "blit_transparent",
+        "blit_alpha",
         "save",
         "text8",
         "text14",
@@ -107,6 +108,7 @@ def t_missing_fb_methods():
     raw = bytearray(4 * 2 * 2)
     fb.blit_rect(raw, 40, 44, 4, 2)
     fb.blit_transparent(raw, 46, 44, 4, 2, 0)
+    fb.blit_alpha(bytes(4 * 2), 52, 44, 4, 2, 0xFFFF)
 
 
 def t_missing_draw_methods():

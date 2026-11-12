@@ -31,6 +31,18 @@ gfx_area_t gfx_fb_fill(const gfx_fb_t *fb, uint32_t col);
 void gfx_fb_canvas_init(gfx_canvas_t *canvas, const gfx_fb_t *fb);
 void gfx_fb_scroll(gfx_fb_t *fb, int xstep, int ystep);
 
+/* Results of gfx_fb_blit_alpha. */
+#define GFX_ALPHA_OK 0
+#define GFX_ALPHA_BAD_FORMAT (-1)
+#define GFX_ALPHA_BAD_SIZE (-2)
+#define GFX_ALPHA_SHORT_BUFFER (-3)
+
+/* Blend ``color`` over the framebuffer through an 8-bit alpha mask of w*h
+ * bytes (row-major, stride w), clipped to the framebuffer. The mask is only
+ * read, never copied. ``color`` is a pixel value in the framebuffer's own
+ * format. Returns one of GFX_ALPHA_*. */
+int gfx_fb_blit_alpha(const gfx_fb_t *fb, const uint8_t *alpha, size_t alpha_len, int x, int y, int w, int h, int color);
+
 /* Fast path when ``canvas`` was built by ``gfx_fb_canvas_init``. Returns 1 on success. */
 int gfx_canvas_try_fb_blit_rect(const gfx_canvas_t *canvas, const void *buf, int x, int y, int w, int h, int bpp);
 
