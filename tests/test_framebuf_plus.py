@@ -20,6 +20,7 @@ from pygraphics import (
     MONO_HMSB,
     MONO_VLSB,
     RGB565,
+    RGB888,
     Area,
     FrameBuffer,
 )
@@ -92,6 +93,29 @@ class TestMethodsReturnArea(unittest.TestCase):
         src.fill(0xABCD)
         self.assertEqual(self.fb.blit(src, 2, 2), Area(2, 2, 4, 4))
         self.assertEqual(self.fb.pixel(2, 2), 0xABCD)
+
+    def test_blit_same_format_copies_rows(self):
+        # Same format with no key or palette takes the row-copy path: whole
+        # frames, offsets and every clipped edge must match the pixel loop.
+        for fmt, bpp in ((RGB565, 2), (GS8, 1), (RGB888, 3)):
+            for sw, sh, x, y in ((16, 16, 0, 0), (5, 4, 3, 2), (6, 5, -2, -1), (6, 5, 13, 12), (20, 3, -2, 4)):
+                src_buf = bytearray(sw * sh * bpp)
+                for i in range(len(src_buf)):
+                    src_buf[i] = (i * 7 + 13) & 0xFF
+                dst_buf = bytearray(16 * 16 * bpp)
+                src = FrameBuffer(src_buf, sw, sh, fmt)
+                dst = FrameBuffer(dst_buf, 16, 16, fmt)
+                area = dst.blit(src, x, y)
+                x0, y0 = max(0, x), max(0, y)
+                x1, y1 = min(16, x + sw), min(16, y + sh)
+                self.assertEqual(area, Area(x0, y0, x1 - x0, y1 - y0))
+                want = bytearray(16 * 16 * bpp)
+                for row in range(y0, y1):
+                    for col in range(x0, x1):
+                        s = ((row - y) * sw + (col - x)) * bpp
+                        d = (row * 16 + col) * bpp
+                        want[d : d + bpp] = src_buf[s : s + bpp]
+                self.assertEqual(bytes(dst_buf), bytes(want), (fmt, sw, sh, x, y))
 
     def test_blit_tuple_source_returns_area(self):
         # MicroPython's framebuf.blit takes (buffer, width, height, format).

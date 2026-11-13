@@ -45,5 +45,6 @@ int gfx_fb_blit_alpha(const gfx_fb_t *fb, const uint8_t *alpha, size_t alpha_len
 
 /* Fast path when ``canvas`` was built by ``gfx_fb_canvas_init``. Returns 1 on success. */
 int gfx_canvas_try_fb_blit_rect(const gfx_canvas_t *canvas, const void *buf, int x, int y, int w, int h, int bpp);
+int gfx_canvas_try_fb_blit_fb(const gfx_canvas_t *canvas, const gfx_fb_t *source, int x, int y, int sx, int sy, int w, int h);
 
 #endif

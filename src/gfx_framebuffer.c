@@ -392,6 +392,35 @@ int gfx_canvas_try_fb_blit_rect(const gfx_canvas_t *canvas, const void *buf, int
     return 0;
 }
 
+/* Copy a clipped w x h rectangle between two framebuffers of the same byte-per-pixel
+ * format with one memcpy per row, or one memcpy for the lot when both strides equal
+ * the copy width. Returns 0 when the canvas is not a framebuffer or the formats differ. */
+int gfx_canvas_try_fb_blit_fb(const gfx_canvas_t *canvas, const gfx_fb_t *source, int x, int y, int sx, int sy, int w, int h) {
+    if (canvas == NULL || source == NULL || canvas->fill_rect != fb_canvas_fill_rect || w < 1 || h < 1) {
+        return 0;
+    }
+    const gfx_fb_t *dst = (const gfx_fb_t *)canvas->ctx;
+    int bpp = gfx_format_bytes_per_pixel(dst->format);
+    if (bpp <= 0 || dst->format != source->format || dst->buf == source->buf) {
+        return 0;
+    }
+    size_t row_bytes = (size_t)w * (size_t)bpp;
+    uint8_t *d = (uint8_t *)dst->buf + ((size_t)y * dst->stride + (size_t)x) * (size_t)bpp;
+    const uint8_t *s = (const uint8_t *)source->buf + ((size_t)sy * source->stride + (size_t)sx) * (size_t)bpp;
+    if (dst->stride == w && source->stride == w) {
+        memcpy(d, s, row_bytes * (size_t)h);
+        return 1;
+    }
+    size_t dstep = (size_t)dst->stride * (size_t)bpp;
+    size_t sstep = (size_t)source->stride * (size_t)bpp;
+    for (int row = 0; row < h; row++) {
+        memcpy(d, s, row_bytes);
+        d += dstep;
+        s += sstep;
+    }
+    return 1;
+}
+
 /* One exact formula for every channel and every implementation. */
 #define ALPHA_MIX(c, d, a) ((((c) * (a)) + ((d) * (255 - (a))) + 127) / 255)
 
