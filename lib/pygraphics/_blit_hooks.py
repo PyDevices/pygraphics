@@ -103,26 +103,29 @@ def _extract_rows(source, src_x, src_y, w, h, bpp):
 
 
 def blit_rect_to_buffer(canvas, buf, x, y, w, h, *, bpp=None):
-    """Copy a packed rectangle into ``canvas.buffer``."""
+    """Copy a packed rectangle into ``canvas.buffer``, clipping to the canvas."""
     if bpp is None:
         bpp = canvas_bytes_per_pixel(canvas)
         if bpp <= 0:
             bpp = _RGB565_BPP
-    if x < 0 or y < 0 or x + w > canvas.width or y + h > canvas.height:
-        raise ValueError("The provided x, y, w, h values are out of range")
-
     expected = w * h * bpp
     if len(buf) != expected:
         raise ValueError(
             f"The source buffer is not the correct size (got {len(buf)} bytes, expected {expected})"
         )
 
-    for row in range(h):
-        source_begin = row * w * bpp
-        source_end = source_begin + w * bpp
-        dest_begin = ((y + row) * canvas.width + x) * bpp
-        dest_end = dest_begin + w * bpp
-        canvas.buffer[dest_begin:dest_end] = buf[source_begin:source_end]
+    # Clip like the compiled module: keep the part of the rectangle on the canvas.
+    x0 = max(0, x)
+    y0 = max(0, y)
+    x1 = min(canvas.width, x + w)
+    y1 = min(canvas.height, y + h)
+    if x0 >= x1 or y0 >= y1:
+        return
+    row_bytes = (x1 - x0) * bpp
+    for dest_row in range(y0, y1):
+        source_begin = ((dest_row - y) * w + (x0 - x)) * bpp
+        dest_begin = (dest_row * canvas.width + x0) * bpp
+        canvas.buffer[dest_begin : dest_begin + row_bytes] = buf[source_begin : source_begin + row_bytes]
 
 
 def blit_rect_dispatch(canvas, buf, x, y, w, h):

@@ -22,7 +22,7 @@ fb.gradient_rect(140, 90, 50, 25, 0xF800, 0x001F)
 ```
 
 Pass `f=True` to fill a shape that has an outline form. `arc` takes a start
-and end angle in degrees. `gradient_rect` blends from the first colour to the
+and end angle in degrees and has no thickness argument. `gradient_rect` blends from the first colour to the
 second, top to bottom; add `vertical=False` for left to right.
 
 For a shape of your own, `poly(x, y, coords, c, f=False)` draws the polygon
