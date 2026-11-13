@@ -539,6 +539,32 @@ def _check_framebuffer_ops(rep: _Reporter, native, py) -> None:
     fb_p.blit(src_p, 2, 3)
     _compare_buffers(rep, "FrameBuffer blit", nbuf, pbuf, length)
 
+    # Same-format blits with no key and no palette take a row-copy fast path in
+    # the compiled module: whole frame, offsets, clipping on every side, and a
+    # source whose rows are padded (stride wider than the width).
+    for fmt_name, bpp in (("RGB565", 2), ("GS8", 1), ("RGB888", 3)):
+        for label, (sw, sh, sx, sy) in (
+            ("same size", (w, h, 0, 0)),
+            ("inside", (6, 5, 3, 4)),
+            ("clipped left top", (7, 6, -3, -2)),
+            ("clipped right bottom", (7, 6, w - 4, h - 3)),
+            ("wider than canvas", (w + 5, 4, -2, 1)),
+        ):
+            fb_n, fb_p, nbuf, pbuf = _paired_format(native, py, w, h, fmt_name, bpp)
+            s_nbuf = bytearray(sw * sh * bpp + 16)
+            s_pbuf = bytearray(sw * sh * bpp + 16)
+            for i in range(sw * sh * bpp):
+                s_nbuf[i] = s_pbuf[i] = (i * 7 + 13) & 0xFF
+            src_n = native.FrameBuffer(s_nbuf, sw, sh, getattr(native, fmt_name))
+            src_p = py.FrameBuffer(s_pbuf, sw, sh, getattr(py, fmt_name))
+            fb_n.fill(0)
+            fb_p.fill(0)
+            area_n = fb_n.blit(src_n, sx, sy)
+            area_p = fb_p.blit(src_p, sx, sy)
+            _compare_buffers(rep, "FrameBuffer blit {} {}".format(fmt_name, label), nbuf, pbuf, len(nbuf))
+            if tuple(area_n) != tuple(area_p):
+                rep.fail("FrameBuffer blit {} {} area {} vs {}".format(fmt_name, label, tuple(area_n), tuple(area_p)))
+
     if _skip_unless_framebuffer(rep, native, py, "blit_rect"):
         sw, sh = 4, 4
         for fmt_name, bpp, fill in (("GS8", 1, 0xA5), ("RGB888", 3, 0x112233)):

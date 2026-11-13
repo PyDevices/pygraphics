@@ -14,7 +14,7 @@ Format constants match MicroPython ``framebuf`` where applicable:
 
 from . import _font, _shapes
 from ._area import Area
-from ._blit_hooks import clip_blit_bounds
+from ._blit_hooks import canvas_bytes_per_pixel, clip_blit_bounds
 
 try:
     # Local submodule: present in TestPyPI wheels and after scripts/install_sync_framebuf.py runs.
@@ -133,6 +133,8 @@ class FrameBuffer(_FrameBuffer):
             ValueError: If ``format`` is not a supported constant.
         """
         self._rgb888 = format == RGB888
+        # True while rows are packed edge to edge, which row-copy blits rely on.
+        self._plain_stride = not args and kwargs.get("stride") is None
         # RGB888 is a PyDevices extension; base framebuf never implements it.
         # Initialize the C extmod base as RGB565 so MicroPython does not fall back
         # to make_new with an invalid format.  Pixel ops use _RGB888Format below.
@@ -401,11 +403,36 @@ class FrameBuffer(_FrameBuffer):
         Returns:
             (Area): Bounding box of the blitted buffer
         """
-        super().blit(source, x, y, key, palette)
         clipped = clip_blit_bounds(self, source, x, y)
         if clipped is None:
             return None
-        x0, y0, w, h, _, _ = clipped
+        x0, y0, w, h, src_x, src_y = clipped
+        if (
+            key == -1
+            and palette is None
+            and isinstance(source, FrameBuffer)
+            and source._fb_format == self._fb_format
+            and source._plain_stride
+            and self._plain_stride
+            and source._buffer is not self._buffer
+        ):
+            bpp = canvas_bytes_per_pixel(self)
+            if bpp > 0:
+                # Same format, no key, no palette: copy whole rows, as the
+                # compiled module does, instead of going through the pixel loop.
+                src_buf = source._buffer
+                dst_buf = self._buffer
+                row = w * bpp
+                if w == self._width and w == source._width:
+                    start = y0 * row
+                    dst_buf[start : start + row * h] = src_buf[src_y * row : (src_y + h) * row]
+                else:
+                    for r in range(h):
+                        d = ((y0 + r) * self._width + x0) * bpp
+                        s = ((src_y + r) * source._width + src_x) * bpp
+                        dst_buf[d : d + row] = src_buf[s : s + row]
+                return Area(x0, y0, w, h)
+        super().blit(source, x, y, key, palette)
         return Area(x0, y0, w, h)
 
     ########### Additional methods

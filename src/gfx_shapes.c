@@ -420,6 +420,11 @@ gfx_area_t gfx_shapes_blit(const gfx_canvas_t *canvas, const gfx_fb_t *source, i
     int x0end = MIN(canvas->width, x + source->width);
     int y0end = MIN(canvas->height, y + source->height);
 
+    /* Same format, no key, no palette: copy whole rows with memcpy. */
+    if (key == -1 && palette == NULL && gfx_canvas_try_fb_blit_fb(canvas, source, x0, y0, x1, y1, x0end - x0, y0end - y0)) {
+        return gfx_area_from_rect(x0, y0, x0end - x0, y0end - y0);
+    }
+
     /* Iterate with a separate cursor: y0 is the origin of the returned Area and
      * must survive the loop. Advancing it directly made every blit report
      * Area(x0, y0end, w, 0) -- the wrong origin and a zero height. */
