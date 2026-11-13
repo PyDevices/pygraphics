@@ -147,6 +147,10 @@ typedef struct gfx_canvas {
     void (*hline)(void *ctx, int x, int y, int w, int c);
     void (*vline)(void *ctx, int x, int y, int h, int c);
     void (*fill_rect)(void *ctx, int x, int y, int w, int h, int c);
+    /* Optional: copy a packed w*h rectangle in one call (a display driver's
+     * own blit_rect). Returns 1 when it drew, 0 to fall back to pixels.
+     * NULL when the target has none. */
+    int (*blit_rect)(void *ctx, const void *buf, int x, int y, int w, int h, int bpp);
 } gfx_canvas_t;
 
 /* Bytes per packed pixel for contiguous buffer blits (0 = bit-packed / N/A). */

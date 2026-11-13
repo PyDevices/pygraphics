@@ -103,6 +103,22 @@ static void py_canvas_vline(void *ctx, int x, int y, int h, int c) {
     py_canvas_fill_rect(ctx, x, y, 1, h, c);
 }
 
+/* A display driver's blit_rect takes the whole rectangle in one call, as the
+ * pure-Python blit_rect does, rather than one pixel() call per pixel. */
+static int py_canvas_blit_rect(void *ctx, const void *buf, int x, int y, int w, int h, int bpp) {
+    mp_py_canvas_ctx_t *pc = (mp_py_canvas_ctx_t *)ctx;
+    size_t len = (size_t)w * (size_t)h * (size_t)bpp;
+    mp_obj_t args[5] = {
+        mp_obj_new_memoryview('B', len, (void *)buf),
+        mp_obj_new_int(x),
+        mp_obj_new_int(y),
+        mp_obj_new_int(w),
+        mp_obj_new_int(h),
+    };
+    py_canvas_call_method(pc->obj, MP_QSTR_blit_rect, 5, args);
+    return 1;
+}
+
 static bool mp_init_py_canvas(mp_obj_t target, mp_canvas_slot_t *slot) {
     if (!mp_obj_has_method(target, MP_QSTR_fill_rect) && !mp_obj_has_method(target, MP_QSTR_pixel)) {
         return false;
@@ -125,6 +141,7 @@ static bool mp_init_py_canvas(mp_obj_t target, mp_canvas_slot_t *slot) {
     slot->canvas.hline = py_canvas_hline;
     slot->canvas.vline = py_canvas_vline;
     slot->canvas.fill_rect = py_canvas_fill_rect;
+    slot->canvas.blit_rect = mp_obj_has_method(target, MP_QSTR_blit_rect) ? py_canvas_blit_rect : NULL;
     return true;
 }
 

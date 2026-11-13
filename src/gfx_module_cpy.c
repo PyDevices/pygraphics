@@ -511,6 +511,24 @@ static void py_canvas_vline(void *ctx, int x, int y, int h, int c) {
     py_canvas_fill_rect(ctx, x, y, 1, h, c);
 }
 
+/* A display driver's blit_rect takes the whole rectangle in one call, as the
+ * pure-Python blit_rect does, rather than one pixel() call per pixel. */
+static int py_canvas_blit_rect(void *ctx, const void *buf, int x, int y, int w, int h, int bpp) {
+    cpy_py_canvas_ctx_t *pc = (cpy_py_canvas_ctx_t *)ctx;
+    if (PyErr_Occurred()) {
+        return 1;
+    }
+    Py_ssize_t len = (Py_ssize_t)w * (Py_ssize_t)h * (Py_ssize_t)bpp;
+    PyObject *view = PyMemoryView_FromMemory((char *)buf, len, PyBUF_READ);
+    if (!view) {
+        return 1;
+    }
+    PyObject *r = PyObject_CallMethod(pc->obj, "blit_rect", "Oiiii", view, x, y, w, h);
+    Py_DECREF(view);
+    Py_XDECREF(r);
+    return 1;
+}
+
 /* Resolve a drawing target into a gfx_canvas_t. slot must outlive the draw
  * call (its py ctx is referenced by canvas.ctx). Returns 0 on success. */
 static int cpy_canvas_resolve(PyObject *target, cpy_canvas_slot_t *slot) {
@@ -552,6 +570,7 @@ static int cpy_canvas_resolve(PyObject *target, cpy_canvas_slot_t *slot) {
         slot->canvas.hline = py_canvas_hline;
         slot->canvas.vline = py_canvas_vline;
         slot->canvas.fill_rect = py_canvas_fill_rect;
+        slot->canvas.blit_rect = cpy_py_has_method(target, "blit_rect") ? py_canvas_blit_rect : NULL;
         return 0;
     }
     PyErr_SetString(PyExc_TypeError, "FrameBuffer or canvas required");
