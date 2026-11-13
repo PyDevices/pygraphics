@@ -52,6 +52,17 @@ static void clipped_fill_rect(void *ctx, int x, int y, int w, int h, int c) {
     }
 }
 
+static int clipped_blit_rect(void *ctx, const void *buf, int x, int y, int w, int h, int bpp) {
+    gfx_clipped_canvas_t *cc = (gfx_clipped_canvas_t *)ctx;
+    gfx_area_t rect = gfx_area_from_rect(x, y, w, h);
+    gfx_area_t clipped = gfx_area_clip(&rect, &cc->clip);
+    /* Only a rectangle wholly inside the clip goes through in one call. */
+    if (clipped.x != x || clipped.y != y || clipped.w != w || clipped.h != h) {
+        return 0;
+    }
+    return cc->parent->blit_rect(cc->parent->ctx, buf, x, y, w, h, bpp);
+}
+
 void gfx_clipped_canvas_init(gfx_clipped_canvas_t *cc, const gfx_canvas_t *parent, const gfx_area_t *clip) {
     cc->parent = parent;
     cc->clip = *clip;
@@ -63,6 +74,7 @@ void gfx_clipped_canvas_init(gfx_clipped_canvas_t *cc, const gfx_canvas_t *paren
     cc->base.hline = clipped_hline;
     cc->base.vline = clipped_vline;
     cc->base.fill_rect = clipped_fill_rect;
+    cc->base.blit_rect = parent->blit_rect ? clipped_blit_rect : NULL;
 }
 
 gfx_area_t gfx_shapes_pixel(const gfx_canvas_t *canvas, int x, int y, int c) {
@@ -425,6 +437,32 @@ gfx_area_t gfx_shapes_blit(const gfx_canvas_t *canvas, const gfx_fb_t *source, i
         return gfx_area_from_rect(x0, y0, x0end - x0, y0end - y0);
     }
 
+    /* Same packed format into a target with its own blit_rect (a display
+     * driver): hand it whole rows, as the pure-Python blit does. */
+    int bpp = gfx_format_bytes_per_pixel(source->format);
+    if (key == -1 && palette == NULL && canvas->blit_rect && bpp > 0
+        && bpp == gfx_format_bytes_per_pixel(canvas->format)) {
+        int w = x0end - x0;
+        int h = y0end - y0;
+        const uint8_t *src = (const uint8_t *)source->buf;
+        size_t row_bytes = (size_t)source->stride * (size_t)bpp;
+        if (w == source->stride) {
+            const uint8_t *start = src + (size_t)y1 * row_bytes;
+            if (canvas->blit_rect(canvas->ctx, start, x0, y0, w, h, bpp)) {
+                return gfx_area_from_rect(x0, y0, w, h);
+            }
+        } else {
+            int drew = 1;
+            for (int row = 0; row < h && drew; row++) {
+                const uint8_t *start = src + (size_t)(y1 + row) * row_bytes + (size_t)x1 * (size_t)bpp;
+                drew = canvas->blit_rect(canvas->ctx, start, x0, y0 + row, w, 1, bpp);
+            }
+            if (drew) {
+                return gfx_area_from_rect(x0, y0, w, h);
+            }
+        }
+    }
+
     /* Iterate with a separate cursor: y0 is the origin of the returned Area and
      * must survive the loop. Advancing it directly made every blit report
      * Area(x0, y0end, w, 0) -- the wrong origin and a zero height. */
@@ -741,6 +779,9 @@ gfx_area_t gfx_shapes_blit_rect(const gfx_canvas_t *canvas, const void *buf, int
         }
     }
     if (gfx_canvas_try_fb_blit_rect(canvas, buf, x, y, w, h, bpp)) {
+        return gfx_area_from_rect(x, y, w, h);
+    }
+    if (canvas->blit_rect && w > 0 && h > 0 && canvas->blit_rect(canvas->ctx, buf, x, y, w, h, bpp)) {
         return gfx_area_from_rect(x, y, w, h);
     }
     const uint8_t *src = (const uint8_t *)buf;

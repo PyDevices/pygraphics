@@ -353,6 +353,7 @@ void gfx_fb_canvas_init(gfx_canvas_t *canvas, const gfx_fb_t *fb) {
     canvas->hline = fb_canvas_hline;
     canvas->vline = fb_canvas_vline;
     canvas->fill_rect = fb_canvas_fill_rect;
+    canvas->blit_rect = NULL;
 }
 
 int gfx_canvas_try_fb_blit_rect(const gfx_canvas_t *canvas, const void *buf, int x, int y, int w, int h, int bpp) {
