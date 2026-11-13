@@ -1,3 +1,7 @@
+## v0.1.4 (2026-11-13)
+
+- FrameBuffer: blit copies whole rows when the formats match (#76)
+
 ## v0.1.3 (2026-11-13)
 
 - blit_rect: pure Python clips to the canvas like the compiled module (#74)
