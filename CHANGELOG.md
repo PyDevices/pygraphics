@@ -1,3 +1,11 @@
+## v0.1.3.dev1 (2026-11-13)
+
+- FrameBuffer: blit_alpha tints a colour through an 8-bit alpha mask (#71)
+- CI: build the MicroPython module test on v1.29.0 (#70)
+- Type stub: Area equality takes any object, and CI runs mypy on the stub (#68)
+- pygraphics: a type stub for editors, and a Reference section built from it (#67)
+- Docs: Raspberry Pi 5 should take the aarch64 wheel; reports welcome (#66)
+
 ## v0.1.3.dev0 (2026-11-07)
 
 - Wheels for Linux on ARM64, such as 64-bit Raspberry Pi OS (#64)
