@@ -1,3 +1,7 @@
+## v0.1.3 (2026-11-13)
+
+- blit_rect: pure Python clips to the canvas like the compiled module (#74)
+
 ## v0.1.3.dev1 (2026-11-13)
 
 - FrameBuffer: blit_alpha tints a colour through an 8-bit alpha mask (#71)
