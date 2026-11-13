@@ -560,6 +560,26 @@ def _check_framebuffer_ops(rep: _Reporter, native, py) -> None:
                 pbuf,
                 w * h * bpp,
             )
+            # Rectangles that hang off each side, or miss the canvas entirely.
+            for label, rx, ry in (
+                ("left", -2, 2),
+                ("right", w - 2, 2),
+                ("top", 3, -1),
+                ("bottom", 3, h - 3),
+                ("corner", -3, -3),
+                ("away", w + 5, h + 5),
+            ):
+                fb_n.fill(0)
+                fb_p.fill(0)
+                fb_n.blit_rect(src, rx, ry, sw, sh)
+                fb_p.blit_rect(src, rx, ry, sw, sh)
+                _compare_buffers(
+                    rep,
+                    "FrameBuffer blit_rect {} {}".format(fmt_name, label),
+                    nbuf,
+                    pbuf,
+                    w * h * bpp,
+                )
 
     if _skip_unless_framebuffer(rep, native, py, "blit_alpha"):
         # Every alpha value, then masks that hang off each side, in each format.
