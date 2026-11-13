@@ -1,3 +1,7 @@
+## v0.1.5 (2026-11-13)
+
+- blit_rect: a display driver's own blit_rect takes the whole rectangle (#78)
+
 ## v0.1.4 (2026-11-13)
 
 - FrameBuffer: blit copies whole rows when the formats match (#76)
