@@ -12,37 +12,48 @@ Format constants match MicroPython ``framebuf`` where applicable:
 * ``RGB888`` — 24-bit color (pygraphics extension; value ``7``)
 """
 
+import sys
+
 from . import _font, _shapes
 from ._area import Area
 from ._blit_hooks import canvas_bytes_per_pixel, clip_blit_bounds
 
-try:
-    # Local submodule: present in TestPyPI wheels and after scripts/install_sync_framebuf.py runs.
-    from .framebuf import (
-        GS2_HMSB,
-        GS4_HMSB,
-        GS8,
-        MONO_HLSB,
-        MONO_HMSB,
-        MONO_VLSB,
-        RGB565,
-    )
-    from .framebuf import FrameBuffer as _FrameBuffer
-except ImportError:
-    # graphics/framebuf.py is a generated packaging artifact (gitignored) not present
-    # in all deploy paths (PyScript, mip-install from GitHub, bare CP/MP without wheel).
-    # Fall back to the bare framebuf module: native C on MicroPython hardware,
-    # or utils/framebuf.py when utils/ is on sys.path (PyScript, CircuitPython, etc.).
-    from framebuf import (  # type: ignore[no-redef]
-        GS2_HMSB,
-        GS4_HMSB,
-        GS8,
-        MONO_HLSB,
-        MONO_HMSB,
-        MONO_VLSB,
-        RGB565,
-    )
-    from framebuf import FrameBuffer as _FrameBuffer  # type: ignore[no-redef]
+
+def _base_framebuf():
+    """The framebuf module to build on.
+
+    MicroPython's built-in C ``framebuf`` comes first there: the pure-Python
+    ``pygraphics.framebuf`` installed beside this file draws the same pixels
+    far slower, and an install that ships it must not shadow the C one.
+    Elsewhere (CPython, CircuitPython, PyScript) the pure-Python copy comes
+    first, then a ``framebuf`` on the path.
+    """
+    if sys.implementation.name == "micropython":
+        try:
+            import framebuf
+
+            return framebuf
+        except ImportError:
+            pass
+    try:
+        from . import framebuf
+
+        return framebuf
+    except ImportError:
+        import framebuf
+
+        return framebuf
+
+
+_framebuf = _base_framebuf()
+GS2_HMSB = _framebuf.GS2_HMSB
+GS4_HMSB = _framebuf.GS4_HMSB
+GS8 = _framebuf.GS8
+MONO_HLSB = _framebuf.MONO_HLSB
+MONO_HMSB = _framebuf.MONO_HMSB
+MONO_VLSB = _framebuf.MONO_VLSB
+RGB565 = _framebuf.RGB565
+_FrameBuffer = _framebuf.FrameBuffer
 
 # PyDevices extension — not in MicroPython framebuf
 RGB888 = 7
@@ -420,7 +431,9 @@ class FrameBuffer(_FrameBuffer):
             if bpp > 0:
                 # Same format, no key, no palette: copy whole rows, as the
                 # compiled module does, instead of going through the pixel loop.
-                src_buf = source._buffer
+                # A memoryview slice copies nothing: a bytearray slice would
+                # allocate a copy of the source first, the size of a screen.
+                src_buf = memoryview(source._buffer)
                 dst_buf = self._buffer
                 row = w * bpp
                 if w == self._width and w == source._width:
