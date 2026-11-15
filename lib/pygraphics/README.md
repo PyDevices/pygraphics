@@ -7,9 +7,12 @@ Import it as `pygraphics`.
 On a MicroPython-compatible board, install it with mip:
 
 ```python
-import mip
-mip.install("pygraphics", index="https://PyDevices.github.io/mip")
+import omip
+omip.install("pygraphics")
 ```
+
+`omip` comes with OmniPython firmware. On other MicroPython firmware, run
+`mip.install("github:PyDevices/pydevices/lib/omip.py")` once to put it on the board.
 
 On a CircuitPython-compatible board, copy this folder to `CIRCUITPY/lib/`.
 On CPython, install the compiled package instead:

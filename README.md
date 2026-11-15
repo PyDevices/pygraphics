@@ -11,9 +11,12 @@ pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/
 ```
 
 ```python
-import mip
-mip.install("pygraphics", index="https://PyDevices.github.io/mip")
+import omip
+omip.install("pygraphics")
 ```
+
+`omip` comes with OmniPython firmware. On other MicroPython firmware, run
+`mip.install("github:PyDevices/pydevices/lib/omip.py")` once to put it on the board.
 
 ```python
 import pygraphics

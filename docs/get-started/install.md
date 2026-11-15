@@ -20,9 +20,12 @@ are compiled wheels for Linux on x86_64 and ARM64, Windows, Android and Pyodide;
 From the board's REPL, with the board online:
 
 ```python
-import mip
-mip.install("pygraphics", index="https://PyDevices.github.io/mip")
+import omip
+omip.install("pygraphics")
 ```
+
+`omip` comes with OmniPython firmware. On other MicroPython firmware, run
+`mip.install("github:PyDevices/pydevices/lib/omip.py")` once to put it on the board.
 
 ## On a CircuitPython-compatible board
 
