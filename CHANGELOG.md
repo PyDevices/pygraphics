@@ -1,3 +1,9 @@
+## v0.1.6 (2026-11-15)
+
+- Install docs: use omip and lib.omnipython.org (#82)
+- package.json: the Python package says it stands in for the C module (#81)
+- FrameBuffer: build on MicroPython's C framebuf, not the bundled copy (#80)
+
 ## v0.1.5 (2026-11-13)
 
 - blit_rect: a display driver's own blit_rect takes the whole rectangle (#78)
