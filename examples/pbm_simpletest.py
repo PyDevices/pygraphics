@@ -8,7 +8,7 @@ two-entry palette, and copies it to the display twice: once as it is, and
 once with its background left transparent.
 
 Needs: a board_config with a display_drv, which a PyDevices board
-package or pydevices-desktop provides, and pygraphics.
+package or omnipython-desktop provides, and pygraphics.
 
 Run it from the repository's root:
     python examples/pbm_simpletest.py

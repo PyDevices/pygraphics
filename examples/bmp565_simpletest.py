@@ -9,7 +9,7 @@ needs RAM: a small board such as an RP2040 raises MemoryError. See
 bmp565_scroll_sprite.py for reading a picture a line at a time instead.
 
 Needs: a board_config with a display_drv, which a PyDevices board
-package or pydevices-desktop provides, and pygraphics.
+package or omnipython-desktop provides, and pygraphics.
 
 Run it from the repository's root:
     python examples/bmp565_simpletest.py

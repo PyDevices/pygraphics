@@ -98,7 +98,7 @@ directory to the modules you want. CI builds the unix port of MicroPython
 
 MicroPython's [manifest reference](https://docs.micropython.org/en/v1.29.0/reference/manifest.html)
 has more on `c_module()` and `include()`.
-[micropython-pydevices](https://github.com/PyDevices/micropython-pydevices)
+[omnipython-builds](https://github.com/PyDevices/omnipython-builds)
 keeps ready-made manifests and boards for building several PyDevices modules
 at once.
 
@@ -157,5 +157,5 @@ gradients, text) over bare method lists.
 ## Releases
 
 Each release tag `vX.Y.Z` publishes the compiled wheels to TestPyPI as
-`pydevices-pygraphics` and the pure package to the mip index as `pygraphics`,
+`omnipython-pygraphics` and the pure package to the mip index as `pygraphics`,
 both at that version.

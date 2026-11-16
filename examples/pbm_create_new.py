@@ -8,7 +8,7 @@ holds, colours it through a two-entry palette, and copies it to the
 display as it is and with its background left transparent.
 
 Needs: a board_config with a display_drv, which a PyDevices board
-package or pydevices-desktop provides, and pygraphics.
+package or omnipython-desktop provides, and pygraphics.
 
 Run it from the repository's root:
     python examples/pbm_create_new.py

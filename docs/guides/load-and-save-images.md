@@ -24,7 +24,7 @@ list of formats and file types is under [Formats](../reference/formats.md#which-
 
 A name ending in `.png` saves an `RGB565`, `GS8` or `MONO_HLSB` picture as
 PNG. PNG needs the `pngio` module: PyDevices firmware has it built in, and on
-CPython it comes with the `pydevices-desktop` package and needs Pillow.
+CPython it comes with the `omnipython-desktop` package and needs Pillow.
 Without it, saving a PNG raises an `ImportError` that says what to install.
 
 ## Load a picture

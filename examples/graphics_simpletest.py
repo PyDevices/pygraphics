@@ -8,7 +8,7 @@ ellipse and two lines of text, each with one pygraphics function call on
 the display itself, with colours from palettes.
 
 Needs: a board_config with a display_drv, which a PyDevices board
-package or pydevices-desktop provides, and pygraphics, and palettes.
+package or omnipython-desktop provides, and pygraphics, and palettes.
 
 Run it from the repository's root:
     python examples/graphics_simpletest.py

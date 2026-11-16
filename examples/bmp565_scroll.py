@@ -8,7 +8,7 @@ going with the display's hardware scrolling (vscsad), so it never needs
 the whole picture in memory.
 
 Needs: a board_config with a display_drv, which a PyDevices board
-package or pydevices-desktop provides, appdev and pygraphics.
+package or omnipython-desktop provides, appdev and pygraphics.
 
 Run it from the repository's root:
     python examples/bmp565_scroll.py

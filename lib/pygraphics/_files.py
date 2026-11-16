@@ -78,13 +78,13 @@ def load_image(filename):
 
 def _save_png(fb, filename):
     """PNG through pngio: MicroPython's built-in module, or on CPython
-    pydevices-desktop's, over Pillow. pygraphics has no PNG encoder of its own."""
+    omnipython-desktop's, over Pillow. pygraphics has no PNG encoder of its own."""
     try:
         import pngio
     except ImportError:
         raise ImportError(
             "saving PNG needs pngio: PyDevices MicroPython firmware has it built in; "
-            "on CPython install pydevices-desktop and Pillow (pip install pillow)"
+            "on CPython install omnipython-desktop and Pillow (pip install pillow)"
         ) from None
     w, h = fb.width, fb.height
     if fb.format == RGB565:

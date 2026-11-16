@@ -21,7 +21,7 @@ def bundle_assets(repo_root: Path) -> Path:
 
     # Known sibling repositories and their library paths
     workspace_root = repo_root.parent
-    repos_to_bundle = ["pydevices", "palettes", "pdwidgets", "pygraphics"]
+    repos_to_bundle = ["omnipython", "palettes", "pdwidgets", "pygraphics"]
 
     print(f"Bundling PyDevices packages into {bundle_zip}...")
     with zipfile.ZipFile(bundle_zip, "w", zipfile.ZIP_DEFLATED) as zf:

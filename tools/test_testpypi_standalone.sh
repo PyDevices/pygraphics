@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verify the pydevices-pygraphics TestPyPI wheel in an isolated environment.
+# Verify the omnipython-pygraphics TestPyPI wheel in an isolated environment.
 
 set -euo pipefail
 
@@ -23,10 +23,10 @@ python3 -m venv "$VENV"
 "$VENV/bin/pip" install \
     --index-url "$TESTPYPI_INDEX" \
     --extra-index-url "$PYPI_INDEX" \
-    pydevices-pygraphics
+    omnipython-pygraphics
 
 "$VENV/bin/pip" freeze | sort
 "$VENV/bin/python" -c \
     "import pygraphics; print('pygraphics', pygraphics.implementation())"
 
-echo "Standalone pydevices-pygraphics TestPyPI smoke test passed."
+echo "Standalone omnipython-pygraphics TestPyPI smoke test passed."

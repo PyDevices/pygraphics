@@ -5,8 +5,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-/* pygraphics has no PNG encoder: PNG is pngio's (micropython-pydevices'
- * modules/pngio, or pydevices-desktop's pngio.py over Pillow on CPython).
+/* pygraphics has no PNG encoder: PNG is pngio's (omnipython-builds'
+ * modules/pngio, or omnipython-desktop's pngio.py over Pillow on CPython).
  * What is here is the rule for when a save is PNG, and the pixels pngio is
  * handed. */
 

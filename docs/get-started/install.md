@@ -7,10 +7,10 @@ between them.
 ## On a desktop (CPython)
 
 ```bash
-pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pydevices-pygraphics
+pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ omnipython-pygraphics
 ```
 
-The package is called `pydevices-pygraphics` and you import `pygraphics`.
+The package is called `omnipython-pygraphics` and you import `pygraphics`.
 Releases are on TestPyPI for now, which is why the command names it. There
 are compiled wheels for Linux on x86_64 and ARM64, Windows, Android and Pyodide;
 [Platforms](../reference/platforms.md) has the list and what to do on a Mac.
@@ -25,7 +25,7 @@ omip.install("pygraphics")
 ```
 
 `omip` comes with OmniPython firmware. On other MicroPython firmware, run
-`mip.install("github:PyDevices/pydevices/lib/omip.py")` once to put it on the board.
+`mip.install("github:PyDevices/omnipython/lib/omip.py")` once to put it on the board.
 
 ## On a CircuitPython-compatible board
 
@@ -36,7 +36,7 @@ Copy the [`lib/pygraphics/`](https://github.com/PyDevices/pygraphics/tree/main/l
 
 ```python
 import micropip
-await micropip.install("pydevices-pygraphics", index_urls="https://test.pypi.org/simple/")
+await micropip.install("omnipython-pygraphics", index_urls="https://test.pypi.org/simple/")
 ```
 
 micropip picks the wheel that matches your Pyodide version.

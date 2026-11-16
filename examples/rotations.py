@@ -8,7 +8,7 @@ and says which rotation and colour it shows. Use it to check that a
 board_config's rotation settings put the picture the right way up.
 
 Needs: a board_config with a display_drv, which a PyDevices board
-package or pydevices-desktop provides, appdev and pygraphics, and palettes.
+package or omnipython-desktop provides, appdev and pygraphics, and palettes.
 
 Run it from the repository's root:
     python examples/rotations.py

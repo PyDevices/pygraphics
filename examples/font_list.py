@@ -9,7 +9,7 @@ bottom. Font files are named fontname_WxH.bin, W wide and H high. Set
 EXPORT to True to also save each font as a .py module.
 
 Needs: a board_config with a display_drv, which a PyDevices board
-package or pydevices-desktop provides, and pygraphics.
+package or omnipython-desktop provides, and pygraphics.
 
 Run it from the repository's root:
     python examples/font_list.py

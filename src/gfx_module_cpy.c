@@ -1211,7 +1211,7 @@ static PyObject *framebuffer_scroll(GfxFrameBufferObject *self, PyObject *args) 
     return area_from_gfx(&area);
 }
 
-/* Save fb to path: PNG through pngio (pydevices-desktop's, over Pillow) for a
+/* Save fb to path: PNG through pngio (omnipython-desktop's, over Pillow) for a
  * ".png" name or an RGB888 framebuffer, the rest through gfx_files.c. NULL on
  * failure, with the error set. */
 static PyObject *cpy_save(const gfx_fb_t *fb, const char *path) {
@@ -1248,7 +1248,7 @@ static PyObject *cpy_save(const gfx_fb_t *fb, const char *path) {
         gfx_png_release(owned);
         if (PyErr_ExceptionMatches(PyExc_ImportError)) {
             PyErr_SetString(PyExc_ImportError,
-                "saving PNG needs pngio: install pydevices-desktop and Pillow (pip install pillow)");
+                "saving PNG needs pngio: install omnipython-desktop and Pillow (pip install pillow)");
         }
         return NULL;
     }

@@ -216,7 +216,7 @@ class TestBmp565(_TmpDirTest):
 
 def _pngio():
     try:
-        import pngio  # noqa: F401  (MicroPython's built-in, or pydevices-desktop's over Pillow)
+        import pngio  # noqa: F401  (MicroPython's built-in, or omnipython-desktop's over Pillow)
 
         return True
     except ImportError:
