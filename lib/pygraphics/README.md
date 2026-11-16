@@ -30,4 +30,4 @@ print(fb.fill_rect(10, 10, 40, 40, 0xF800))   # Area(10, 10, 40, 40)
 print(pygraphics.implementation())            # pygraphics_python
 ```
 
-[Docs](https://pygraphics.readthedocs.io) · [Source](https://github.com/PyDevices/pygraphics)
+[Docs](https://docs.omnipython.org/en/latest/pygraphics/) · [Source](https://github.com/PyDevices/pygraphics)
