@@ -38,6 +38,6 @@ changed: Area(8, 8, 128, 64)
 `hello.bmp` is the picture at the top of this page, shown at three times its
 size.
 
-[Docs](https://docs.omnipython.org/en/latest/pygraphics/) · [Examples](https://pydevices.github.io/gallery/pyscript/) · [Roadmap](ROADMAP.md)
+[Docs](https://docs.omnipython.org/en/latest/pygraphics/) · [Examples](https://gallery.omnipython.org/pyscript/) · [Roadmap](ROADMAP.md)
 
 OmniPython is made by [PyDevices](https://pydevices.com).
