@@ -5,7 +5,7 @@
 """Sphinx configuration for the pygraphics documentation.
 
 Everything shared by the PyDevices documentation projects (theme, top bar,
-Markdown and docstring setup, the reference map) comes from pydevices-docs.
+Markdown and docstring setup, the reference map) comes from omnipython-docs.
 
 The Reference section is written from ``pygraphics.pyi``, the stub that lists
 every name the compiled module and the pure-Python package share, so the
@@ -17,7 +17,7 @@ package under ``lib/``.
 import sys
 from pathlib import Path
 
-from pydevices_docs import configure
+from omnipython_docs import configure
 
 globals().update(configure(
     "pygraphics", __file__,

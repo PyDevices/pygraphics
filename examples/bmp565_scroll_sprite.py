@@ -8,7 +8,7 @@ runner sprite runs on it. Touch or click the top half to jump and shoot,
 the bottom left to jump, and the bottom right to shoot.
 
 Needs: a board_config with a display_drv, which a PyDevices board
-package or pydevices-desktop provides, appdev and pygraphics.
+package or omnipython-desktop provides, appdev and pygraphics.
 
 Run it from the repository's root:
     python examples/bmp565_scroll_sprite.py

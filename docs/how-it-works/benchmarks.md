@@ -14,7 +14,7 @@ Milliseconds per call, drawing into a 160 × 128 `RGB565` framebuffer:
 | `blit`, a 64 × 64 sprite | 0.024 | 3.57 | 0.021 | 4.40 |
 
 Measured on one laptop (Intel Core Ultra 7 155H, Linux): CPython 3.12.3 with
-pydevices-pygraphics 0.1.1, and MicroPython 1.30 preview unix builds, one
+omnipython-pygraphics 0.1.1, and MicroPython 1.30 preview unix builds, one
 with the compiled module built in and one without. Neither pure run had numpy
 or ulab to call on. A board is far slower than a laptop; the ratio between
 the columns is what carries over.

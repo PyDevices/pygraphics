@@ -77,7 +77,7 @@ class build_ext_with_stub(build_ext):
 
 
 setup(
-    name="pydevices-pygraphics",
+    name="omnipython-pygraphics",
     packages=[],
     cmdclass={"build_ext": build_ext_with_stub},
     py_modules=[],

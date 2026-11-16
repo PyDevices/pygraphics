@@ -23,7 +23,7 @@ your shapes, text and images
 
 The same `import pygraphics` comes in two forms.
 
-The compiled package is C. It's what the `pydevices-pygraphics` wheels
+The compiled package is C. It's what the `omnipython-pygraphics` wheels
 contain, and it can be built into MicroPython or CircuitPython firmware.
 `pygraphics.implementation()` returns `native_cmod`.
 

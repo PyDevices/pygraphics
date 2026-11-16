@@ -14,10 +14,7 @@ Paired ``FrameBuffer`` draws are compared byte-for-byte.
 Pure-Python sources are resolved from (first hit wins):
 
 - ``<repo>/lib/pygraphics`` (this repo's pure-Python package)
-- ``$PYGRAPHICS_LIB/pygraphics`` or ``$PYGRAPHICS_SRC`` (and legacy
-  ``PYDEVICES_PYGRAPHICS_LIB`` / ``PYDEVICES_GRAPHICS_LIB`` /
-  ``PYDEVICES_PYGRAPHICS_SRC`` / ``PYDEVICES_GRAPHICS_SRC`` overrides, kept
-  as a fallback for callers that still set them)
+- ``$PYGRAPHICS_LIB/pygraphics`` or ``$PYGRAPHICS_SRC``
 
 Used by ``compare_graphics_run.py`` (single interpreter) and
 ``compare_graphics_matrix.py`` (all desktop interpreters).
@@ -289,15 +286,7 @@ def resolve_python_graphics_src(repo: str) -> str:
     """Return the pure-Python ``pygraphics`` package directory."""
     candidates = [repo + "/lib/pygraphics"]
 
-    # Legacy PYDEVICES_* overrides are accepted as a fallback for old callers.
-    env_keys = (
-        "PYGRAPHICS_LIB",
-        "PYGRAPHICS_SRC",
-        "PYDEVICES_PYGRAPHICS_LIB",
-        "PYDEVICES_GRAPHICS_LIB",
-        "PYDEVICES_PYGRAPHICS_SRC",
-        "PYDEVICES_GRAPHICS_SRC",
-    )
+    env_keys = ("PYGRAPHICS_LIB", "PYGRAPHICS_SRC")
     for key in env_keys:
         override = _env_get(key)
         if override:

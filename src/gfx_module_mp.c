@@ -175,7 +175,7 @@ static mp_obj_t gfxmp_png_bytes(const gfx_fb_t *fb) {
     } else {
         gfx_png_release(owned);
         if (mp_obj_exception_match(MP_OBJ_FROM_PTR(nlr.ret_val), MP_OBJ_FROM_PTR(&mp_type_ImportError))) {
-            mp_raise_msg(&mp_type_ImportError, MP_ERROR_TEXT("saving PNG needs pngio (micropython-pydevices modules/pngio)"));
+            mp_raise_msg(&mp_type_ImportError, MP_ERROR_TEXT("saving PNG needs pngio (omnipython-builds modules/pngio)"));
         }
         nlr_jump(nlr.ret_val);
     }

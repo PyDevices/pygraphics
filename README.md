@@ -7,7 +7,7 @@ a framebuffer, with the same code on MicroPython-compatible boards,
 CircuitPython-compatible boards and CPython.
 
 ```bash
-pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ pydevices-pygraphics
+pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ omnipython-pygraphics
 ```
 
 ```python
@@ -16,7 +16,7 @@ omip.install("pygraphics")
 ```
 
 `omip` comes with OmniPython firmware. On other MicroPython firmware, run
-`mip.install("github:PyDevices/pydevices/lib/omip.py")` once to put it on the board.
+`mip.install("github:PyDevices/omnipython/lib/omip.py")` once to put it on the board.
 
 ```python
 import pygraphics

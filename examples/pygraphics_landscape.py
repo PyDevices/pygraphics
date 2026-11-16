@@ -9,7 +9,7 @@ the memory of a small board: each band is drawn into a FrameBuffer and
 copied to the display before the next one.
 
 Needs: a board_config with a display_drv, which a PyDevices board
-package or pydevices-desktop provides, appdev and pygraphics, and multimer.
+package or omnipython-desktop provides, appdev and pygraphics, and multimer.
 
 Run it from the repository's root:
     python examples/pygraphics_landscape.py
