@@ -7,7 +7,7 @@
 scripts/bundle_pyscript_assets.py — Bundle pure-Python packages for Pyodide in the docs site.
 
 Packages lib/ from the current repository and sibling PyDevices repositories
-into docs/assets/pyscript/pydevices_bundle.zip for zero-network execution on ReadTheDocs.
+into docs/assets/pyscript/omnipython_bundle.zip for zero-network execution on ReadTheDocs.
 """
 
 import zipfile
@@ -17,7 +17,7 @@ from pathlib import Path
 def bundle_assets(repo_root: Path) -> Path:
     assets_dir = repo_root / "docs" / "assets" / "pyscript"
     assets_dir.mkdir(parents=True, exist_ok=True)
-    bundle_zip = assets_dir / "pydevices_bundle.zip"
+    bundle_zip = assets_dir / "omnipython_bundle.zip"
 
     # Known sibling repositories and their library paths
     workspace_root = repo_root.parent

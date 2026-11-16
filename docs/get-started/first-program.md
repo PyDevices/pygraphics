@@ -58,7 +58,7 @@ This version draws onto the canvas beside the editor. Change a number and
 press **Run**.
 
 ````{raw} html
-<div class="pydevices-live-demo">
+<div class="omnipython-live-demo">
   <div class="demo-editor-pane">
     <textarea class="code-editor">
 import pygraphics
