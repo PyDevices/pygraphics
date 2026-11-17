@@ -323,6 +323,11 @@ class FrameBuffer(_FrameBuffer):
             c (int): color
             f (bool): Fill the polygon (default: False)
 
+        Raises:
+            MemoryError: In the compiled module, a filled polygon of more than 256 vertices needs one int of
+                scratch memory per vertex, and there wasn't enough. Nothing is drawn. A polygon of any
+                size fills; 256 vertices or fewer allocates nothing.
+
         Returns:
             (Area): Bounding box of the polygon
         """

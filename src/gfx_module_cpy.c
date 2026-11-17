@@ -1008,9 +1008,13 @@ static PyObject *framebuffer_poly(GfxFrameBufferObject *self, PyObject *args, Py
     if (cpy_poly_coords_get(coords, &pc) < 0) {
         return NULL;
     }
+    int nomem = 0;
     gfx_area_t area = gfx_shapes_poly(
-        &self->canvas, x, y, cpy_poly_coords_buf(&pc), (size_t)pc.len, (size_t)pc.itemsize, pc.format, col, f || fill);
+        &self->canvas, x, y, cpy_poly_coords_buf(&pc), (size_t)pc.len, (size_t)pc.itemsize, pc.format, col, f || fill, &nomem);
     cpy_poly_coords_release(&pc);
+    if (nomem) {
+        return PyErr_NoMemory();
+    }
     return area_from_gfx(&area);
 }
 
@@ -1656,9 +1660,13 @@ static PyObject *mod_poly(PyObject *self, PyObject *args, PyObject *kwds) {
     if (cpy_poly_coords_get(coords, &pc) < 0) {
         return NULL;
     }
+    int nomem = 0;
     gfx_area_t area = gfx_shapes_poly(
-        &slot.canvas, x, y, cpy_poly_coords_buf(&pc), (size_t)pc.len, (size_t)pc.itemsize, pc.format, col, f || fill);
+        &slot.canvas, x, y, cpy_poly_coords_buf(&pc), (size_t)pc.len, (size_t)pc.itemsize, pc.format, col, f || fill, &nomem);
     cpy_poly_coords_release(&pc);
+    if (nomem) {
+        return PyErr_NoMemory();
+    }
     RETURN_AREA(area);
 }
 
@@ -2140,8 +2148,12 @@ static PyObject *draw_poly(GfxDrawObject *self, PyObject *args, PyObject *kwds) 
     if (cpy_poly_coords_get(coords, &pc) < 0) {
         return NULL;
     }
-    gfx_area_t area = gfx_shapes_poly(t, x, y, cpy_poly_coords_buf(&pc), (size_t)pc.len, (size_t)pc.itemsize, pc.format, col, f || fill);
+    int nomem = 0;
+    gfx_area_t area = gfx_shapes_poly(t, x, y, cpy_poly_coords_buf(&pc), (size_t)pc.len, (size_t)pc.itemsize, pc.format, col, f || fill, &nomem);
     cpy_poly_coords_release(&pc);
+    if (nomem) {
+        return PyErr_NoMemory();
+    }
     RETURN_AREA(area);
 }
 

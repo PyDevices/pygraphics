@@ -10,6 +10,22 @@
 #include "gfx_shapes.h"
 #include "gfx_trig.h"
 
+/* A filled polygon keeps one scanline's crossings, at most one per vertex. Up
+ * to POLY_STACK_NODES it uses the stack, so the common case allocates nothing;
+ * a bigger polygon takes a buffer sized to it. Built as a user C module the
+ * buffer comes from the GC heap, which raises MemoryError itself when it can't
+ * be had (some CircuitPython ports have no C heap, so malloc() wouldn't link
+ * there); elsewhere it is malloc() and a failure is reported to the caller. */
+#define POLY_STACK_NODES 256
+#if defined(PYGRAPHICS_USER_C_MODULE)
+#include "py/misc.h"
+#define POLY_NODES_ALLOC(n) ((int *)m_malloc((n) * sizeof(int)))
+#define POLY_NODES_FREE(p, n) m_del(int, (p), (n))
+#else
+#define POLY_NODES_ALLOC(n) ((int *)malloc((n) * sizeof(int)))
+#define POLY_NODES_FREE(p, n) free(p)
+#endif
+
 #define ELLIPSE_MASK_FILL (0x10)
 #define ELLIPSE_MASK_ALL (0x0f)
 #define ELLIPSE_MASK_Q1 (0x01)
@@ -299,8 +315,11 @@ int gfx_shapes_poly_int_from_buffer(const void *buf, size_t len, size_t itemsize
     #undef GFX_READ
 }
 
-gfx_area_t gfx_shapes_poly(const gfx_canvas_t *canvas, int x, int y, const void *coords, size_t coords_len, size_t itemsize, const char *fmt, int col, int fill) {
+gfx_area_t gfx_shapes_poly(const gfx_canvas_t *canvas, int x, int y, const void *coords, size_t coords_len, size_t itemsize, const char *fmt, int col, int fill, int *nomem) {
     int n_poly = (int)(coords_len / (itemsize * 2));
+    if (nomem) {
+        *nomem = 0;
+    }
     if (n_poly == 0) {
         return gfx_area_from_rect(0, 0, 0, 0);
     }
@@ -338,26 +357,37 @@ gfx_area_t gfx_shapes_poly(const gfx_canvas_t *canvas, int x, int y, const void 
             y_min = MIN(y_min, py);
             y_max = MAX(y_max, py);
         }
-        for (int row = y_min; row <= y_max; row++) {
-            int nodes[256];
-            if (n_poly > 256) {
+        int stack_nodes[POLY_STACK_NODES];
+        int *nodes = stack_nodes;
+        if (n_poly > POLY_STACK_NODES) {
+            nodes = POLY_NODES_ALLOC((size_t)n_poly);
+            if (!nodes) {
+                if (nomem) {
+                    *nomem = 1;
+                }
                 return gfx_area_from_rect(0, 0, 0, 0);
             }
+        }
+        int failed = 0;
+        for (int row = y_min; row <= y_max; row++) {
             int n_nodes = 0;
             int px1, py1;
             if (gfx_shapes_poly_int_from_buffer(coords, coords_len, itemsize, fmt, 0, &px1) < 0
                 || gfx_shapes_poly_int_from_buffer(coords, coords_len, itemsize, fmt, 1, &py1) < 0) {
-                return gfx_area_from_rect(0, 0, 0, 0);
+                failed = 1;
+                goto fill_done;
             }
             int i = n_poly * 2 - 1;
             do {
                 int py2, px2;
                 if (gfx_shapes_poly_int_from_buffer(coords, coords_len, itemsize, fmt, (size_t)i, &py2) < 0) {
-                    return gfx_area_from_rect(0, 0, 0, 0);
+                    failed = 1;
+                    goto fill_done;
                 }
                 i--;
                 if (gfx_shapes_poly_int_from_buffer(coords, coords_len, itemsize, fmt, (size_t)i, &px2) < 0) {
-                    return gfx_area_from_rect(0, 0, 0, 0);
+                    failed = 1;
+                    goto fill_done;
                 }
                 i--;
                 if (py1 != py2 && ((py1 > row && py2 <= row) || (py1 <= row && py2 > row))) {
@@ -394,6 +424,13 @@ gfx_area_t gfx_shapes_poly(const gfx_canvas_t *canvas, int x, int y, const void 
             for (i = 0; i < n_nodes; i += 2) {
                 canvas->fill_rect(canvas->ctx, x + nodes[i], y + row, (nodes[i + 1] - nodes[i]) + 1, 1, col);
             }
+        }
+    fill_done:
+        if (nodes != stack_nodes) {
+            POLY_NODES_FREE(nodes, (size_t)n_poly);
+        }
+        if (failed) {
+            return gfx_area_from_rect(0, 0, 0, 0);
         }
     } else {
         int px1, py1;

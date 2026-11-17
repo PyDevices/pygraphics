@@ -298,9 +298,13 @@ static mp_obj_t draw_poly(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args
     mp_get_buffer_raise(parsed[ARG_coords].u_obj, &bufinfo, MP_BUFFER_READ);
     bool fill = parsed[ARG_fill_pos].u_int || parsed[ARG_f].u_bool || parsed[ARG_fill].u_bool;
     char fmt[2] = { (char)bufinfo.typecode, '\0' };
+    int nomem = 0;
     gfx_area_t area = gfx_shapes_poly(draw_target(self), parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         bufinfo.buf, bufinfo.len, mp_binary_get_size('@', bufinfo.typecode, NULL), fmt,
-        parsed[ARG_c].u_int, fill);
+        parsed[ARG_c].u_int, fill, &nomem);
+    if (nomem) {
+        mp_raise_msg(&mp_type_MemoryError, MP_ERROR_TEXT("poly: no memory for the fill"));
+    }
     return gfx_area_mp_from_gfx(&area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(draw_poly_obj, 5, draw_poly);
@@ -1594,9 +1598,13 @@ static mp_obj_t mod_poly(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args)
     mp_get_buffer_raise(parsed[ARG_coords].u_obj, &bufinfo, MP_BUFFER_READ);
     bool fill = parsed[ARG_fill_pos].u_int || parsed[ARG_f].u_bool || parsed[ARG_fill].u_bool;
     char fmt[2] = { (char)bufinfo.typecode, '\0' };
+    int nomem = 0;
     gfx_area_t area = gfx_shapes_poly(&slot.canvas, parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         bufinfo.buf, bufinfo.len, mp_binary_get_size('@', bufinfo.typecode, NULL), fmt,
-        parsed[ARG_c].u_int, fill);
+        parsed[ARG_c].u_int, fill, &nomem);
+    if (nomem) {
+        mp_raise_msg(&mp_type_MemoryError, MP_ERROR_TEXT("poly: no memory for the fill"));
+    }
     return gfx_area_mp_from_gfx(&area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(mod_poly_obj, 5, mod_poly);
