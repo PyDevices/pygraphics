@@ -45,6 +45,9 @@ print("Drawn with", pygraphics.implementation())
 </div>
 ````
 
+[Bit World](https://gallery.omnipython.org/bit_world/) is built on pygraphics: a pixel-art robot in three scenes that
+runs in your browser and installs as an app.
+
 [Install it](get-started/install.md), then draw
 [your first picture](get-started/first-program.md). The
 [guides](guides/draw-shapes.md) take one task each, the
