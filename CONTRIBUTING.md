@@ -156,6 +156,6 @@ gradients, text) over bare method lists.
 
 ## Releases
 
-Each release tag `vX.Y.Z` publishes the compiled wheels to TestPyPI as
+Each release tag `vX.Y.Z` publishes the compiled wheels to PyPI as
 `omnipython-pygraphics` and the pure package to the mip index as `pygraphics`,
 both at that version.

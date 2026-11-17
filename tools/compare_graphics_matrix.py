@@ -9,7 +9,7 @@ Run from the pygraphics repo root::
     python tools/compare_graphics_matrix.py
     python tools/compare_graphics_matrix.py --only-interpreter micropython,cpython-venv
 
-For ``cpython-venv`` and ``python.exe``, installs ``omnipython-pygraphics`` from TestPyPI
+For ``cpython-venv`` and ``python.exe``, installs ``omnipython-pygraphics`` from PyPI
 (first time per interpreter) so ``import pygraphics`` resolves to the native wheel.
 
 Results: summary table on stderr, JSON in the system temp directory.
@@ -66,8 +66,6 @@ INTERPRETER_EXE_NAMES = {
     "python.exe": "python.exe",
 }
 
-TESTPYPI_INDEX = os.environ.get("TESTPYPI_INDEX", "https://test.pypi.org/simple/")
-PYPI_INDEX = os.environ.get("PYPI_INDEX", "https://pypi.org/simple/")
 
 CPYTHON_INTERPRETER_IDS = frozenset({"cpython-venv", "python.exe"})
 
@@ -127,7 +125,7 @@ def ensure_graphics_native(python_exe: str, *, verbose: bool) -> tuple[bool, str
     if impl == "pygraphics_python":
         if verbose:
             print(
-                "Installing omnipython-pygraphics from TestPyPI for {}...".format(python_exe),
+                "Installing omnipython-pygraphics from PyPI for {}...".format(python_exe),
                 file=sys.stderr,
             )
     elif impl:
@@ -147,10 +145,6 @@ def ensure_graphics_native(python_exe: str, *, verbose: bool) -> tuple[bool, str
         "pip",
         "install",
         "-q",
-        "-i",
-        TESTPYPI_INDEX,
-        "--extra-index-url",
-        PYPI_INDEX,
         "omnipython-pygraphics",
     ]
     subprocess.run(install, check=True)
@@ -158,7 +152,7 @@ def ensure_graphics_native(python_exe: str, *, verbose: bool) -> tuple[bool, str
     impl = _graphics_impl(python_exe)
     if impl != "native_cmod":
         return False, "pygraphics install failed (implementation={!r})".format(impl)
-    return True, "installed omnipython-pygraphics from TestPyPI"
+    return True, "installed omnipython-pygraphics from PyPI"
 
 
 def parse_result(stdout: str) -> dict | None:

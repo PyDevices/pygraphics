@@ -18,7 +18,7 @@ On a CircuitPython-compatible board, copy this folder to `CIRCUITPY/lib/`.
 On CPython, install the compiled package instead:
 
 ```bash
-pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ omnipython-pygraphics
+pip install omnipython-pygraphics
 ```
 
 ```python

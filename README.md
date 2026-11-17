@@ -7,7 +7,7 @@ a framebuffer, with the same code on MicroPython-compatible boards,
 CircuitPython-compatible boards and CPython.
 
 ```bash
-pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ omnipython-pygraphics
+pip install omnipython-pygraphics
 ```
 
 ```python
