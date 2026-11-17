@@ -23,13 +23,6 @@ firmware; [CONTRIBUTING.md](https://github.com/PyDevices/pygraphics/blob/main/CO
 has the steps. `pygraphics.implementation()` tells you which one you have:
 `native_cmod` for the compiled module, `pygraphics_python` for the pure one.
 
-## Which index
-
-Releases go to TestPyPI, which is why the install command names it. PyPI
-holds one old release, 0.0.37, kept to reserve the name, so
-`pip install omnipython-pygraphics` without the TestPyPI index succeeds and
-gives you that old version.
-
 ## Names only the pure-Python package has
 
 Everything in `pygraphics.__all__` is in both packages, except four names
