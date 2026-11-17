@@ -11,6 +11,7 @@ module and the pure package are held to the same picture.
 """
 
 import math
+import sys
 import unittest
 from array import array
 
@@ -38,6 +39,11 @@ def _star(n, step):
 def _line(n):
     """All points on one diagonal, so the polygon has no area."""
     return [(10 + i % 100, 10 + i % 100) for i in range(n)]
+
+
+def _flat(pts):
+    """Points as a flat ``array('h')``, the form every build accepts."""
+    return array("h", [v for p in pts for v in p])
 
 
 def _div(a, b):
@@ -90,7 +96,7 @@ class TestLargeFilledPolygon(unittest.TestCase):
         """
         got = make_fb(w=_SIZE, h=_SIZE)
         got.fill(0)
-        area = poly(got, 0, 0, pts, _WHITE, True)
+        area = poly(got, 0, 0, _flat(pts), _WHITE, True)
         want = make_fb(w=_SIZE, h=_SIZE)
         want.fill(0)
         _reference(want, pts, _WHITE)
@@ -103,32 +109,32 @@ class TestLargeFilledPolygon(unittest.TestCase):
 
     def test_circle_of_300_points_draws(self):
         got = self.check(_circle(300))
-        self.assertGreater(count_set(got), 5000)
+        self.assertTrue(count_set(got) > 5000)
 
     def test_exactly_256_vertices(self):
-        self.assertGreater(count_set(self.check(_circle(256))), 5000)
+        self.assertTrue(count_set(self.check(_circle(256))) > 5000)
 
     def test_257_vertices(self):
-        self.assertGreater(count_set(self.check(_circle(257))), 5000)
+        self.assertTrue(count_set(self.check(_circle(257))) > 5000)
 
     def test_2000_vertices(self):
-        self.assertGreater(count_set(self.check(_circle(2000))), 5000)
+        self.assertTrue(count_set(self.check(_circle(2000))) > 5000)
 
     def test_self_intersecting_over_256_vertices(self):
-        self.assertGreater(count_set(self.check(_star(301, 120), 0.01)), 5000)
+        self.assertTrue(count_set(self.check(_star(301, 120), 0.01)) > 5000)
 
     def test_self_intersecting_under_the_old_limit_differs_the_same_way(self):
-        self.assertGreater(count_set(self.check(_star(201, 80), 0.01)), 5000)
+        self.assertTrue(count_set(self.check(_star(201, 80), 0.01)) > 5000)
 
     def test_degenerate_line_over_256_vertices(self):
         self.check(_line(300))
 
-    def test_flat_array_of_300_points(self):
+    @unittest.skipIf(sys.implementation.name == "micropython", "MicroPython's poly takes a buffer, not a list")
+    def test_list_of_300_points(self):
         pts = _circle(300)
-        flat = array("h", [v for p in pts for v in p])
         got = make_fb(w=_SIZE, h=_SIZE)
         got.fill(0)
-        poly(got, 0, 0, flat, _WHITE, True)
+        poly(got, 0, 0, pts, _WHITE, True)
         self.assertEqual(_pixels(got), _pixels(self.check(pts)))
 
 
