@@ -1,3 +1,7 @@
+## v0.1.7.dev2 (2026-11-17)
+
+- poly: a filled polygon with crossing edges draws the same pixels in every build (#95)
+
 ## v0.1.7.dev1 (2026-11-17)
 
 - poly: a filled polygon draws however many vertices it has (#92)
