@@ -1,3 +1,8 @@
+## v0.1.7.dev1 (2026-11-17)
+
+- poly: a filled polygon draws however many vertices it has (#92)
+- Docs: live demos use the omnipython-live-demo class the theme styles (#91)
+
 ## v0.1.6 (2026-11-15)
 
 - Install docs: use omip and lib.omnipython.org (#82)
