@@ -1,3 +1,9 @@
+## v0.1.7.dev3 (2026-11-17)
+
+- Publishing: every release also goes to PyPI (#99)
+- Docs: Bit World as pygraphics' showcase (#98)
+- Release workflows: pinned to publishing-v28 (#97)
+
 ## v0.1.7.dev2 (2026-11-17)
 
 - poly: a filled polygon with crossing edges draws the same pixels in every build (#95)
