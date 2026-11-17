@@ -1,3 +1,8 @@
+## v0.2.0 (2026-11-17)
+
+- Publishing: callers move to publishing-v31, which uploads to PyPI alone (#102)
+- Install lines name PyPI (#101)
+
 ## v0.1.7.dev3 (2026-11-17)
 
 - Publishing: every release also goes to PyPI (#99)
