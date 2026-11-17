@@ -1,13 +1,15 @@
 # SPDX-FileCopyrightText: 2026 Brad Barnett
 #
 # SPDX-License-Identifier: MIT
-"""A filled polygon draws however many vertices it has (#85).
+"""A filled polygon draws however many vertices it has (#85), and the same pixels in every build (#93).
 
 The compiled ``poly(..., f=True)`` used to return an empty area and draw nothing
 once a polygon passed 256 vertices, while the pure-Python version and the
 outline path had no such limit. Each case here fills a polygon and compares the
 pixels with a reference scanline fill written in this file, so the compiled
-module and the pure package are held to the same picture.
+module and the pure package are held to the same picture. The reference walks
+the edges the way MicroPython's ``framebuf.poly`` does, last vertex first, so a
+filled polygon whose edges cross draws the same pixels as ``framebuf``.
 """
 
 import math
@@ -53,14 +55,19 @@ def _div(a, b):
 
 
 def _reference(canvas, pts, col):
-    """The scanline fill ``poly`` is defined by, kept independent of ``poly``."""
+    """The scanline fill ``poly`` is defined by, kept independent of ``poly``.
+
+    Each edge runs from one vertex to the one before it, starting with the edge
+    from the first vertex to the last, as ``framebuf.poly`` does. The direction
+    matters: the node's rounding is taken from the edge's first vertex.
+    """
     n = len(pts)
     ys = [p[1] for p in pts]
     for row in range(min(ys), max(ys) + 1):
         nodes = []
         for j in range(n):
-            px1, py1 = pts[j]
-            px2, py2 = pts[(j + 1) % n]
+            px1, py1 = pts[-j]
+            px2, py2 = pts[-j - 1]
             if py1 != py2 and ((py1 > row and py2 <= row) or (py1 <= row and py2 > row)):
                 nodes.append(_div(32 * px1 + _div(32 * (px2 - px1) * (row - py1), py2 - py1) + 16, 32))
             elif row == max(py1, py2):
@@ -85,15 +92,8 @@ def _pixels(canvas):
 
 
 class TestLargeFilledPolygon(unittest.TestCase):
-    def check(self, pts, tolerance=0.0):
-        """Fill ``pts`` and compare with the reference.
-
-        ``tolerance`` is the share of the filled pixels that may differ. It is
-        zero except where edges cross: the compiled module walks the edges
-        backwards from the pure package, so where they cross the integer
-        rounding can land an edge pixel one column over. That holds under 256
-        vertices too, so it isn't part of #85.
-        """
+    def check(self, pts):
+        """Fill ``pts`` and compare every pixel with the reference."""
         got = make_fb(w=_SIZE, h=_SIZE)
         got.fill(0)
         area = poly(got, 0, 0, _flat(pts), _WHITE, True)
@@ -101,7 +101,7 @@ class TestLargeFilledPolygon(unittest.TestCase):
         want.fill(0)
         _reference(want, pts, _WHITE)
         drawn, expected = _pixels(got), _pixels(want)
-        self.assertLessEqual(len(drawn ^ expected), tolerance * len(expected))
+        self.assertEqual(drawn ^ expected, set())
         xs = [p[0] for p in pts]
         ys = [p[1] for p in pts]
         self.assertEqual(area, Area(min(xs), min(ys), max(xs) - min(xs), max(ys) - min(ys)))
@@ -121,10 +121,33 @@ class TestLargeFilledPolygon(unittest.TestCase):
         self.assertTrue(count_set(self.check(_circle(2000))) > 5000)
 
     def test_self_intersecting_over_256_vertices(self):
-        self.assertTrue(count_set(self.check(_star(301, 120), 0.01)) > 5000)
+        self.assertTrue(count_set(self.check(_star(301, 120))) > 5000)
 
-    def test_self_intersecting_under_the_old_limit_differs_the_same_way(self):
-        self.assertTrue(count_set(self.check(_star(201, 80), 0.01)) > 5000)
+    def test_self_intersecting_under_the_old_limit(self):
+        self.assertTrue(count_set(self.check(_star(201, 80))) > 5000)
+
+    def test_bow_tie(self):
+        self.assertTrue(count_set(self.check([(10, 10), (100, 100), (100, 10), (10, 100)])) > 1000)
+
+    def test_pentagram(self):
+        self.assertTrue(count_set(self.check(_star(5, 2))) > 1000)
+
+    def test_other_pentagrams_and_stars(self):
+        for n, step in ((7, 3), (9, 4), (11, 5), (13, 5), (31, 12)):
+            self.assertTrue(count_set(self.check(_star(n, step))) > 500, (n, step))
+
+    def test_vertex_exactly_on_a_scanline(self):
+        # The crossing edges meet at (60, 64), a vertex on row 64 of the fill.
+        pts = [(10, 20), (60, 64), (110, 20), (110, 108), (60, 64), (10, 108)]
+        self.assertTrue(count_set(self.check(pts)) > 1000)
+
+    def test_horizontal_edge(self):
+        pts = [(10, 30), (118, 30), (30, 100), (90, 100), (30, 30)]
+        self.assertTrue(count_set(self.check(pts)) > 1000)
+
+    def test_horizontal_edge_in_a_crossing_figure(self):
+        pts = [(20, 20), (100, 20), (20, 90), (100, 90), (64, 50), (64, 110)]
+        self.assertTrue(count_set(self.check(pts)) > 1000)
 
     def test_degenerate_line_over_256_vertices(self):
         self.check(_line(300))

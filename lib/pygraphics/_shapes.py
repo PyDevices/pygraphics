@@ -669,7 +669,10 @@ def _poly_xy_lists(coords):
 
 def _div_trunc(a, b):
     """C-like integer division (truncate toward zero)."""
-    return int(a / b) if b else 0
+    if not b:
+        return 0
+    q = abs(a) // abs(b)
+    return q if (a < 0) == (b < 0) else -q
 
 
 def poly(canvas, x, y, coords, c, f=False):
@@ -711,13 +714,16 @@ def poly(canvas, x, y, coords, c, f=False):
         bottom = max(bottom, ys[i])
 
     if f:
-        # Integer scanline fill — same node formula as gfx_shapes_poly (C).
+        # Integer scanline fill, the same node formula and edge walk as
+        # gfx_shapes_poly (C) and MicroPython's framebuf.poly: each edge runs
+        # from a vertex to the one before it, starting with the first vertex to
+        # the last. The node's rounding is taken from an edge's first vertex, so
+        # walking the other way moves a node by a pixel where edges cross.
         for row in range(top, bottom + 1):
             nodes = []
             for j in range(n):
-                j2 = (j + 1) % n
-                px1, py1 = xs[j], ys[j]
-                px2, py2 = xs[j2], ys[j2]
+                px1, py1 = xs[-j], ys[-j]
+                px2, py2 = xs[-j - 1], ys[-j - 1]
                 if py1 != py2 and ((py1 > row and py2 <= row) or (py1 <= row and py2 > row)):
                     node = _div_trunc(
                         32 * px1

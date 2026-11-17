@@ -507,6 +507,20 @@ def _check_framebuffer_ops(rep: _Reporter, native, py) -> None:
     fb_p.poly(0, 0, pts, 0x8410)
     _compare_buffers(rep, "FrameBuffer poly", nbuf, pbuf, length)
 
+    # Filled polygons whose edges cross: the two fills must pick the same
+    # pixel on every edge near a crossing.
+    for name, ring in (
+        ("bow-tie", [2, 2, 14, 14, 14, 2, 2, 14]),
+        ("pentagram", [8, 1, 3, 14, 14, 6, 2, 6, 13, 14]),
+    ):
+        fb_n, fb_p, nbuf, pbuf = _paired_rgb565(native, py, w, h)
+        fb_n.fill(0)
+        fb_p.fill(0)
+        pts = array.array("h", ring)
+        fb_n.poly(0, 0, pts, 0x8410, True)
+        fb_p.poly(0, 0, pts, 0x8410, True)
+        _compare_buffers(rep, "FrameBuffer poly fill " + name, nbuf, pbuf, length)
+
     fb_n, fb_p, nbuf, pbuf = _paired_rgb565(native, py, w, h)
     fb_n.fill(0)
     fb_p.fill(0)
