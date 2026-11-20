@@ -8,10 +8,10 @@ Runs under unittest discovery and on its own under MicroPython:
 ``micropython tests/test_areas_off.py``.
 """
 
-import _env  # noqa: F401  (must precede the pygraphics import)
 import gc
 import sys
 
+import _env  # noqa: F401  (must precede the pygraphics import)
 import pygraphics
 from pygraphics import RGB565, Area, Draw, FrameBuffer
 
@@ -123,9 +123,13 @@ with d.clip(0, 0, 10, 10):
 # The switch changes only what is returned: both draw the same pixels.
 on = make(True)
 off = make(False)
-for (name, a), (_, b) in zip(all_calls(on, make_src()), all_calls(off, make_src())):
+calls_on = all_calls(on, make_src())
+calls_off = all_calls(off, make_src())
+assert len(calls_on) == len(calls_off)
+for i in range(len(calls_on)):
+    name, a = calls_on[i]
+    calls_off[i][1]()
     a()
-    b()
     assert bytes(on.buffer) == bytes(off.buffer), name
 
 
