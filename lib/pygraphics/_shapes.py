@@ -21,7 +21,7 @@ raw ``blit_rect`` row path.
 
 """
 
-from ._area import Area
+from ._area import Area, _result
 from ._blit_hooks import (
     blit_rect_dispatch,
     canvas_accepts_blit_transparent,
@@ -122,7 +122,7 @@ def arc(canvas, x, y, r, a0, a1, c):
         y_max = max(y_max, y1)
         x0 = x1
         y0 = y1
-    return Area(x_min, y_min, x_max - x_min, y_max - y_min)
+    return _result(canvas, Area(x_min, y_min, x_max - x_min, y_max - y_min))
 
 
 def blit(canvas, source, x, y, key=-1, palette=None):
@@ -146,7 +146,7 @@ def blit(canvas, source, x, y, key=-1, palette=None):
     """
     fast = try_fast_framebuffer_blit(canvas, source, x, y, key, palette)
     if fast is not None:
-        return fast
+        return _result(canvas, fast)
 
     from ._blit_hooks import clip_blit_bounds
 
@@ -168,7 +168,7 @@ def blit(canvas, source, x, y, key=-1, palette=None):
             if col != key:
                 _set_pixel(canvas, cx0, cy0, col)
             cx1 += 1
-    return Area(x0, y0, w, h)
+    return _result(canvas, Area(x0, y0, w, h))
 
 
 def blit_rect(canvas, buf, x, y, w, h):
@@ -186,7 +186,7 @@ def blit_rect(canvas, buf, x, y, w, h):
     Returns:
         (Area): The bounding box of the blitted area.
     """
-    return blit_rect_dispatch(canvas, buf, x, y, w, h)
+    return _result(canvas, blit_rect_dispatch(canvas, buf, x, y, w, h))
 
 
 def blit_transparent(canvas, buf, x, y, w, h, key):
@@ -206,7 +206,7 @@ def blit_transparent(canvas, buf, x, y, w, h, key):
     """
     if canvas_accepts_blit_transparent(canvas):
         canvas.blit_transparent(buf, x, y, w, h, key)
-        return Area(x, y, w, h)
+        return _result(canvas, Area(x, y, w, h))
 
     BPP = canvas_bytes_per_pixel(canvas)
     if BPP <= 0:
@@ -240,7 +240,7 @@ def blit_transparent(canvas, buf, x, y, w, h, key):
                 colstart = colend
             else:
                 colstart += BPP
-    return Area(x, y, w, h)
+    return _result(canvas, Area(x, y, w, h))
 
 
 def circle(canvas, x0, y0, r, c, f=False):
@@ -261,10 +261,10 @@ def circle(canvas, x0, y0, r, c, f=False):
         Area: The bounding box of the circle.
     """
     if f:
-        return _fill_circle_helper(canvas, x0, y0, r, c, 0, 0)
+        return _result(canvas, _fill_circle_helper(canvas, x0, y0, r, c, 0, 0))
 
     _circle_helper(canvas, x0, y0, r, c, 0, 0)
-    return Area(x0 - r, y0 - r, 2 * r, 2 * r)
+    return _result(canvas, Area(x0 - r, y0 - r, 2 * r, 2 * r))
 
 
 def _circle_helper(canvas, x0, y0, r, c, x_offset, y_offset):
@@ -441,7 +441,7 @@ def ellipse(canvas, x0, y0, r1, r2, c, f=False, m=0b1111, w=None, h=None):
             y1 -= 1
         sigma += b2 * ((4 * x1) + 6)
         x1 += 1
-    return Area(x0 - r1 - x_offset, y0 - r2 - y_offset, 2 * (r1 + x_offset), 2 * (r2 + y_offset))
+    return _result(canvas, Area(x0 - r1 - x_offset, y0 - r2 - y_offset, 2 * (r1 + x_offset), 2 * (r2 + y_offset)))
 
 
 def fill(canvas, c):
@@ -458,7 +458,7 @@ def fill(canvas, c):
         Area: The bounding box of the filled area.
     """
     _do_fill(canvas, c)
-    return Area(0, 0, canvas.width, canvas.height)
+    return _result(canvas, Area(0, 0, canvas.width, canvas.height))
 
 
 def fill_rect(canvas, x, y, w, h, c):
@@ -481,7 +481,7 @@ def fill_rect(canvas, x, y, w, h, c):
     if y < -h or y > canvas.height or x < -w or x > canvas.width:
         return
     _do_fill_rect(canvas, x, y, w, h, c)
-    return Area(x, y, w, h)
+    return _result(canvas, Area(x, y, w, h))
 
 
 def _format_grey_max(fmt):
@@ -558,7 +558,7 @@ def gradient_rect(canvas, x, y, w, h, c1, c2=None, vertical=True):
         for i in range(w):
             c = _gradient_lerp_color(fmt, c1, c2, i, w)
             _do_fill_rect(canvas, x + i, y, 1, h, c)
-    return Area(x, y, w, h)
+    return _result(canvas, Area(x, y, w, h))
 
 
 def hline(canvas, x0, y0, w, c):
@@ -577,7 +577,7 @@ def hline(canvas, x0, y0, w, c):
     if y0 < 0 or y0 > canvas.height or x0 < -w or x0 > canvas.width:
         return
     _do_fill_rect(canvas, x0, y0, w, 1, c)
-    return Area(x0, y0, w, 1)
+    return _result(canvas, Area(x0, y0, w, 1))
 
 
 def line(canvas, x0, y0, x1, y1, c):
@@ -634,7 +634,7 @@ def line(canvas, x0, y0, x1, y1, c):
         x0 += 1
     left = min(bx1, bx0)
     top = min(by1, by0)
-    return Area(left, top, abs(bx1 - bx0), abs(by1 - by0))
+    return _result(canvas, Area(left, top, abs(bx1 - bx0), abs(by1 - by0)))
 
 
 def pixel(canvas, x, y, c):
@@ -651,7 +651,7 @@ def pixel(canvas, x, y, c):
         (Area): The bounding box of the pixel.
     """
     _set_pixel(canvas, x, y, c)
-    return Area(x, y, 1, 1)
+    return _result(canvas, Area(x, y, 1, 1))
 
 
 def _poly_xy_lists(coords):
@@ -751,7 +751,7 @@ def poly(canvas, x, y, coords, c, f=False):
             i2 = (i + 1) % n
             line(canvas, x + xs[i], y + ys[i], x + xs[i2], y + ys[i2], c)
 
-    return Area(x + left, y + top, right - left, bottom - top)
+    return _result(canvas, Area(x + left, y + top, right - left, bottom - top))
 
 
 def polygon(canvas, points, x, y, color, angle=0, center_x=0, center_y=0):
@@ -806,7 +806,7 @@ def polygon(canvas, points, x, y, color, angle=0, center_x=0, center_y=0):
         bottom = max(bottom, cur_y)
         prev_x = cur_x
         prev_y = cur_y
-    return Area(left, top, right - left, bottom - top)
+    return _result(canvas, Area(left, top, right - left, bottom - top))
 
 
 def rect(canvas, x0, y0, w, h, c, f=False):
@@ -833,7 +833,7 @@ def rect(canvas, x0, y0, w, h, c, f=False):
     hline(canvas, x0, y0 + h - 1, w, c)
     vline(canvas, x0, y0, h, c)
     vline(canvas, x0 + w - 1, y0, h, c)
-    return Area(x0, y0, w, h)
+    return _result(canvas, Area(x0, y0, w, h))
 
 
 def round_rect(canvas, x0, y0, w, h, r, c, f=False):
@@ -859,7 +859,7 @@ def round_rect(canvas, x0, y0, w, h, r, c, f=False):
 
     # If filled, draw the rounded rectangle using the _fill_round_rect function
     if f:
-        return _fill_round_rect(canvas, x0, y0, w, h, r, c)
+        return _result(canvas, _fill_round_rect(canvas, x0, y0, w, h, r, c))
 
     # ensure that the r will only ever half of the shortest side or less
     r = int(min(r, w / 2, h / 2))
@@ -869,7 +869,7 @@ def round_rect(canvas, x0, y0, w, h, r, c, f=False):
     vline(canvas, x0, y0 + r, h - 2 * r, c)  # left
     vline(canvas, x0 + w - 1, y0 + r, h - 2 * r, c)  # right
     _circle_helper(canvas, x0 + w // 2, y0 + h // 2, r, c, w // 2 - r, h // 2 - r)
-    return Area(x0, y0, w, h)
+    return _result(canvas, Area(x0, y0, w, h))
 
 
 def _fill_round_rect(canvas, x0, y0, w, h, r, c):
@@ -905,7 +905,7 @@ def triangle(canvas, x0, y0, x1, y1, x2, y2, c, f=False):
         (Area): The bounding box of the triangle.
     """
     if f:
-        return _fill_triangle(canvas, x0, y0, x1, y1, x2, y2, c)
+        return _result(canvas, _fill_triangle(canvas, x0, y0, x1, y1, x2, y2, c))
     line(canvas, x0, y0, x1, y1, c)
     line(canvas, x1, y1, x2, y2, c)
     line(canvas, x2, y2, x0, y0, c)
@@ -913,7 +913,7 @@ def triangle(canvas, x0, y0, x1, y1, x2, y2, c, f=False):
     top = min(y0, y1, y2)
     right = max(x0, x1, x2)
     bottom = max(y0, y1, y2)
-    return Area(left, top, right - left, bottom - top)
+    return _result(canvas, Area(left, top, right - left, bottom - top))
 
 
 def _fill_triangle(canvas, x0, y0, x1, y1, x2, y2, c):
@@ -1006,4 +1006,4 @@ def vline(canvas, x0, y0, h, c):
     if y0 < -h or y0 > canvas.height or x0 < 0 or x0 > canvas.width:
         return
     _do_fill_rect(canvas, x0, y0, 1, h, c)
-    return Area(x0, y0, 1, h)
+    return _result(canvas, Area(x0, y0, 1, h))

@@ -78,7 +78,7 @@ static const gfx_canvas_t *draw_target(mp_obj_draw_t *self) {
 static mp_obj_t draw_fill(mp_obj_t self_in, mp_obj_t col_in) {
     mp_obj_draw_t *self = MP_OBJ_TO_PTR(self_in);
     gfx_area_t area = gfx_shapes_fill(draw_target(self), mp_obj_get_int(col_in));
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_2(draw_fill_obj, draw_fill);
 
@@ -86,7 +86,7 @@ static mp_obj_t draw_fill_rect(size_t n_args, const mp_obj_t *args) {
     mp_obj_draw_t *self = MP_OBJ_TO_PTR(args[0]);
     gfx_area_t area = gfx_shapes_fill_rect(draw_target(self), mp_obj_get_int(args[1]), mp_obj_get_int(args[2]),
         mp_obj_get_int(args[3]), mp_obj_get_int(args[4]), mp_obj_get_int(args[5]));
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(draw_fill_rect_obj, 6, 6, draw_fill_rect);
 
@@ -109,7 +109,7 @@ static mp_obj_t draw_rect(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args
     bool fill = parsed[ARG_fill_pos].u_int || parsed[ARG_f].u_bool || parsed[ARG_fill].u_bool;
     gfx_area_t area = gfx_shapes_rect(draw_target(self), parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_w].u_int, parsed[ARG_h].u_int, parsed[ARG_c].u_int, fill);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(draw_rect_obj, 6, draw_rect);
 
@@ -133,7 +133,7 @@ static mp_obj_t draw_round_rect(size_t n_args, const mp_obj_t *args, mp_map_t *k
     bool fill = parsed[ARG_fill_pos].u_int || parsed[ARG_f].u_bool || parsed[ARG_fill].u_bool;
     gfx_area_t area = gfx_shapes_round_rect(draw_target(self), parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_w].u_int, parsed[ARG_h].u_int, parsed[ARG_r].u_int, parsed[ARG_c].u_int, fill);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(draw_round_rect_obj, 7, draw_round_rect);
 
@@ -141,7 +141,7 @@ static mp_obj_t draw_line(size_t n_args, const mp_obj_t *args) {
     mp_obj_draw_t *self = MP_OBJ_TO_PTR(args[0]);
     gfx_area_t area = gfx_shapes_line(draw_target(self), mp_obj_get_int(args[1]), mp_obj_get_int(args[2]),
         mp_obj_get_int(args[3]), mp_obj_get_int(args[4]), mp_obj_get_int(args[5]));
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(draw_line_obj, 6, 6, draw_line);
 
@@ -149,7 +149,7 @@ static mp_obj_t draw_hline(size_t n_args, const mp_obj_t *args) {
     mp_obj_draw_t *self = MP_OBJ_TO_PTR(args[0]);
     gfx_area_t area = gfx_shapes_hline(draw_target(self), mp_obj_get_int(args[1]), mp_obj_get_int(args[2]),
         mp_obj_get_int(args[3]), mp_obj_get_int(args[4]));
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(draw_hline_obj, 5, 5, draw_hline);
 
@@ -157,7 +157,7 @@ static mp_obj_t draw_vline(size_t n_args, const mp_obj_t *args) {
     mp_obj_draw_t *self = MP_OBJ_TO_PTR(args[0]);
     gfx_area_t area = gfx_shapes_vline(draw_target(self), mp_obj_get_int(args[1]), mp_obj_get_int(args[2]),
         mp_obj_get_int(args[3]), mp_obj_get_int(args[4]));
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(draw_vline_obj, 5, 5, draw_vline);
 
@@ -165,7 +165,7 @@ static mp_obj_t draw_pixel(size_t n_args, const mp_obj_t *args) {
     mp_obj_draw_t *self = MP_OBJ_TO_PTR(args[0]);
     gfx_area_t area = gfx_shapes_pixel(draw_target(self), mp_obj_get_int(args[1]),
         mp_obj_get_int(args[2]), mp_obj_get_int(args[3]));
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(draw_pixel_obj, 4, 4, draw_pixel);
 
@@ -187,7 +187,7 @@ static mp_obj_t draw_circle(size_t n_args, const mp_obj_t *args, mp_map_t *kw_ar
     bool fill = parsed[ARG_fill_pos].u_int || parsed[ARG_f].u_bool || parsed[ARG_fill].u_bool;
     gfx_area_t area = gfx_shapes_circle(draw_target(self), parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_r].u_int, parsed[ARG_c].u_int, fill);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(draw_circle_obj, 5, draw_circle);
 
@@ -213,7 +213,7 @@ static mp_obj_t draw_ellipse(size_t n_args, const mp_obj_t *args, mp_map_t *kw_a
     mp_int_t mask = (n_args > 7) ? parsed[ARG_mask_pos].u_int : parsed[ARG_m].u_int;
     gfx_area_t area = gfx_shapes_ellipse(draw_target(self), parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_r1].u_int, parsed[ARG_r2].u_int, parsed[ARG_c].u_int, fill, mask);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(draw_ellipse_obj, 6, draw_ellipse);
 
@@ -222,7 +222,7 @@ static mp_obj_t draw_arc(size_t n_args, const mp_obj_t *args) {
     gfx_area_t area = gfx_shapes_arc(draw_target(self), mp_obj_get_int(args[1]), mp_obj_get_int(args[2]),
         mp_obj_get_int(args[3]), GFX_OBJ_GET_FLOAT(args[4]), GFX_OBJ_GET_FLOAT(args[5]),
         mp_obj_get_int(args[6]));
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(draw_arc_obj, 7, 7, draw_arc);
 
@@ -248,7 +248,7 @@ static mp_obj_t draw_triangle(size_t n_args, const mp_obj_t *args, mp_map_t *kw_
     gfx_area_t area = gfx_shapes_triangle(draw_target(self),
         parsed[ARG_x0].u_int, parsed[ARG_y0].u_int, parsed[ARG_x1].u_int, parsed[ARG_y1].u_int,
         parsed[ARG_x2].u_int, parsed[ARG_y2].u_int, parsed[ARG_c].u_int, fill);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(draw_triangle_obj, 8, draw_triangle);
 
@@ -274,7 +274,7 @@ static mp_obj_t draw_gradient_rect(size_t n_args, const mp_obj_t *args, mp_map_t
     int vertical = (n_args > 7) ? parsed[ARG_vert_pos].u_bool : parsed[ARG_vertical].u_bool;
     gfx_area_t area = gfx_shapes_gradient_rect(draw_target(self), parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_w].u_int, parsed[ARG_h].u_int, parsed[ARG_c1].u_int, c2, vertical);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(draw_gradient_rect_obj, 6, draw_gradient_rect);
 
@@ -305,7 +305,7 @@ static mp_obj_t draw_poly(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args
     if (nomem) {
         mp_raise_msg(&mp_type_MemoryError, MP_ERROR_TEXT("poly: no memory for the fill"));
     }
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(draw_poly_obj, 5, draw_poly);
 #endif
@@ -354,7 +354,7 @@ static mp_obj_t draw_polygon(size_t n_args, const mp_obj_t *args, mp_map_t *kw_a
     int cy = (n_args > 7) ? parsed[ARG_cy_pos].u_int : parsed[ARG_center_y].u_int;
     gfx_area_t area = gfx_shapes_polygon(draw_target(self), points, len, parsed[ARG_x].u_int,
         parsed[ARG_y].u_int, parsed[ARG_color].u_int, angle, cx, cy);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(draw_polygon_obj, 5, draw_polygon);
 
@@ -399,7 +399,7 @@ static mp_obj_t draw_blit(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args
         pal = &palette.fb;
     }
     gfx_area_t area = gfx_shapes_blit(draw_target(self), &source.fb, parsed[ARG_x].u_int, parsed[ARG_y].u_int, key, pal);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(draw_blit_obj, 4, draw_blit);
 
@@ -411,7 +411,7 @@ static mp_obj_t draw_blit_rect(size_t n_args, const mp_obj_t *args) {
     int bpp = gfx_format_bytes_per_pixel(canvas->format);
     gfx_area_t area = gfx_shapes_blit_rect(canvas, bufinfo.buf, mp_obj_get_int(args[2]),
         mp_obj_get_int(args[3]), mp_obj_get_int(args[4]), mp_obj_get_int(args[5]), bpp);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(draw_blit_rect_obj, 6, 6, draw_blit_rect);
 
@@ -424,7 +424,7 @@ static mp_obj_t draw_blit_transparent(size_t n_args, const mp_obj_t *args) {
     gfx_area_t area = gfx_shapes_blit_transparent(canvas, bufinfo.buf, mp_obj_get_int(args[2]),
         mp_obj_get_int(args[3]), mp_obj_get_int(args[4]), mp_obj_get_int(args[5]),
         mp_obj_get_int(args[6]), bpp);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(draw_blit_transparent_obj, 7, 7, draw_blit_transparent);
 
@@ -458,7 +458,7 @@ static mp_obj_t draw_text_height(size_t n_args, const mp_obj_t *args, mp_map_t *
     if (font.owns_data) {
         gfx_font_deinit(&font);
     }
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 
 static mp_obj_t draw_text(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
@@ -493,7 +493,7 @@ static mp_obj_t draw_text(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args
     if (font.owns_data) {
         gfx_font_deinit(&font);
     }
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(draw_text_obj, 4, draw_text);
 
@@ -642,7 +642,7 @@ static mp_obj_t clipped_pixel(size_t n_args, const mp_obj_t *args) {
         return mp_obj_new_int(canvas->pixel(canvas->ctx, x, y, 0, 0));
     }
     gfx_area_t area = gfx_shapes_pixel(canvas, x, y, mp_obj_get_int(args[3]));
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(clipped_pixel_obj, 3, 4, clipped_pixel);
 
@@ -658,7 +658,7 @@ static mp_obj_t clipped_fill_rect(size_t n_args, const mp_obj_t *args) {
     gfx_clipped_canvas_t cc;
     const gfx_canvas_t *canvas = clipped_bind(self, &slot, &cc);
     gfx_shapes_fill_rect(canvas, hit.x, hit.y, hit.w, hit.h, mp_obj_get_int(args[5]));
-    return gfx_area_mp_from_gfx(&hit);
+    return gfx_area_mp_result(self->canvas_obj, &hit);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(clipped_fill_rect_obj, 6, 6, clipped_fill_rect);
 
@@ -731,7 +731,7 @@ static mp_obj_t clipped_blit_rect(size_t n_args, const mp_obj_t *args) {
     } else {
         gfx_shapes_blit_rect(canvas, bufinfo.buf, hit.x, hit.y, hit.w, hit.h, bpp);
     }
-    return gfx_area_mp_from_gfx(&hit);
+    return gfx_area_mp_result(self->canvas_obj, &hit);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(clipped_blit_rect_obj, 6, 6, clipped_blit_rect);
 
@@ -772,7 +772,7 @@ static mp_obj_t clipped_blit_transparent(size_t n_args, const mp_obj_t *args) {
     } else {
         gfx_shapes_blit_transparent(canvas, bufinfo.buf, hit.x, hit.y, hit.w, hit.h, key, bpp);
     }
-    return gfx_area_mp_from_gfx(&hit);
+    return gfx_area_mp_result(self->canvas_obj, &hit);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(clipped_blit_transparent_obj, 7, 7, clipped_blit_transparent);
 
@@ -809,7 +809,7 @@ static mp_obj_t clipped_text_height(size_t n_args, const mp_obj_t *args, mp_map_
     if (font.owns_data) {
         gfx_font_deinit(&font);
     }
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 
 static mp_obj_t clipped_text(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
@@ -846,7 +846,7 @@ static mp_obj_t clipped_text(size_t n_args, const mp_obj_t *args, mp_map_t *kw_a
     if (font.owns_data) {
         gfx_font_deinit(&font);
     }
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(self->canvas_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(clipped_text_obj, 4, clipped_text);
 
@@ -1071,7 +1071,7 @@ static mp_obj_t font_text(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args
     gfx_area_t area = gfx_font_text(&slot.canvas, &self->font, mp_obj_str_get_str(parsed[ARG_s].u_obj),
         parsed[ARG_x].u_int, parsed[ARG_y].u_int, parsed[ARG_color].u_int,
         parsed[ARG_scale].u_int, parsed[ARG_inverted].u_bool);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(parsed[ARG_canvas].u_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(font_text_obj, 6, font_text);
 
@@ -1099,7 +1099,7 @@ static mp_obj_t font_draw_char(size_t n_args, const mp_obj_t *args, mp_map_t *kw
     gfx_area_t area = gfx_font_draw_char(&slot.canvas, &self->font, (unsigned char)ch[0],
         parsed[ARG_x].u_int, parsed[ARG_y].u_int, parsed[ARG_color].u_int,
         parsed[ARG_scale].u_int, parsed[ARG_inverted].u_bool);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(parsed[ARG_canvas].u_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(font_draw_char_obj, 6, font_draw_char);
 
@@ -1430,7 +1430,7 @@ static mp_obj_t mod_##fn(size_t n_args, const mp_obj_t *args) { \
     if (!mp_canvas_resolve(args[0], &slot)) mp_raise_TypeError(MP_ERROR_TEXT("canvas required")); \
     gfx_area_t area = gfx_shapes_##fn(&slot.canvas, mp_obj_get_int(args[1]), mp_obj_get_int(args[2]), \
         mp_obj_get_int(args[3]), mp_obj_get_int(args[4])); \
-    return gfx_area_mp_from_gfx(&area); \
+    return gfx_area_mp_result(args[0], &area); \
 } \
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_##fn##_obj, 5, 5, mod_##fn);
 
@@ -1442,7 +1442,7 @@ static mp_obj_t mod_fill_rect(size_t n_args, const mp_obj_t *args) {
     const gfx_canvas_t *canvas = &slot.canvas;
     gfx_area_t area = gfx_shapes_fill_rect(canvas, mp_obj_get_int(args[1]), mp_obj_get_int(args[2]),
         mp_obj_get_int(args[3]), mp_obj_get_int(args[4]), mp_obj_get_int(args[5]));
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(args[0], &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_fill_rect_obj, 6, 6, mod_fill_rect);
 
@@ -1457,7 +1457,7 @@ static mp_obj_t mod_line(size_t n_args, const mp_obj_t *args) {
     const gfx_canvas_t *canvas = &slot.canvas;
     gfx_area_t area = gfx_shapes_line(canvas, mp_obj_get_int(args[1]), mp_obj_get_int(args[2]),
         mp_obj_get_int(args[3]), mp_obj_get_int(args[4]), mp_obj_get_int(args[5]));
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(args[0], &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_line_obj, 6, 6, mod_line);
 
@@ -1501,7 +1501,7 @@ static mp_obj_t mod_ellipse(size_t n_args, const mp_obj_t *args, mp_map_t *kw_ar
     mp_int_t mask = (n_args > 7) ? parsed[ARG_mask_pos].u_int : parsed[ARG_m].u_int;
     gfx_area_t area = gfx_shapes_ellipse(&slot.canvas, parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_rx].u_int, parsed[ARG_ry].u_int, parsed[ARG_c].u_int, fill, mask);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(parsed[ARG_canvas].u_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(mod_ellipse_obj, 6, mod_ellipse);
 
@@ -1513,7 +1513,7 @@ static mp_obj_t mod_arc(size_t n_args, const mp_obj_t *args) {
     const gfx_canvas_t *canvas = &slot.canvas;
     gfx_area_t area = gfx_shapes_arc(canvas, mp_obj_get_int(args[1]), mp_obj_get_int(args[2]),
         mp_obj_get_int(args[3]), GFX_OBJ_GET_FLOAT(args[4]), GFX_OBJ_GET_FLOAT(args[5]), mp_obj_get_int(args[6]));
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(args[0], &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_arc_obj, 7, 7, mod_arc);
 
@@ -1542,7 +1542,7 @@ static mp_obj_t mod_triangle(size_t n_args, const mp_obj_t *args, mp_map_t *kw_a
     gfx_area_t area = gfx_shapes_triangle(&slot.canvas,
         parsed[ARG_x0].u_int, parsed[ARG_y0].u_int, parsed[ARG_x1].u_int, parsed[ARG_y1].u_int,
         parsed[ARG_x2].u_int, parsed[ARG_y2].u_int, parsed[ARG_c].u_int, fill);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(parsed[ARG_canvas].u_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(mod_triangle_obj, 8, mod_triangle);
 
@@ -1571,7 +1571,7 @@ static mp_obj_t mod_gradient_rect(size_t n_args, const mp_obj_t *args, mp_map_t 
     int vertical = (n_args > 7) ? parsed[ARG_vert_pos].u_bool : parsed[ARG_vertical].u_bool;
     gfx_area_t area = gfx_shapes_gradient_rect(&slot.canvas, parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_w].u_int, parsed[ARG_h].u_int, parsed[ARG_c1].u_int, c2, vertical);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(parsed[ARG_canvas].u_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(mod_gradient_rect_obj, 6, mod_gradient_rect);
 
@@ -1605,7 +1605,7 @@ static mp_obj_t mod_poly(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args)
     if (nomem) {
         mp_raise_msg(&mp_type_MemoryError, MP_ERROR_TEXT("poly: no memory for the fill"));
     }
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(parsed[ARG_canvas].u_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(mod_poly_obj, 5, mod_poly);
 #endif
@@ -1639,7 +1639,7 @@ static mp_obj_t mod_blit(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args)
         pal = &palette.fb;
     }
     gfx_area_t area = gfx_shapes_blit(&dest.canvas, &source.fb, parsed[ARG_x].u_int, parsed[ARG_y].u_int, key, pal);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(parsed[ARG_dest].u_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(mod_blit_obj, 4, mod_blit);
 
@@ -1654,7 +1654,7 @@ static mp_obj_t mod_blit_rect(size_t n_args, const mp_obj_t *args) {
     int bpp = gfx_format_bytes_per_pixel(canvas->format);
     gfx_area_t area = gfx_shapes_blit_rect(canvas, bufinfo.buf, mp_obj_get_int(args[2]),
         mp_obj_get_int(args[3]), mp_obj_get_int(args[4]), mp_obj_get_int(args[5]), bpp);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(args[0], &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_blit_rect_obj, 6, 6, mod_blit_rect);
 
@@ -1670,7 +1670,7 @@ static mp_obj_t mod_blit_transparent(size_t n_args, const mp_obj_t *args) {
     gfx_area_t area = gfx_shapes_blit_transparent(canvas, bufinfo.buf, mp_obj_get_int(args[2]),
         mp_obj_get_int(args[3]), mp_obj_get_int(args[4]), mp_obj_get_int(args[5]),
         mp_obj_get_int(args[6]), bpp);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(args[0], &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_blit_transparent_obj, 7, 7, mod_blit_transparent);
 
@@ -1721,7 +1721,7 @@ static mp_obj_t mod_polygon(size_t n_args, const mp_obj_t *args, mp_map_t *kw_ar
     int cy = (n_args > 7) ? parsed[ARG_cy_pos].u_int : parsed[ARG_center_y].u_int;
     gfx_area_t area = gfx_shapes_polygon(&slot.canvas, points, len, parsed[ARG_x].u_int,
         parsed[ARG_y].u_int, parsed[ARG_color].u_int, angle, cx, cy);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(parsed[ARG_canvas].u_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(mod_polygon_obj, 5, mod_polygon);
 
@@ -1732,7 +1732,7 @@ static mp_obj_t mod_fill(mp_obj_t target, mp_obj_t col_in) {
     }
     const gfx_canvas_t *canvas = &slot.canvas;
     gfx_area_t area = gfx_shapes_fill(canvas, mp_obj_get_int(col_in));
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(target, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_2(mod_fill_obj, mod_fill);
 
@@ -1744,7 +1744,7 @@ static mp_obj_t mod_pixel(size_t n_args, const mp_obj_t *args) {
     const gfx_canvas_t *canvas = &slot.canvas;
     gfx_area_t area = gfx_shapes_pixel(canvas, mp_obj_get_int(args[1]),
         mp_obj_get_int(args[2]), mp_obj_get_int(args[3]));
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(args[0], &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(mod_pixel_obj, 4, 4, mod_pixel);
 
@@ -1770,7 +1770,7 @@ static mp_obj_t mod_rect(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args)
     bool fill = parsed[ARG_fill_pos].u_int || parsed[ARG_f].u_bool || parsed[ARG_fill].u_bool;
     gfx_area_t area = gfx_shapes_rect(&slot.canvas, parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_w].u_int, parsed[ARG_h].u_int, parsed[ARG_c].u_int, fill);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(parsed[ARG_canvas].u_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(mod_rect_obj, 6, mod_rect);
 
@@ -1797,7 +1797,7 @@ static mp_obj_t mod_round_rect(size_t n_args, const mp_obj_t *args, mp_map_t *kw
     bool fill = parsed[ARG_fill_pos].u_int || parsed[ARG_f].u_bool || parsed[ARG_fill].u_bool;
     gfx_area_t area = gfx_shapes_round_rect(&slot.canvas, parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_w].u_int, parsed[ARG_h].u_int, parsed[ARG_r].u_int, parsed[ARG_c].u_int, fill);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(parsed[ARG_canvas].u_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(mod_round_rect_obj, 7, mod_round_rect);
 
@@ -1822,7 +1822,7 @@ static mp_obj_t mod_circle(size_t n_args, const mp_obj_t *args, mp_map_t *kw_arg
     bool fill = parsed[ARG_fill_pos].u_int || parsed[ARG_f].u_bool || parsed[ARG_fill].u_bool;
     gfx_area_t area = gfx_shapes_circle(&slot.canvas, parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_r].u_int, parsed[ARG_c].u_int, fill);
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(parsed[ARG_canvas].u_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(mod_circle_obj, 5, mod_circle);
 
@@ -1859,7 +1859,7 @@ static mp_obj_t mod_text_height(size_t n_args, const mp_obj_t *args, mp_map_t *k
     if (font.owns_data) {
         gfx_font_deinit(&font);
     }
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(parsed[ARG_canvas].u_obj, &area);
 }
 
 static mp_obj_t mod_text8(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
@@ -1912,7 +1912,7 @@ static mp_obj_t mod_text(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args)
     if (font.owns_data) {
         gfx_font_deinit(&font);
     }
-    return gfx_area_mp_from_gfx(&area);
+    return gfx_area_mp_result(parsed[ARG_canvas].u_obj, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(mod_text_obj, 4, mod_text);
 

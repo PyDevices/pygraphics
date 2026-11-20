@@ -54,11 +54,17 @@ typedef struct _mp_obj_framebuf_t {
     mp_obj_t buf_obj;
     gfx_fb_t fb;
     gfx_canvas_t canvas;
+    // False when made with areas=False: drawing calls return None, not a new Area.
+    bool areas;
 } mp_obj_framebuf_t;
 
 mp_obj_t framebuf_make_new_helper(size_t n_args, const mp_obj_t *args_in, unsigned int buf_flags, mp_obj_framebuf_t *o);
 
 extern const mp_obj_type_t mp_type_framebuf;
+
+/* What a drawing call on canvas returns: a new Area, or None when canvas is a
+ * FrameBuffer made with areas=False, so drawing makes no garbage. */
+mp_obj_t gfx_area_mp_result(mp_obj_t canvas, const gfx_area_t *a);
 extern const mp_obj_type_t mp_type_draw;
 extern const mp_obj_type_t mp_type_font;
 extern const mp_obj_type_t mp_type_bmp565;

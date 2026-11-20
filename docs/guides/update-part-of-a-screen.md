@@ -83,4 +83,20 @@ fb.blit(sprite, 200, 100, 0x0000)              # black is transparent
 To put an RGB565 sprite straight on the screen, hand its buffer to the
 driver in one call: `display_drv.blit_rect(sprite.buffer, x, y, 16, 16)`.
 
+## Draw every frame without making garbage
+
+Each `Area` is a new object. A game that makes a few hundred drawing calls a
+frame and never reads them makes kilobytes of garbage a frame on MicroPython,
+and the pauses to collect it show on screen. Make the framebuffer with
+`areas=False` and every drawing call on it returns `None` instead:
+
+```python
+fb = FrameBuffer(bytearray(240 * 135 * 2), 240, 135, RGB565, areas=False)
+fb.fill_rect(10, 10, 20, 20, 0xF800)            # None, and nothing allocated
+```
+
+It covers the framebuffer's own methods, a `Draw` on it and the module
+functions such as `pygraphics.text8(fb, ...)`, and draws the same pixels.
+`fb.areas` says which kind you have.
+
 Next: [draw text](draw-text.md).

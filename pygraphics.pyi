@@ -235,7 +235,8 @@ class FrameBuffer:
     Typical usage is to create a ``bytearray`` large enough for the target size,
     draw a frame with `fill`, `fill_rect`, `circle`, or
     `text8`, then copy that buffer to a display driver or use the returned
-    ``Area`` to refresh only the changed region.
+    ``Area`` to refresh only the changed region. A program that never reads
+    the areas can pass ``areas=False``, and drawing then returns ``None``.
 
     Args:
         buffer (bytearray): Framebuffer buffer.
@@ -244,7 +245,7 @@ class FrameBuffer:
         format (int): Framebuffer format constant such as ``RGB565`` or ``RGB888``.
     """
 
-    def __init__(self, buffer: bytearray, width: int, height: int, format: int, *args: Any, **kwargs: Any) -> None:
+    def __init__(self, buffer: bytearray, width: int, height: int, format: int, *args: Any, areas: bool = True, **kwargs: Any) -> None:
         """Create a framebuffer wrapping ``buffer``.
 
         Args:
@@ -253,11 +254,20 @@ class FrameBuffer:
             height (int): Height in pixels.
             format (int): Pixel format constant (``RGB565``, ``RGB888``, etc.).
             *args (Any): Forwarded to the base ``framebuf.FrameBuffer`` (e.g. stride).
+            areas (bool): False makes every drawing call on this framebuffer
+                return ``None`` instead of a new `Area`, through its own methods,
+                a `Draw` on it, or the module functions. On MicroPython that
+                drawing then allocates nothing, so a program that draws every
+                frame and never reads the areas makes no garbage.
             **kwargs (Any): Forwarded to the base constructor (e.g. ``stride=``).
 
         Raises:
             ValueError: If ``format`` is not a supported constant.
         """
+
+    @property
+    def areas(self) -> bool:
+        """False when drawing calls return ``None`` instead of an `Area` (set by the constructor)."""
 
     @property
     def color_depth(self) -> int:

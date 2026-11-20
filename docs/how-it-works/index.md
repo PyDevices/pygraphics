@@ -45,7 +45,8 @@ A `pygraphics.FrameBuffer` takes the same arguments as `framebuf.FrameBuffer`,
 uses the same format numbers, and draws the same pixels for the same calls.
 A tool in the repository, [`tools/compare_framebuf_mp.py`](../../tools/compare_framebuf_mp.py), checks this against
 MicroPython's own `framebuf`. Two things differ on purpose: drawing methods
-return an `Area` instead of `None`, and [text](../guides/draw-text.md#framebufs-text-looks-different)
+return an `Area` instead of `None` (unless the framebuffer was made with
+[`areas=False`](../guides/update-part-of-a-screen.md#draw-every-frame-without-making-garbage)), and [text](../guides/draw-text.md#framebufs-text-looks-different)
 uses the romfont faces.
 
 `Draw` brings the same shapes to any object that has `framebuf`'s basic

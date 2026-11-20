@@ -120,7 +120,8 @@ class FrameBuffer(_FrameBuffer):
     Typical usage is to create a ``bytearray`` large enough for the target size,
     draw a frame with `fill`, `fill_rect`, `circle`, or
     `text8`, then copy that buffer to a display driver or use the returned
-    ``Area`` to refresh only the changed region.
+    ``Area`` to refresh only the changed region. A program that never reads
+    the areas can pass ``areas=False``, and drawing then returns ``None``.
 
     Args:
         buffer (bytearray): Framebuffer buffer.
@@ -129,7 +130,7 @@ class FrameBuffer(_FrameBuffer):
         format (int): Framebuffer format constant such as ``RGB565`` or ``RGB888``.
     """
 
-    def __init__(self, buffer, width, height, format, *args, **kwargs):
+    def __init__(self, buffer, width, height, format, *args, areas=True, **kwargs):
         """Create a framebuffer wrapping ``buffer``.
 
         Args:
@@ -138,11 +139,17 @@ class FrameBuffer(_FrameBuffer):
             height (int): Height in pixels.
             format (int): Pixel format constant (``RGB565``, ``RGB888``, etc.).
             *args (Any): Forwarded to the base ``framebuf.FrameBuffer`` (e.g. stride).
+            areas (bool): False makes every drawing call on this framebuffer
+                return ``None`` instead of a new `Area`, through its own methods,
+                a `Draw` on it, or the module functions. On MicroPython that
+                drawing then allocates nothing, so a program that draws every
+                frame and never reads the areas makes no garbage.
             **kwargs (Any): Forwarded to the base constructor (e.g. ``stride=``).
 
         Raises:
             ValueError: If ``format`` is not a supported constant.
         """
+        self._areas = bool(areas)
         self._rgb888 = format == RGB888
         # True while rows are packed edge to edge, which row-copy blits rely on.
         self._plain_stride = not args and kwargs.get("stride") is None
@@ -178,6 +185,11 @@ class FrameBuffer(_FrameBuffer):
     def color_depth(self):
         """Bits per pixel for the current format (1, 2, 4, 8, 16, or 24)."""
         return self._color_depth
+
+    @property
+    def areas(self):
+        """False when drawing calls return ``None`` instead of an `Area` (set by the constructor)."""
+        return self._areas
 
     @property
     def width(self):
@@ -218,9 +230,9 @@ class FrameBuffer(_FrameBuffer):
         """
         if self._rgb888:
             _RGB888Format.fill_rect(self, x, y, w, h, c)
-            return Area(x, y, w, h)
+            return Area(x, y, w, h) if self._areas else None
         super().fill_rect(x, y, w, h, c)
-        return Area(x, y, w, h)
+        return Area(x, y, w, h) if self._areas else None
 
     def pixel(self, x, y, c=None):
         """
@@ -238,11 +250,11 @@ class FrameBuffer(_FrameBuffer):
             if c is None:
                 return _RGB888Format.get_pixel(self, x, y)
             _RGB888Format.set_pixel(self, x, y, c)
-            return Area(x, y, 1, 1)
+            return Area(x, y, 1, 1) if self._areas else None
         if c is None:
             return super().pixel(x, y)
         super().pixel(x, y, c)
-        return Area(x, y, 1, 1)
+        return Area(x, y, 1, 1) if self._areas else None
 
     def fill(self, c):
         """
@@ -256,9 +268,9 @@ class FrameBuffer(_FrameBuffer):
         """
         if self._rgb888:
             _RGB888Format.fill(self, c)
-            return Area(0, 0, self.width, self.height)
+            return Area(0, 0, self.width, self.height) if self._areas else None
         super().fill(c)
-        return Area(0, 0, self.width, self.height)
+        return Area(0, 0, self.width, self.height) if self._areas else None
 
     def ellipse(self, x, y, rx, ry, c, f=False, m=0b1111):
         """
@@ -277,7 +289,7 @@ class FrameBuffer(_FrameBuffer):
             (Area): Bounding box of the ellipse
         """
         super().ellipse(x, y, rx, ry, c, f, m)
-        return Area(x - rx, y - ry, 2 * rx, 2 * ry)
+        return Area(x - rx, y - ry, 2 * rx, 2 * ry) if self._areas else None
 
     def hline(self, x, y, w, c):
         """
@@ -293,7 +305,7 @@ class FrameBuffer(_FrameBuffer):
             (Area): Bounding box of the horizontal line
         """
         super().hline(x, y, w, c)
-        return Area(x, y, w, 1)
+        return Area(x, y, w, 1) if self._areas else None
 
     def line(self, x1, y1, x2, y2, c):
         """
@@ -310,7 +322,7 @@ class FrameBuffer(_FrameBuffer):
             (Area): Bounding box of the line
         """
         super().line(x1, y1, x2, y2, c)
-        return Area(min(x1, x2), min(y1, y2), abs(x2 - x1) + 1, abs(y2 - y1) + 1)
+        return Area(min(x1, x2), min(y1, y2), abs(x2 - x1) + 1, abs(y2 - y1) + 1) if self._areas else None
 
     def poly(self, x, y, coords, c, f=False):
         """
@@ -348,7 +360,7 @@ class FrameBuffer(_FrameBuffer):
         min_y = min([v[1] for v in vertices])
         max_x = max([v[0] for v in vertices])
         max_y = max([v[1] for v in vertices])
-        return Area(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1)
+        return Area(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1) if self._areas else None
 
     def rect(self, x, y, w, h, c, f=False):
         """
@@ -366,7 +378,7 @@ class FrameBuffer(_FrameBuffer):
             (Area): Bounding box of the rectangle
         """
         super().rect(x, y, w, h, c, f)
-        return Area(x, y, w, h)
+        return Area(x, y, w, h) if self._areas else None
 
     def vline(self, x, y, h, c):
         """
@@ -382,7 +394,7 @@ class FrameBuffer(_FrameBuffer):
             (Area): Bounding box of the vertical line
         """
         super().vline(x, y, h, c)
-        return Area(x, y, 1, h)
+        return Area(x, y, 1, h) if self._areas else None
 
     def text(self, s, x, y, c=1, scale=1, inverted=False, font_data=None, height=8):
         """
@@ -449,9 +461,9 @@ class FrameBuffer(_FrameBuffer):
                         d = ((y0 + r) * self._width + x0) * bpp
                         s = ((src_y + r) * source._width + src_x) * bpp
                         dst_buf[d : d + row] = src_buf[s : s + row]
-                return Area(x0, y0, w, h)
+                return Area(x0, y0, w, h) if self._areas else None
         super().blit(source, x, y, key, palette)
-        return Area(x0, y0, w, h)
+        return Area(x0, y0, w, h) if self._areas else None
 
     ########### Additional methods
 
@@ -573,7 +585,7 @@ class FrameBuffer(_FrameBuffer):
                 else:
                     out = (cc[0] * a + (d & 0xFF) * (255 - a) + 127) // 255
                 self.pixel(i, j, out)
-        return Area(x, y, w, h)
+        return Area(x, y, w, h) if self._areas else None
 
     def circle(self, x0, y0, r, c, f=False):
         """
@@ -731,7 +743,7 @@ class FrameBuffer(_FrameBuffer):
     def scroll(self, xstep, ystep):
         """Scroll buffer contents. Returns the full buffer bounds."""
         super().scroll(xstep, ystep)
-        return Area(0, 0, self.width, self.height)
+        return Area(0, 0, self.width, self.height) if self._areas else None
 
     def save(self, filename=None):
         """
