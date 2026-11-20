@@ -268,6 +268,7 @@ mp_obj_t framebuf_make_new_helper(size_t n_args, const mp_obj_t *args_in, unsign
         o = mp_obj_malloc(mp_obj_framebuf_t, &mp_type_framebuf);
     }
     o->buf_obj = args_in[0];
+    o->areas = true;
     o->fb.buf = bufinfo.buf;
     o->fb.width = width;
     o->fb.height = height;
@@ -278,9 +279,30 @@ mp_obj_t framebuf_make_new_helper(size_t n_args, const mp_obj_t *args_in, unsign
 }
 
 static mp_obj_t framebuf_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args_in) {
-    mp_arg_check_num(n_args, n_kw, 4, 5, false);
+    mp_arg_check_num(n_args, n_kw, 4, 5, true);
+    bool areas = true;
+    for (size_t i = 0; i < n_kw; ++i) {
+        if (args_in[n_args + 2 * i] != MP_OBJ_NEW_QSTR(MP_QSTR_areas)) {
+            mp_raise_TypeError(MP_ERROR_TEXT("unexpected keyword argument"));
+        }
+        areas = mp_obj_is_true(args_in[n_args + 2 * i + 1]);
+    }
     mp_obj_framebuf_t *o = mp_obj_malloc(mp_obj_framebuf_t, type);
-    return framebuf_make_new_helper(n_args, args_in, MP_BUFFER_WRITE, o);
+    mp_obj_t out = framebuf_make_new_helper(n_args, args_in, MP_BUFFER_WRITE, o);
+    o->areas = areas;
+    return out;
+}
+
+static inline mp_obj_t framebuf_area(const mp_obj_framebuf_t *self, const gfx_area_t *a) {
+    return self->areas ? gfx_area_mp_from_gfx(a) : mp_const_none;
+}
+
+mp_obj_t gfx_area_mp_result(mp_obj_t canvas, const gfx_area_t *a) {
+    mp_obj_t native = mp_obj_cast_to_native_base(canvas, MP_OBJ_FROM_PTR(&mp_type_framebuf));
+    if (native != MP_OBJ_NULL && !((mp_obj_framebuf_t *)MP_OBJ_TO_PTR(native))->areas) {
+        return mp_const_none;
+    }
+    return gfx_area_mp_from_gfx(a);
 }
 
 static mp_obj_t framebuf_from_file_fun(mp_obj_t path_in) {
@@ -303,7 +325,7 @@ static mp_int_t framebuf_get_buffer(mp_obj_t self_in, mp_buffer_info_t *bufinfo,
 static mp_obj_t framebuf_fill(mp_obj_t self_in, mp_obj_t col_in) {
     mp_obj_framebuf_t *self = framebuf_from_obj(self_in);
     gfx_area_t area = gfx_shapes_fill(&self->canvas, mp_obj_get_int(col_in));
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_2(framebuf_fill_obj, framebuf_fill);
 
@@ -312,7 +334,7 @@ static mp_obj_t framebuf_fill_rect(size_t n_args, const mp_obj_t *args_in) {
     mp_int_t args[5];
     framebuf_args(args_in, args, 5);
     gfx_area_t area = gfx_shapes_fill_rect(&self->canvas, args[0], args[1], args[2], args[3], args[4]);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_fill_rect_obj, 6, 6, framebuf_fill_rect);
 
@@ -325,7 +347,7 @@ static mp_obj_t framebuf_pixel(size_t n_args, const mp_obj_t *args_in) {
             return MP_OBJ_NEW_SMALL_INT(gfx_fb_getpixel(&self->fb, x, y));
         }
         gfx_area_t area = gfx_shapes_pixel(&self->canvas, x, y, mp_obj_get_int(args_in[3]));
-        return gfx_area_mp_from_gfx(&area);
+        return framebuf_area(self, &area);
     }
     return mp_const_none;
 }
@@ -337,7 +359,7 @@ static mp_obj_t framebuf_hline(size_t n_args, const mp_obj_t *args_in) {
     mp_int_t args[4];
     framebuf_args(args_in, args, 4);
     gfx_area_t area = gfx_shapes_hline(&self->canvas, args[0], args[1], args[2], args[3]);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_hline_obj, 5, 5, framebuf_hline);
 
@@ -347,7 +369,7 @@ static mp_obj_t framebuf_vline(size_t n_args, const mp_obj_t *args_in) {
     mp_int_t args[4];
     framebuf_args(args_in, args, 4);
     gfx_area_t area = gfx_shapes_vline(&self->canvas, args[0], args[1], args[2], args[3]);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_vline_obj, 5, 5, framebuf_vline);
 
@@ -370,7 +392,7 @@ static mp_obj_t framebuf_rect(size_t n_args, const mp_obj_t *args, mp_map_t *kw_
     bool fill = parsed[ARG_fill_pos].u_int || parsed[ARG_f].u_bool || parsed[ARG_fill].u_bool;
     gfx_area_t area = gfx_shapes_rect(&self->canvas, parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_w].u_int, parsed[ARG_h].u_int, parsed[ARG_c].u_int, fill);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(framebuf_rect_obj, 6, framebuf_rect);
 
@@ -394,7 +416,7 @@ static mp_obj_t framebuf_round_rect(size_t n_args, const mp_obj_t *args, mp_map_
     bool fill = parsed[ARG_fill_pos].u_int || parsed[ARG_f].u_bool || parsed[ARG_fill].u_bool;
     gfx_area_t area = gfx_shapes_round_rect(&self->canvas, parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_w].u_int, parsed[ARG_h].u_int, parsed[ARG_r].u_int, parsed[ARG_c].u_int, fill);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(framebuf_round_rect_obj, 7, framebuf_round_rect);
 
@@ -416,7 +438,7 @@ static mp_obj_t framebuf_circle(size_t n_args, const mp_obj_t *args, mp_map_t *k
     bool fill = parsed[ARG_fill_pos].u_int || parsed[ARG_f].u_bool || parsed[ARG_fill].u_bool;
     gfx_area_t area = gfx_shapes_circle(&self->canvas, parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_r].u_int, parsed[ARG_c].u_int, fill);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(framebuf_circle_obj, 5, framebuf_circle);
 
@@ -426,7 +448,7 @@ static mp_obj_t framebuf_line(size_t n_args, const mp_obj_t *args_in) {
     mp_int_t args[5];
     framebuf_args(args_in, args, 5);
     gfx_area_t area = gfx_shapes_line(&self->canvas, args[0], args[1], args[2], args[3], args[4]);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_line_obj, 6, 6, framebuf_line);
 
@@ -452,7 +474,7 @@ static mp_obj_t framebuf_ellipse(size_t n_args, const mp_obj_t *args, mp_map_t *
     mp_int_t mask = (n_args > 7) ? parsed[ARG_mask_pos].u_int : parsed[ARG_m].u_int;
     gfx_area_t area = gfx_shapes_ellipse(&self->canvas, parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_rx].u_int, parsed[ARG_ry].u_int, parsed[ARG_c].u_int, fill, mask);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(framebuf_ellipse_obj, 6, framebuf_ellipse);
 
@@ -483,7 +505,7 @@ static mp_obj_t framebuf_poly(size_t n_args, const mp_obj_t *args, mp_map_t *kw_
     if (nomem) {
         mp_raise_msg(&mp_type_MemoryError, MP_ERROR_TEXT("poly: no memory for the fill"));
     }
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(framebuf_poly_obj, 5, framebuf_poly);
 #endif
@@ -529,7 +551,7 @@ static mp_obj_t framebuf_blit(size_t n_args, const mp_obj_t *args, mp_map_t *kw_
         pal = &palette.fb;
     }
     gfx_area_t area = gfx_shapes_blit(&self->canvas, &source.fb, parsed[ARG_x].u_int, parsed[ARG_y].u_int, key, pal);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(framebuf_blit_obj, 4, framebuf_blit);
 
@@ -541,7 +563,7 @@ static mp_obj_t framebuf_blit_rect(size_t n_args, const mp_obj_t *args_in) {
     int bpp = gfx_format_bytes_per_pixel(self->canvas.format);
     gfx_area_t area = gfx_shapes_blit_rect(&self->canvas, bufinfo.buf, mp_obj_get_int(args_in[2]),
         mp_obj_get_int(args_in[3]), mp_obj_get_int(args_in[4]), mp_obj_get_int(args_in[5]), bpp);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_blit_rect_obj, 6, 6, framebuf_blit_rect);
 
@@ -554,7 +576,7 @@ static mp_obj_t framebuf_blit_transparent(size_t n_args, const mp_obj_t *args_in
     gfx_area_t area = gfx_shapes_blit_transparent(&self->canvas, bufinfo.buf, mp_obj_get_int(args_in[2]),
         mp_obj_get_int(args_in[3]), mp_obj_get_int(args_in[4]), mp_obj_get_int(args_in[5]),
         mp_obj_get_int(args_in[6]), bpp);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_blit_transparent_obj, 7, 7, framebuf_blit_transparent);
 
@@ -577,7 +599,7 @@ static mp_obj_t framebuf_blit_alpha(size_t n_args, const mp_obj_t *args_in) {
         mp_raise_ValueError(MP_ERROR_TEXT("blit_alpha: buffer shorter than w*h"));
     }
     gfx_area_t area = gfx_area_from_rect(x, y, w, h);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_blit_alpha_obj, 7, 7, framebuf_blit_alpha);
 
@@ -587,7 +609,7 @@ static mp_obj_t framebuf_arc(size_t n_args, const mp_obj_t *args_in) {
     gfx_area_t area = gfx_shapes_arc(&self->canvas, mp_obj_get_int(args_in[1]), mp_obj_get_int(args_in[2]),
         mp_obj_get_int(args_in[3]), GFX_OBJ_GET_FLOAT(args_in[4]), GFX_OBJ_GET_FLOAT(args_in[5]),
         mp_obj_get_int(args_in[6]));
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(framebuf_arc_obj, 7, 7, framebuf_arc);
 
@@ -613,7 +635,7 @@ static mp_obj_t framebuf_triangle(size_t n_args, const mp_obj_t *args, mp_map_t 
     gfx_area_t area = gfx_shapes_triangle(&self->canvas,
         parsed[ARG_x0].u_int, parsed[ARG_y0].u_int, parsed[ARG_x1].u_int, parsed[ARG_y1].u_int,
         parsed[ARG_x2].u_int, parsed[ARG_y2].u_int, parsed[ARG_c].u_int, fill);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(framebuf_triangle_obj, 8, framebuf_triangle);
 
@@ -639,7 +661,7 @@ static mp_obj_t framebuf_gradient_rect(size_t n_args, const mp_obj_t *args, mp_m
     int vertical = (n_args > 7) ? parsed[ARG_vert_pos].u_bool : parsed[ARG_vertical].u_bool;
     gfx_area_t area = gfx_shapes_gradient_rect(&self->canvas, parsed[ARG_x].u_int, parsed[ARG_y].u_int,
         parsed[ARG_w].u_int, parsed[ARG_h].u_int, parsed[ARG_c1].u_int, c2, vertical);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(framebuf_gradient_rect_obj, 6, framebuf_gradient_rect);
 
@@ -687,7 +709,7 @@ static mp_obj_t framebuf_polygon(size_t n_args, const mp_obj_t *args, mp_map_t *
     int cy = (n_args > 7) ? parsed[ARG_cy_pos].u_int : parsed[ARG_center_y].u_int;
     gfx_area_t area = gfx_shapes_polygon(&self->canvas, points, len, parsed[ARG_x].u_int,
         parsed[ARG_y].u_int, parsed[ARG_color].u_int, angle, cx, cy);
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(framebuf_polygon_obj, 5, framebuf_polygon);
 
@@ -722,7 +744,7 @@ static mp_obj_t framebuf_text_height(size_t n_args, const mp_obj_t *args, mp_map
     if (font.owns_data) {
         gfx_font_deinit(&font);
     }
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 
 static mp_obj_t framebuf_text(size_t n_args, const mp_obj_t *args, mp_map_t *kw_args) {
@@ -757,7 +779,7 @@ static mp_obj_t framebuf_text(size_t n_args, const mp_obj_t *args, mp_map_t *kw_
     if (font.owns_data) {
         gfx_font_deinit(&font);
     }
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_KW(framebuf_text_obj, 4, framebuf_text);
 
@@ -780,7 +802,7 @@ static mp_obj_t framebuf_scroll(mp_obj_t self_in, mp_obj_t xstep_in, mp_obj_t ys
     mp_obj_framebuf_t *self = framebuf_from_obj(self_in);
     gfx_fb_scroll(&self->fb, mp_obj_get_int(xstep_in), mp_obj_get_int(ystep_in));
     gfx_area_t area = { 0, 0, self->fb.width, self->fb.height };
-    return gfx_area_mp_from_gfx(&area);
+    return framebuf_area(self, &area);
 }
 static MP_DEFINE_CONST_FUN_OBJ_3(framebuf_scroll_obj, framebuf_scroll);
 
@@ -811,6 +833,9 @@ static void framebuf_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
                 break;
             case MP_QSTR_color_depth:
                 dest[0] = mp_obj_new_int(gfx_fb_color_depth(self->fb.format));
+                break;
+            case MP_QSTR_areas:
+                dest[0] = mp_obj_new_bool(self->areas);
                 break;
             default:
                 dest[1] = MP_OBJ_SENTINEL;

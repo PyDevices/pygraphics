@@ -44,6 +44,8 @@ typedef struct {
     PyObject *buf_obj;
     gfx_fb_t fb;
     gfx_canvas_t canvas;
+    // Nonzero when made with areas=False: drawing calls return None, not a new Area.
+    int no_areas;
 } GfxFrameBufferObject;
 
 typedef struct {
@@ -90,9 +92,26 @@ static PyObject *area_or_none_from_gfx(const gfx_area_t *a) {
     return area_from_gfx(a);
 }
 
-/* Build an Area result, but surface any pending Python error first (a Python
- * duck-typed canvas callback may have raised during the C drawing loop). */
-#define RETURN_AREA(a) do { if (PyErr_Occurred()) { return NULL; } return area_from_gfx(&(a)); } while (0)
+/* True when obj is a FrameBuffer made with areas=False: its drawing calls
+ * return None instead of a new Area. */
+static int areas_off(PyObject *obj) {
+    return obj != NULL && PyObject_TypeCheck(obj, &GfxFrameBufferType)
+        && ((GfxFrameBufferObject *)obj)->no_areas;
+}
+
+/* Return what a drawing call on canvas gives back, but surface any pending
+ * Python error first (a Python duck-typed canvas callback may have raised
+ * during the C drawing loop). */
+#define RETURN_AREA_FOR(canvas, a) do { \
+        if (PyErr_Occurred()) { return NULL; } \
+        if (areas_off(canvas)) { Py_RETURN_NONE; } \
+        return area_from_gfx(&(a)); \
+} while (0)
+#define RETURN_AREA_OR_NONE_FOR(canvas, a) do { \
+        if (PyErr_Occurred()) { return NULL; } \
+        if (areas_off(canvas)) { Py_RETURN_NONE; } \
+        return area_or_none_from_gfx(&(a)); \
+} while (0)
 
 static int area_parse_sequence(PyObject *seq, gfx_area_t *out) {
     PyObject *fast = PySequence_Fast(seq, "expected sequence");
@@ -668,7 +687,7 @@ static int parse_points(PyObject *seq, int points[128], size_t *out_len) {
 }
 
 /* Draw text with the given canvas; font_data (buffer) optional, else default. */
-static PyObject *do_text(const gfx_canvas_t *canvas, const char *s, int x, int y,
+static PyObject *do_text(PyObject *owner, const gfx_canvas_t *canvas, const char *s, int x, int y,
                          int c, int scale, int inverted, PyObject *font_data, int height) {
     gfx_font_t font;
     Py_buffer view;
@@ -696,10 +715,7 @@ static PyObject *do_text(const gfx_canvas_t *canvas, const char *s, int x, int y
     if (have_view) {
         PyBuffer_Release(&view);
     }
-    if (PyErr_Occurred()) {
-        return NULL;
-    }
-    return area_from_gfx(&area);
+    RETURN_AREA_FOR(owner, area);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -741,12 +757,13 @@ static void framebuffer_dealloc(GfxFrameBufferObject *self) {
 }
 
 static int framebuffer_init(PyObject *obj, PyObject *args, PyObject *kwds) {
-    static char *kwlist[] = {"buffer", "width", "height", "format", "stride", NULL};
+    static char *kwlist[] = {"buffer", "width", "height", "format", "stride", "areas", NULL};
     PyObject *buf;
-    int width, height, format, stride = -1;
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oiii|i", kwlist, &buf, &width, &height, &format, &stride)) {
+    int width, height, format, stride = -1, areas = 1;
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "Oiii|i$p", kwlist, &buf, &width, &height, &format, &stride, &areas)) {
         return -1;
     }
+    ((GfxFrameBufferObject *)obj)->no_areas = !areas;
     if (stride < 0) {
         stride = width;
     }
@@ -768,6 +785,7 @@ static PyObject *framebuffer_from_image(gfx_image_fb_t *img) {
         return NULL;
     }
     fb->buf_obj = NULL;
+    fb->no_areas = 0;
     if (framebuffer_init_from_buffer(buf, width, height, format, width, fb) < 0) {
         Py_DECREF(fb);
         Py_DECREF(buf);
@@ -783,7 +801,7 @@ static PyObject *framebuffer_fill(GfxFrameBufferObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t result = gfx_shapes_fill(&self->canvas, col);
-    return area_from_gfx(&result);
+    RETURN_AREA_FOR((PyObject *)self, result);
 }
 
 static PyObject *framebuffer_fill_rect(GfxFrameBufferObject *self, PyObject *args) {
@@ -792,7 +810,7 @@ static PyObject *framebuffer_fill_rect(GfxFrameBufferObject *self, PyObject *arg
         return NULL;
     }
     gfx_area_t result = gfx_shapes_fill_rect(&self->canvas, x, y, w, h, col);
-    return area_from_gfx(&result);
+    RETURN_AREA_FOR((PyObject *)self, result);
 }
 
 static PyObject *framebuffer_pixel(GfxFrameBufferObject *self, PyObject *args) {
@@ -808,7 +826,7 @@ static PyObject *framebuffer_pixel(GfxFrameBufferObject *self, PyObject *args) {
     }
     if (0 <= x && x < self->fb.width && 0 <= y && y < self->fb.height) {
         gfx_area_t result = gfx_shapes_pixel(&self->canvas, x, y, col);
-        return area_from_gfx(&result);
+        RETURN_AREA_FOR((PyObject *)self, result);
     }
     Py_RETURN_NONE;
 }
@@ -819,7 +837,7 @@ static PyObject *framebuffer_hline(GfxFrameBufferObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t result = gfx_shapes_hline(&self->canvas, x, y, w, col);
-    return area_from_gfx(&result);
+    RETURN_AREA_FOR((PyObject *)self, result);
 }
 
 static PyObject *framebuffer_vline(GfxFrameBufferObject *self, PyObject *args) {
@@ -828,7 +846,7 @@ static PyObject *framebuffer_vline(GfxFrameBufferObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t result = gfx_shapes_vline(&self->canvas, x, y, h, col);
-    return area_from_gfx(&result);
+    RETURN_AREA_FOR((PyObject *)self, result);
 }
 
 static PyObject *framebuffer_rect(GfxFrameBufferObject *self, PyObject *args, PyObject *kwds) {
@@ -838,7 +856,7 @@ static PyObject *framebuffer_rect(GfxFrameBufferObject *self, PyObject *args, Py
         return NULL;
     }
     gfx_area_t result = gfx_shapes_rect(&self->canvas, x, y, w, h, col, f || fill);
-    return area_from_gfx(&result);
+    RETURN_AREA_FOR((PyObject *)self, result);
 }
 
 static PyObject *framebuffer_round_rect(GfxFrameBufferObject *self, PyObject *args, PyObject *kwds) {
@@ -848,7 +866,7 @@ static PyObject *framebuffer_round_rect(GfxFrameBufferObject *self, PyObject *ar
         return NULL;
     }
     gfx_area_t result = gfx_shapes_round_rect(&self->canvas, x, y, w, h, r, col, f || fill);
-    return area_from_gfx(&result);
+    RETURN_AREA_FOR((PyObject *)self, result);
 }
 
 static PyObject *framebuffer_circle(GfxFrameBufferObject *self, PyObject *args, PyObject *kwds) {
@@ -858,7 +876,7 @@ static PyObject *framebuffer_circle(GfxFrameBufferObject *self, PyObject *args, 
         return NULL;
     }
     gfx_area_t result = gfx_shapes_circle(&self->canvas, x, y, r, col, f || fill);
-    return area_from_gfx(&result);
+    RETURN_AREA_FOR((PyObject *)self, result);
 }
 
 static PyObject *framebuffer_line(GfxFrameBufferObject *self, PyObject *args) {
@@ -867,7 +885,7 @@ static PyObject *framebuffer_line(GfxFrameBufferObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t result = gfx_shapes_line(&self->canvas, x1, y1, x2, y2, col);
-    return area_from_gfx(&result);
+    RETURN_AREA_FOR((PyObject *)self, result);
 }
 
 static PyObject *framebuffer_ellipse(GfxFrameBufferObject *self, PyObject *args, PyObject *kwds) {
@@ -879,7 +897,7 @@ static PyObject *framebuffer_ellipse(GfxFrameBufferObject *self, PyObject *args,
         return NULL;
     }
     gfx_area_t result = gfx_shapes_ellipse(&self->canvas, cx, cy, rx, ry, col, f || fill, m);
-    return area_from_gfx(&result);
+    RETURN_AREA_FOR((PyObject *)self, result);
 }
 
 /* Coordinate handling for poly(), matching _poly_xy_lists() in the pure-Python
@@ -1015,7 +1033,7 @@ static PyObject *framebuffer_poly(GfxFrameBufferObject *self, PyObject *args, Py
     if (nomem) {
         return PyErr_NoMemory();
     }
-    return area_from_gfx(&area);
+    RETURN_AREA_FOR((PyObject *)self, area);
 }
 
 static PyObject *framebuffer_arc(GfxFrameBufferObject *self, PyObject *args) {
@@ -1025,7 +1043,7 @@ static PyObject *framebuffer_arc(GfxFrameBufferObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_arc(&self->canvas, x, y, r, (float)a0, (float)a1, col);
-    return area_from_gfx(&area);
+    RETURN_AREA_FOR((PyObject *)self, area);
 }
 
 static PyObject *framebuffer_triangle(GfxFrameBufferObject *self, PyObject *args, PyObject *kwds) {
@@ -1036,7 +1054,7 @@ static PyObject *framebuffer_triangle(GfxFrameBufferObject *self, PyObject *args
         return NULL;
     }
     gfx_area_t area = gfx_shapes_triangle(&self->canvas, x0, y0, x1, y1, x2, y2, col, f || fill);
-    return area_from_gfx(&area);
+    RETURN_AREA_FOR((PyObject *)self, area);
 }
 
 static PyObject *framebuffer_gradient_rect(GfxFrameBufferObject *self, PyObject *args, PyObject *kwds) {
@@ -1054,7 +1072,7 @@ static PyObject *framebuffer_gradient_rect(GfxFrameBufferObject *self, PyObject 
         }
     }
     gfx_area_t area = gfx_shapes_gradient_rect(&self->canvas, x, y, w, h, c1, c2, vertical);
-    return area_from_gfx(&area);
+    RETURN_AREA_FOR((PyObject *)self, area);
 }
 
 static PyObject *framebuffer_polygon(GfxFrameBufferObject *self, PyObject *args, PyObject *kwds) {
@@ -1072,7 +1090,7 @@ static PyObject *framebuffer_polygon(GfxFrameBufferObject *self, PyObject *args,
         return NULL;
     }
     gfx_area_t area = gfx_shapes_polygon(&self->canvas, points, len, x, y, col, (float)angle, cx, cy);
-    return area_from_gfx(&area);
+    RETURN_AREA_FOR((PyObject *)self, area);
 }
 
 static PyObject *framebuffer_blit(GfxFrameBufferObject *self, PyObject *args, PyObject *kwds) {
@@ -1109,7 +1127,7 @@ static PyObject *framebuffer_blit(GfxFrameBufferObject *self, PyObject *args, Py
     if (phave) {
         PyBuffer_Release(&pview);
     }
-    return area_or_none_from_gfx(&area);
+    RETURN_AREA_OR_NONE_FOR((PyObject *)self, area);
 }
 
 static PyObject *framebuffer_blit_rect(GfxFrameBufferObject *self, PyObject *args) {
@@ -1125,7 +1143,7 @@ static PyObject *framebuffer_blit_rect(GfxFrameBufferObject *self, PyObject *arg
     int bpp = gfx_format_bytes_per_pixel(self->canvas.format);
     gfx_area_t area = gfx_shapes_blit_rect(&self->canvas, view.buf, x, y, w, h, bpp);
     PyBuffer_Release(&view);
-    return area_from_gfx(&area);
+    RETURN_AREA_FOR((PyObject *)self, area);
 }
 
 static PyObject *framebuffer_blit_transparent(GfxFrameBufferObject *self, PyObject *args) {
@@ -1141,7 +1159,7 @@ static PyObject *framebuffer_blit_transparent(GfxFrameBufferObject *self, PyObje
     int bpp = gfx_format_bytes_per_pixel(self->canvas.format);
     gfx_area_t area = gfx_shapes_blit_transparent(&self->canvas, view.buf, x, y, w, h, key, bpp);
     PyBuffer_Release(&view);
-    return area_from_gfx(&area);
+    RETURN_AREA_FOR((PyObject *)self, area);
 }
 
 static PyObject *framebuffer_blit_alpha(GfxFrameBufferObject *self, PyObject *args) {
@@ -1168,7 +1186,7 @@ static PyObject *framebuffer_blit_alpha(GfxFrameBufferObject *self, PyObject *ar
         return NULL;
     }
     gfx_area_t area = gfx_area_from_rect(x, y, w, h);
-    return area_from_gfx(&area);
+    RETURN_AREA_FOR((PyObject *)self, area);
 }
 
 static PyObject *framebuffer_text_common(GfxFrameBufferObject *self, PyObject *args, PyObject *kwds, int fixed_height) {
@@ -1189,7 +1207,7 @@ static PyObject *framebuffer_text_common(GfxFrameBufferObject *self, PyObject *a
             return NULL;
         }
     }
-    return do_text(&self->canvas, s, x, y, c, scale, inverted, font_data, height);
+    return do_text((PyObject *)self, &self->canvas, s, x, y, c, scale, inverted, font_data, height);
 }
 
 static PyObject *framebuffer_text(GfxFrameBufferObject *self, PyObject *args, PyObject *kwds) {
@@ -1212,7 +1230,7 @@ static PyObject *framebuffer_scroll(GfxFrameBufferObject *self, PyObject *args) 
     }
     gfx_fb_scroll(&self->fb, xstep, ystep);
     gfx_area_t area = {0, 0, self->fb.width, self->fb.height};
-    return area_from_gfx(&area);
+    RETURN_AREA_FOR((PyObject *)self, area);
 }
 
 /* Save fb to path: PNG through pngio (omnipython-desktop's, over Pillow) for a
@@ -1336,12 +1354,18 @@ static PyObject *framebuffer_get_color_depth(GfxFrameBufferObject *self, void *c
     return PyLong_FromLong(gfx_fb_color_depth(self->fb.format));
 }
 
+static PyObject *framebuffer_get_areas(GfxFrameBufferObject *self, void *closure) {
+    (void)closure;
+    return PyBool_FromLong(!self->no_areas);
+}
+
 static PyGetSetDef framebuffer_getset[] = {
     {"width", (getter)framebuffer_get_width, NULL, NULL},
     {"height", (getter)framebuffer_get_height, NULL, NULL},
     {"buffer", (getter)framebuffer_get_buffer, NULL, NULL},
     {"format", (getter)framebuffer_get_format, NULL, NULL},
     {"color_depth", (getter)framebuffer_get_color_depth, NULL, NULL},
+    {"areas", (getter)framebuffer_get_areas, NULL, NULL},
     {NULL},
 };
 
@@ -1442,7 +1466,7 @@ static PyObject *mod_fill(PyObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_fill(&slot.canvas, col);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_fill_rect(PyObject *self, PyObject *args) {
@@ -1457,7 +1481,7 @@ static PyObject *mod_fill_rect(PyObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_fill_rect(&slot.canvas, x, y, w, h, c);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_pixel(PyObject *self, PyObject *args) {
@@ -1472,7 +1496,7 @@ static PyObject *mod_pixel(PyObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_pixel(&slot.canvas, x, y, c);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_hline(PyObject *self, PyObject *args) {
@@ -1487,7 +1511,7 @@ static PyObject *mod_hline(PyObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_hline(&slot.canvas, x, y, w, c);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_vline(PyObject *self, PyObject *args) {
@@ -1502,7 +1526,7 @@ static PyObject *mod_vline(PyObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_vline(&slot.canvas, x, y, h, c);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_line(PyObject *self, PyObject *args) {
@@ -1517,7 +1541,7 @@ static PyObject *mod_line(PyObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_line(&slot.canvas, x1, y1, x2, y2, col);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_rect(PyObject *self, PyObject *args, PyObject *kwds) {
@@ -1533,7 +1557,7 @@ static PyObject *mod_rect(PyObject *self, PyObject *args, PyObject *kwds) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_rect(&slot.canvas, x, y, w, h, col, f || fill);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_round_rect(PyObject *self, PyObject *args, PyObject *kwds) {
@@ -1549,7 +1573,7 @@ static PyObject *mod_round_rect(PyObject *self, PyObject *args, PyObject *kwds) 
         return NULL;
     }
     gfx_area_t area = gfx_shapes_round_rect(&slot.canvas, x, y, w, h, r, col, f || fill);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_circle(PyObject *self, PyObject *args, PyObject *kwds) {
@@ -1565,7 +1589,7 @@ static PyObject *mod_circle(PyObject *self, PyObject *args, PyObject *kwds) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_circle(&slot.canvas, x, y, r, col, f || fill);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_ellipse(PyObject *self, PyObject *args, PyObject *kwds) {
@@ -1583,7 +1607,7 @@ static PyObject *mod_ellipse(PyObject *self, PyObject *args, PyObject *kwds) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_ellipse(&slot.canvas, cx, cy, rx, ry, col, f || fill, m);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_arc(PyObject *self, PyObject *args) {
@@ -1599,7 +1623,7 @@ static PyObject *mod_arc(PyObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_arc(&slot.canvas, x, y, r, (float)a0, (float)a1, col);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_triangle(PyObject *self, PyObject *args, PyObject *kwds) {
@@ -1616,7 +1640,7 @@ static PyObject *mod_triangle(PyObject *self, PyObject *args, PyObject *kwds) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_triangle(&slot.canvas, x0, y0, x1, y1, x2, y2, col, f || fill);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_gradient_rect(PyObject *self, PyObject *args, PyObject *kwds) {
@@ -1641,7 +1665,7 @@ static PyObject *mod_gradient_rect(PyObject *self, PyObject *args, PyObject *kwd
         return NULL;
     }
     gfx_area_t area = gfx_shapes_gradient_rect(&slot.canvas, x, y, w, h, c1, c2, vertical);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_poly(PyObject *self, PyObject *args, PyObject *kwds) {
@@ -1667,7 +1691,7 @@ static PyObject *mod_poly(PyObject *self, PyObject *args, PyObject *kwds) {
     if (nomem) {
         return PyErr_NoMemory();
     }
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_polygon(PyObject *self, PyObject *args, PyObject *kwds) {
@@ -1690,7 +1714,7 @@ static PyObject *mod_polygon(PyObject *self, PyObject *args, PyObject *kwds) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_polygon(&slot.canvas, points, len, x, y, col, (float)angle, cx, cy);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_blit(PyObject *self, PyObject *args, PyObject *kwds) {
@@ -1733,7 +1757,7 @@ static PyObject *mod_blit(PyObject *self, PyObject *args, PyObject *kwds) {
         PyBuffer_Release(&pview);
     }
     if (PyErr_Occurred()) { return NULL; }
-    return area_or_none_from_gfx(&area);
+    RETURN_AREA_OR_NONE_FOR(target, area);
 }
 
 static PyObject *mod_blit_rect(PyObject *self, PyObject *args) {
@@ -1754,7 +1778,7 @@ static PyObject *mod_blit_rect(PyObject *self, PyObject *args) {
     int bpp = gfx_format_bytes_per_pixel(slot.canvas.format);
     gfx_area_t area = gfx_shapes_blit_rect(&slot.canvas, view.buf, x, y, w, h, bpp);
     PyBuffer_Release(&view);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_blit_transparent(PyObject *self, PyObject *args) {
@@ -1775,7 +1799,7 @@ static PyObject *mod_blit_transparent(PyObject *self, PyObject *args) {
     int bpp = gfx_format_bytes_per_pixel(slot.canvas.format);
     gfx_area_t area = gfx_shapes_blit_transparent(&slot.canvas, view.buf, x, y, w, h, key, bpp);
     PyBuffer_Release(&view);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(target, area);
 }
 
 static PyObject *mod_text_common(PyObject *args, PyObject *kwds, int fixed_height) {
@@ -1801,7 +1825,7 @@ static PyObject *mod_text_common(PyObject *args, PyObject *kwds, int fixed_heigh
     if (cpy_canvas_resolve(target, &slot) < 0) {
         return NULL;
     }
-    return do_text(&slot.canvas, s, x, y, c, scale, inverted, font_data, height);
+    return do_text(target, &slot.canvas, s, x, y, c, scale, inverted, font_data, height);
 }
 
 static PyObject *mod_text(PyObject *self, PyObject *args, PyObject *kwds) {
@@ -1956,7 +1980,7 @@ static PyObject *draw_fill(GfxDrawObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_fill(t, col);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_fill_rect(GfxDrawObject *self, PyObject *args) {
@@ -1969,7 +1993,7 @@ static PyObject *draw_fill_rect(GfxDrawObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_fill_rect(t, x, y, w, h, c);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_pixel(GfxDrawObject *self, PyObject *args) {
@@ -1982,7 +2006,7 @@ static PyObject *draw_pixel(GfxDrawObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_pixel(t, x, y, c);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_hline(GfxDrawObject *self, PyObject *args) {
@@ -1995,7 +2019,7 @@ static PyObject *draw_hline(GfxDrawObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_hline(t, x, y, w, c);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_vline(GfxDrawObject *self, PyObject *args) {
@@ -2008,7 +2032,7 @@ static PyObject *draw_vline(GfxDrawObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_vline(t, x, y, h, c);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_line(GfxDrawObject *self, PyObject *args) {
@@ -2021,7 +2045,7 @@ static PyObject *draw_line(GfxDrawObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_line(t, x1, y1, x2, y2, col);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_rect(GfxDrawObject *self, PyObject *args, PyObject *kwds) {
@@ -2035,7 +2059,7 @@ static PyObject *draw_rect(GfxDrawObject *self, PyObject *args, PyObject *kwds) 
         return NULL;
     }
     gfx_area_t area = gfx_shapes_rect(t, x, y, w, h, col, f || fill);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_round_rect(GfxDrawObject *self, PyObject *args, PyObject *kwds) {
@@ -2049,7 +2073,7 @@ static PyObject *draw_round_rect(GfxDrawObject *self, PyObject *args, PyObject *
         return NULL;
     }
     gfx_area_t area = gfx_shapes_round_rect(t, x, y, w, h, r, col, f || fill);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_circle(GfxDrawObject *self, PyObject *args, PyObject *kwds) {
@@ -2063,7 +2087,7 @@ static PyObject *draw_circle(GfxDrawObject *self, PyObject *args, PyObject *kwds
         return NULL;
     }
     gfx_area_t area = gfx_shapes_circle(t, x, y, r, col, f || fill);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_ellipse(GfxDrawObject *self, PyObject *args, PyObject *kwds) {
@@ -2079,7 +2103,7 @@ static PyObject *draw_ellipse(GfxDrawObject *self, PyObject *args, PyObject *kwd
         return NULL;
     }
     gfx_area_t area = gfx_shapes_ellipse(t, cx, cy, rx, ry, col, f || fill, m);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_arc(GfxDrawObject *self, PyObject *args) {
@@ -2093,7 +2117,7 @@ static PyObject *draw_arc(GfxDrawObject *self, PyObject *args) {
         return NULL;
     }
     gfx_area_t area = gfx_shapes_arc(t, x, y, r, (float)a0, (float)a1, col);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_triangle(GfxDrawObject *self, PyObject *args, PyObject *kwds) {
@@ -2108,7 +2132,7 @@ static PyObject *draw_triangle(GfxDrawObject *self, PyObject *args, PyObject *kw
         return NULL;
     }
     gfx_area_t area = gfx_shapes_triangle(t, x0, y0, x1, y1, x2, y2, col, f || fill);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_gradient_rect(GfxDrawObject *self, PyObject *args, PyObject *kwds) {
@@ -2130,7 +2154,7 @@ static PyObject *draw_gradient_rect(GfxDrawObject *self, PyObject *args, PyObjec
         return NULL;
     }
     gfx_area_t area = gfx_shapes_gradient_rect(t, x, y, w, h, c1, c2, vertical);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_poly(GfxDrawObject *self, PyObject *args, PyObject *kwds) {
@@ -2154,7 +2178,7 @@ static PyObject *draw_poly(GfxDrawObject *self, PyObject *args, PyObject *kwds) 
     if (nomem) {
         return PyErr_NoMemory();
     }
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_polygon(GfxDrawObject *self, PyObject *args, PyObject *kwds) {
@@ -2176,7 +2200,7 @@ static PyObject *draw_polygon(GfxDrawObject *self, PyObject *args, PyObject *kwd
         return NULL;
     }
     gfx_area_t area = gfx_shapes_polygon(t, points, len, x, y, col, (float)angle, cx, cy);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_blit(GfxDrawObject *self, PyObject *args, PyObject *kwds) {
@@ -2224,7 +2248,7 @@ static PyObject *draw_blit(GfxDrawObject *self, PyObject *args, PyObject *kwds) 
         PyBuffer_Release(&pview);
     }
     if (PyErr_Occurred()) { return NULL; }
-    return area_or_none_from_gfx(&area);
+    RETURN_AREA_OR_NONE_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_blit_rect(GfxDrawObject *self, PyObject *args) {
@@ -2244,7 +2268,7 @@ static PyObject *draw_blit_rect(GfxDrawObject *self, PyObject *args) {
     int bpp = gfx_format_bytes_per_pixel(t->format);
     gfx_area_t area = gfx_shapes_blit_rect(t, view.buf, x, y, w, h, bpp);
     PyBuffer_Release(&view);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_blit_transparent(GfxDrawObject *self, PyObject *args, PyObject *kwds) {
@@ -2265,7 +2289,7 @@ static PyObject *draw_blit_transparent(GfxDrawObject *self, PyObject *args, PyOb
     int bpp = gfx_format_bytes_per_pixel(t->format);
     gfx_area_t area = gfx_shapes_blit_transparent(t, view.buf, x, y, w, h, key, bpp);
     PyBuffer_Release(&view);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *draw_text_common(GfxDrawObject *self, PyObject *args, PyObject *kwds, int fixed_height) {
@@ -2290,7 +2314,7 @@ static PyObject *draw_text_common(GfxDrawObject *self, PyObject *args, PyObject 
     if (!t) {
         return NULL;
     }
-    return do_text(t, s, x, y, c, scale, inverted, font_data, height);
+    return do_text(self->canvas_obj, t, s, x, y, c, scale, inverted, font_data, height);
 }
 
 static PyObject *draw_text(GfxDrawObject *self, PyObject *args, PyObject *kwds) {
@@ -2543,7 +2567,7 @@ static PyObject *clipped_pixel(GfxClippedCanvasObject *self, PyObject *args) {
     gfx_clipped_canvas_t cc;
     gfx_clipped_canvas_init(&cc, &slot.canvas, &self->clip);
     gfx_area_t area = gfx_shapes_pixel(&cc.base, x, y, c);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(self->canvas_obj, area);
 }
 
 static PyObject *clipped_fill_rect(GfxClippedCanvasObject *self, PyObject *args) {
@@ -2562,7 +2586,7 @@ static PyObject *clipped_fill_rect(GfxClippedCanvasObject *self, PyObject *args)
     gfx_clipped_canvas_t cc;
     gfx_clipped_canvas_init(&cc, &slot.canvas, &self->clip);
     gfx_shapes_fill_rect(&cc.base, hit.x, hit.y, hit.w, hit.h, c);
-    return area_from_gfx(&hit);
+    RETURN_AREA_FOR(self->canvas_obj, hit);
 }
 
 static PyObject *clipped_fill(GfxClippedCanvasObject *self, PyObject *args) {
@@ -2650,7 +2674,7 @@ static PyObject *clipped_blit_rect(GfxClippedCanvasObject *self, PyObject *args)
         gfx_shapes_blit_rect(&cc.base, view.buf, hit.x, hit.y, hit.w, hit.h, bpp);
     }
     PyBuffer_Release(&view);
-    return area_from_gfx(&hit);
+    RETURN_AREA_FOR(self->canvas_obj, hit);
 }
 
 static PyObject *clipped_blit_transparent(GfxClippedCanvasObject *self, PyObject *args) {
@@ -2696,7 +2720,7 @@ static PyObject *clipped_blit_transparent(GfxClippedCanvasObject *self, PyObject
         gfx_shapes_blit_transparent(&cc.base, view.buf, hit.x, hit.y, hit.w, hit.h, key, bpp);
     }
     PyBuffer_Release(&view);
-    return area_from_gfx(&hit);
+    RETURN_AREA_FOR(self->canvas_obj, hit);
 }
 
 /* Romfont text via clipped canvas — do not fall through to canvas.text. */
@@ -2724,7 +2748,7 @@ static PyObject *clipped_text_common(GfxClippedCanvasObject *self, PyObject *arg
     }
     gfx_clipped_canvas_t cc;
     gfx_clipped_canvas_init(&cc, &slot.canvas, &self->clip);
-    return do_text(&cc.base, s, x, y, c, scale, inverted, font_data, height);
+    return do_text(self->canvas_obj, &cc.base, s, x, y, c, scale, inverted, font_data, height);
 }
 
 static PyObject *clipped_text(GfxClippedCanvasObject *self, PyObject *args, PyObject *kwds) {
@@ -2895,7 +2919,7 @@ static PyObject *font_text(GfxFontObject *self, PyObject *args, PyObject *kwds) 
         return NULL;
     }
     gfx_area_t area = gfx_font_text(&slot.canvas, &self->font, s, x, y, col, scale, inverted);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(canvas, area);
 }
 
 static PyObject *font_draw_char(GfxFontObject *self, PyObject *args, PyObject *kwds) {
@@ -2911,7 +2935,7 @@ static PyObject *font_draw_char(GfxFontObject *self, PyObject *args, PyObject *k
         return NULL;
     }
     gfx_area_t area = gfx_font_draw_char(&slot.canvas, &self->font, (unsigned char)ch[0], x, y, col, scale, inverted);
-    RETURN_AREA(area);
+    RETURN_AREA_FOR(canvas, area);
 }
 
 static PyObject *font_text_width(GfxFontObject *self, PyObject *args, PyObject *kwds) {

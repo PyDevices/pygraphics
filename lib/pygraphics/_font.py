@@ -13,7 +13,7 @@ https://github.com/spacerace/romfont
 import os
 import struct
 
-from ._area import Area
+from ._area import Area, _result
 
 sep = os.sep if hasattr(os, "sep") else "/"  # PyScipt doesn't have os.sep
 
@@ -307,7 +307,7 @@ class Font:
                     char_x += run
                 else:
                     char_x += 1
-        return Area(x, y, self._font_width * scale, self._font_height * scale)
+        return _result(canvas, Area(x, y, self._font_width * scale, self._font_height * scale))
 
     def text(self, canvas, string, x, y, color, scale=1, inverted=False):
         """
@@ -352,7 +352,7 @@ class Font:
                     last_x = char_x + (self.width * scale)
             largest_x = max([largest_x, last_x])  # update the largest x position
             char_y += self.height * scale
-        return Area(x, y, largest_x - x, char_y - y)
+        return _result(canvas, Area(x, y, largest_x - x, char_y - y))
 
     def text_width(self, text, scale=1):
         """

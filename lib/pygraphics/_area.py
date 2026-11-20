@@ -265,3 +265,8 @@ class Area:
             (str): A string representation of the Area object.
         """
         return f"Area({self.x}, {self.y}, {self.w}, {self.h})"
+
+
+def _result(canvas, area):
+    """Return ``area``, or ``None`` when ``canvas`` is a `FrameBuffer` made with ``areas=False``."""
+    return area if getattr(canvas, "_areas", True) else None

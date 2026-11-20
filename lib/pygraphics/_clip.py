@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: MIT
 """Clip-region wrapper for draw targets."""
 
-from ._area import Area
+from ._area import Area, _result
 from ._blit_hooks import blit_rect_dispatch, canvas_bytes_per_pixel, crop_buffer
 
 
@@ -71,7 +71,7 @@ class ClippedCanvas:
         if c is None:
             return self._canvas.pixel(x, y)
         self._canvas.pixel(x, y, c)
-        return Area(x, y, 1, 1)
+        return _result(self, Area(x, y, 1, 1))
 
     def fill(self, c):
         """Fill the entire clip rectangle with color ``c``.
@@ -106,7 +106,7 @@ class ClippedCanvas:
             for row in range(hit.y, hit.y + hit.h):
                 for col in range(hit.x, hit.x + hit.w):
                     self._canvas.pixel(col, row, c)
-        return hit
+        return _result(self, hit)
 
     def hline(self, x, y, w, c):
         """Draw a horizontal line clipped to this region.
@@ -160,7 +160,7 @@ class ClippedCanvas:
                 bpp = 2
             buf = crop_buffer(buf, w, dx, dy, hit.w, hit.h, bpp)
         blit_rect_dispatch(self._canvas, buf, hit.x, hit.y, hit.w, hit.h)
-        return hit
+        return _result(self, hit)
 
     def blit_transparent(self, buf, x, y, w, h, key):
         """Blit a packed buffer with transparency, cropped to the clip.
