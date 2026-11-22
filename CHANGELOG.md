@@ -1,3 +1,7 @@
+## v0.2.1.dev0 (2026-11-22)
+
+- FrameBuffer: areas=False draws without making an Area per call (#105)
+
 ## v0.2.0 (2026-11-17)
 
 - Publishing: callers move to publishing-v31, which uploads to PyPI alone (#102)
