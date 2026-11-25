@@ -1,3 +1,6 @@
+## v0.2.1rc1 (2026-11-25)
+
+
 ## v0.2.1.dev0 (2026-11-22)
 
 - FrameBuffer: areas=False draws without making an Area per call (#105)
